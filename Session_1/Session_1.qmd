@@ -7,9 +7,29 @@ format:
 editor: visual
 ---
 
-## Quarto
+# Welcome
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Welcome to this 3-part course which will provide you with the Foundations of R for Bioinformatics. This course is designed with those who may be new to programming in mind, so for those of you who have a coding background, you may find parts of this course very basic. My aim is to demystify R and show how it can be a powerful and approachable tool for making sense of complex biological data. Using real examples from bulk RNA-seq, we'll work through how to load, explore, and visualise data, gradually building up to a complete analysis pipeline — all within a reproducible framework using Quarto in RStudio. No prior coding experience is expected, and we'll take a step-by-step approach to help you feel confident applying these skills in your own research.
+
+Given the limited time we have — just six hours across three sessions — this course will focus on building a practical foundation rather than covering every aspect of R or RNA-seq analysis in depth. We’ll prioritise hands-on skills: reading data into R, working with tidy data frames, plotting with **ggplot2**, and performing basic differential expression using **DESeq2**. While we won’t have time to explore more advanced topics like single-cell RNA-seq, batch correction, or complex statistical modelling, each session will include suggestions and resources to help you take your learning further. The goal is to give you the confidence to continue exploring R in a way that supports your own research questions and interests. In addition, the resources provided here should allow a fairly plug-and-play approach so that you can apply it to any data you like with only minor modifications required.
+
+## A quick note about Quarto
+
+Throughout this course, we’ll be using **Quarto**, a modern, flexible system for creating dynamic documents with embedded R code. If you’ve ever used R Markdown before, Quarto will feel familiar — think of it as the next generation, with a few more features and a slightly cleaner setup. Quarto lets us write code, text, and plots all in one place, making it easy to produce reproducible reports, figures, and even interactive documents.
+
+You don’t need to know anything about Quarto to get started — we’ll walk through the basics together. For now, all you need to know is that your `.qmd` file acts as your lab notebook: you can write plain English alongside R code, and Quarto will render it into a nicely formatted document with just one click.
+
+## Sources and Inspirations
+
+One of the main advantages of R — and all of the other tools we will be using — is that they are **open-source**. This means the code behind them is freely available for anyone to view, use, modify, and share.
+
+Open source software is developed by communities of researchers, developers, and users who contribute their time and expertise to improve it. This approach helps science stay transparent, reproducible, and accessible — values that are especially important in bioinformatics, where data and methods evolve rapidly.
+
+The other advantage is that there are *countless* tutorials, books, teaching resources etc explaining all aspects of the different tools we will be using. Rather than reinvent the wheel, I've drawn inspiration from a number these resources that are widely regarded for their clarity and accessibility:
+
+-   ***R for Data Science(2nd Edition)*** **—** Hadley Wickham & Garrett Grolemund. A free and highly readable introduction to the tidyverse approach to R. <https://r4ds.hadley.nz/intro.html>
+
+-   
 
 ## Running Code
 
