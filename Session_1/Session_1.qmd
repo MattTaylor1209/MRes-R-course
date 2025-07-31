@@ -29,7 +29,7 @@ The other advantage is that there are *countless* tutorials, books, teaching res
 
 -   ***R for Data Science(2nd Edition)*** **—** Hadley Wickham & Garrett Grolemund. A free and highly readable introduction to the tidyverse approach to R. <https://r4ds.hadley.nz/intro.html>
 
--   ***Analysis of RNAseq data in R*** — Sheffield Bioinformatics Core. <https://sbc.shef.ac.uk/rnaseq-r-online/>
+-   ***Analysis of RNAseq data in R*** — Sheffield Bioinformatics Core. Dedicated workshop for analysing RNAseq data in R but expects basic R knowledge beforehand. <https://sbc.shef.ac.uk/rnaseq-r-online/>
 
 -   ***Analyzing RNAseq data with DESeq2*** — Michael I. Love, Simon Anders, and Wolfgang Huber. A thorough walkthrough of bulk RNAseq analysis using the popular tool which we will use later in the course, *DESeq2*. <https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html>
 
