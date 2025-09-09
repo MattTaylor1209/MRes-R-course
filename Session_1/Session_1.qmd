@@ -33,7 +33,7 @@ Open source software is developed by communities of researchers, developers, and
 
 The other advantage is that there are *countless* tutorials, books, teaching resources etc explaining all aspects of the different tools we will be using. Rather than reinvent the wheel, I've drawn inspiration from a number these resources that are widely regarded for their clarity and accessibility:
 
--   ***R for Data Science(2nd Edition)*** **—** Hadley Wickham & Garrett Grolemund. A free and highly readable introduction to the tidyverse approach to R. <https://r4ds.hadley.nz/intro.html>
+-   ***R for Data Science(2nd Edition)*** **—** Hadley Wickham & Garrett Grolemund. A free and highly readable introduction to the tidyverse approach to R. This course is based on theirs but highly abbreviated due to time constraints, so it is worth checking out their original course for more in depth info. <https://r4ds.hadley.nz/intro.html>
 
 -   ***Analysis of RNAseq data in R*** — Sheffield Bioinformatics Core. Dedicated workshop for analysing RNAseq data in R but expects basic R knowledge beforehand. <https://sbc.shef.ac.uk/rnaseq-r-online/>
 
