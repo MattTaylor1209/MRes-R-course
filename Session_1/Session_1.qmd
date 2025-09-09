@@ -41,7 +41,9 @@ The other advantage is that there are *countless* tutorials, books, teaching res
 
 # The basics
 
-If you've never done it before, then the very idea of 'coding' might be enough to give you cold sweats! But it doesn't have to be this way! In fact, if you've ever used a calculator (which I'm sure you all have), then *congratulations -* you are a coder!
+## Running code
+
+If you've never done it before, then the very idea of 'coding' might be enough to give you cold sweats! But it doesn't have to intimidating. In fact, if you've ever used a calculator (which I'm sure you all have), then *congratulations -* you are a coder! You give it numbers (**input**), it applies some maths (a **function**), and it shows you the result (**output**). That’s functional programming in its simplest form.
 
 All that is meant by 'coding' is telling a computer to do a thing, and it will attempt to do that thing exactly as you have written. The frustrating thing with coding is that the computer will attempt to do the thing exactly as you have written! It doesn't know what you *mean;* it can only run the *exact* instructions provided. This can mean that even a single spelling mistake or misplaced character can cause an error. It's annoying, but it happens to everyone (even so-called experts). The only way to overcome it is to just keep trying (and also to keep your code as simple as possible).
 
@@ -53,9 +55,260 @@ The resulting chunk will look something like the below:
 
 ```
 
-Code is run by clicking the ![](images/clipboard-472830089.png){width="26" height="22"} in the top-right corner of the chunk. You can try it now with the above chunk, but nothing happens — why?
+Code is run (executed) by clicking the ![](images/clipboard-472830089.png){width="26" height="22"} in the top-right corner of the chunk. You can try it now with the above chunk, but nothing happens — why?
 
-## Running Code
+Clearly, an empty chunk is not very useful: we need to write some instructions in the chunk to tell R what we want it to do.
+
+Continuing with the calculator theme, you can use R to perform basic calculations. If we type in 1 / 200 \* 30:
+
+```{r}
+1 / 200 * 30
+```
+
+Nothing happens until you run the chunk with the green arrow. The results then appear in a small box beneath the code. If you are working in RStudio, you’ll also see the console below the document fill with the code you ran and its output. The same output will occur if you just type 1 / 200 \* 30 directly into the console and hit enter.
+
+We don't have to put a single line of code within each chunk. Here is an example with 2 maths equations back to back:
+
+```{r}
+(59 + 73 + 2) / 3
+sin(pi / 2)
+```
+
+When you run the chunk, notice that R executes the code line by line. This is a key idea: R reads your instructions from top to bottom and from left to right, just like you would read an English sentence. The order matters — e.g., if you try to use some function or variable before it has been defined, R won’t know what you mean.
+
+In this example, you’ve also seen your first built-in function, `sin()`, and your first built-in variable, `pi`. R comes with many such tools ready to use. A function is always written as a name (like `sin`) followed by a pair of brackets `()`. Whatever you put inside the brackets is the *input*, and the function then returns an *output*. This input–function–output pattern is the backbone of coding in R.
+
+If you’re ever unsure what a function does or what kind of input it expects, R has built-in help. Typing `?sin` or `help(sin)` in the console will bring up its documentation, showing you how it works and giving examples you can try out. In Rstudio, you can also use the Help window in the right sidebar:
+
+![](images/clipboard-734125482.png){width="428"}
+
+`pi` is just an *object* with an assigned *value*. We can find out what that is (to a certain level of significant figures) by just running a chunk with `pi` in it, or typing pi into the console and hitting enter:
+
+```{r}
+pi
+```
+
+*Quick note: later you might notice in some of the chunks "#\| eval: FALSE'* *— don't worry about this, I am just telling Quarto not to run that chunk when rendering the document. I've generally done it where the code in a chunk would give an error (e.g., in some of the exercises) which would break the render of the document if allowed to run. The chunk will still run as normal if you press the green arrow in your Rstudio application.*
+
+## Creating objects
+
+You can create new objects with the assignment operator `<-`:
+
+```{r}
+x <- 3 * 4
+```
+
+Running this code, it seems like nothing has happened, except you might notice that something has appeared in our 'Environment' tab on the right hand side. We now have a new variable called `x` which has the 'value' of 12. If you want to check that, you can either type `x` into the console and press enter, or run `x` in a new chunk, like we did with `pi`:
+
+```{r}
+x
+```
+
+### Variable types in R
+
+R classifies data into **types**. Knowing the type of a variable is important because it tells R what kinds of operations are possible.
+
+The most common types you’ll use are:
+
+-   **Numeric**: numbers you can do maths with.
+
+    -   *Examples*: `3.14`, `42`, `-7`
+
+-   **Character**: text, always written inside quotes.
+
+    -   *Examples*: `"geneA"`, `"hello world"`
+
+-   **Logical**: true/false values (also written as `TRUE` or `FALSE`).
+
+    -   *Examples*: `TRUE`, `FALSE`
+
+-   **Integer**: whole numbers (like numeric but restricted to integers).
+
+    -   *Examples*: `1L`, `100L` (the `L` tells R it’s an integer).
+
+-   **Factor**: categorical variables with a set of defined levels (useful for grouping).
+
+    -   *Example*: `factor(c("control", "treated", "treated"))`
+
+You can check the type of any variable with the `class()` function. For example:
+
+```{r}
+x <- 42
+class(x)     # numeric
+
+y <- "geneA"
+class(y)     # character
+
+z <- TRUE
+class(z)     # logical
+```
+
+Being aware of variable types will save you from many errors, because R will often refuse to combine or compare things of the “wrong” type.
+
+## Creating objects continued
+
+R is at its most powerful when working with **vectors** and **matrices**. You can **c**ombine multiple elements into a vector with `c()`:
+
+```{r}
+primes <- c(2, 3, 5, 7, 11, 13)
+```
+
+You can extract specific positions of the vector using square brackets `[]` (note that in R, position 1 is 1, not 0, unlike certainn other programming languages... — if that sentence made no sense to you, don't worry! But IYKYK).
+
+So if I want to extract the number at position 1 of the `primes` object:
+
+```{r}
+primes[1]
+```
+
+And basic arithmetic on vectors is applied to every element of the vector:
+
+```{r}
+primes * 2
+
+primes - 1
+```
+
+You can also arrange numbers into a **matrix**, which is like a table of rows and columns. Use the `matrix()` function, and tell R how many rows or columns you want:
+
+```{r}
+# Create a matrix with numbers 1 to 6, filled by row
+m <- matrix(1:6, nrow = 2, byrow = TRUE)
+m
+```
+
+Just like with vectors, arithmetic is applied to every element of the matrix:
+
+```{r}
+m * 2
+
+m + 10
+```
+
+And you can access parts of a matrix using row and column indices:
+
+```{r}
+m[1, 2]   # row 1, column 2
+m[, 1]    # all rows, column 1
+```
+
+All R statements where you create objects, **assignment** statements, have the same form:
+
+`object_name <- value`
+
+When reading that code, say “object name gets value” in your head.
+
+You will make lots of assignments, and `<-` is a pain to type. You can save time with RStudio’s keyboard shortcut: Alt (option on mac) + - (the minus sign). Notice that RStudio automatically surrounds `<-` with spaces, which is a good code formatting practice.
+
+One other thing to note is what happened to `m` when we ran the code a couple of chunks back:
+
+```{r}
+m * 2
+
+m + 10
+```
+
+**Question:** What did happen to `m`?
+
+*Nothing happened to `m` because we have not used the assignment operator - we have just done some function on `m` and output it in the console, but not saved the results to an object.*
+
+If we wanted to store the result, we would either have to overwrite `m` or save the output to a new object, e.g.,:
+
+```{r}
+n <- m * 2
+# View n
+n
+```
+
+## Comments
+
+You may have noticed in some of my code chunks above the use of the `#` symbol. R will ignore any text after `#` for that line. This allows you to write **comments**, which R doesn't read but we still can. I'll sometimes include comments in examples explaining what’s happening with the code.
+
+Comments can be helpful for briefly describing what the following code does.
+
+```{r}
+# create vector of primes
+primes <- c(2, 3, 5, 7, 11, 13)
+
+# multiply primes by 2
+primes * 2
+#> [1]  4  6 10 14 22 26
+```
+
+For short bits of code, you don’t need to comment every single line. As your scripts get longer, though, comments can be a lifesaver — they’ll help you (and anyone else reading your code) quickly remember what you were trying to do.
+
+The most useful habit is to focus on *why* you wrote the code, rather than *what* it does. The ‘what’ and ‘how’ are usually clear from the code itself, but your reasoning is much harder to recover later. In data analysis especially, comments are a great way to sketch out your overall plan and jot down insights as they come up. Don’t worry if your comments aren’t perfect — even a short note can make a big difference when you come back weeks later.
+
+Even if it feels like in the moment there's no way you can forget the point of your amazing new code, I promise you (first-hand experience right here) that code without comments can be an absolute nightmare to come back to if you've not been working on it for any stretch of time!
+
+## Names
+
+Object names must start with a letter and can only contain letters, numbers, `_`, and `.`. You want your object names to be descriptive, so you’ll need to adopt a convention for multiple words. Generally, people recommend **snake_case**, where you separate lowercase words with `_`.
+
+Say you have, for some reason, made a really-long variable name:
+
+```{r}
+this_is_a_really_long_name <- 2.5
+```
+
+This could get annoying to type out all the time (so maybe it's not a great choice of name). However, if you do insist on using it, Rstudio has a handy autocomplete feature. You may notice if you start typing that variable into the console or code chunk a little preview window pop up: ![](images/clipboard-1285485139.png)
+
+Pressing TAB will autocomplete the word for you.
+
+### R doesn't know what you mean
+
+Let's make another object:
+
+```{r}
+r_rocks <- 2^3
+```
+
+And try to inspect it:
+
+```{r}
+#| eval: FALSE
+r_rock
+R_rocks
+```
+
+**Question:** What has happened here? Why are we getting an error?
+
+*This illustrates the implied contract between you and R: R will do the tedious computations for you, but in exchange, you must be completely precise in your instructions. If not, you’re likely to get an error that says the object you’re looking for was not found. Typos matter; R can’t read your mind and say, “oh, they probably meant `r_rocks` when they typed `r_rock`”. Case matters; similarly, R can’t read your mind and say, “oh, they probably meant `r_rocks` when they typed `R_rocks`”.*
+
+## Calling functions
+
+R has a large collection of built-in functions that are called like this:
+
+```{r}
+function_name(argument1 = value1, argument2 = value2, ...)
+```
+
+Let’s try using [`seq()`](https://rdrr.io/r/base/seq.html), which makes regular **seq**uences of numbers. If we are unsure how to use `seq()` we can search for it in the help window (or typing help(seq)). Typing seq and then pressing TAB will automatically give us paired parentheses, which we need for functions.
+
+Type the name of the first argument, `from`, and set it equal to `1`. Then, type the name of the second argument, `to`, and set it equal to `10`.
+
+```{r}
+seq(from = 1, to = 10)
+```
+
+We often omit the names of the first several arguments in function calls, so we can rewrite this as follows:
+
+```{r}
+seq(1, 10)
+```
+
+R also helps us paired quotation marks e.g., if you type x \<- ", a pair of quotation marks will appear for you to put a string of characters inside.
+
+```{r}
+x <- "hello world"
+```
+
+Quotation marks and parentheses must always come in a pair. RStudio does its best to help you, but it’s still possible to mess up and end up with a mismatch. If this happens, R will show you the continuation character “+”:
+
+`> x <- "hello
++`
+
+The `+` tells you that R is waiting for more input; it doesn’t think you’re done yet. Usually, this means you’ve forgotten either a `"` or a `)`. Either add the missing pair, or press ESCAPE to abort the expression and try again.
 
 When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
 
