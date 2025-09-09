@@ -310,6 +310,8 @@ Quotation marks and parentheses must always come in a pair. RStudio does its bes
 
 The `+` tells you that R is waiting for more input; it doesn’t think you’re done yet. Usually, this means you’ve forgotten either a `"` or a `)`. Either add the missing pair, or press ESCAPE to abort the expression and try again.
 
+## Exercises
+
 When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
 
 ```{r}
