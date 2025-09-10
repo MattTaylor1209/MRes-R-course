@@ -11,6 +11,42 @@ format:
 editor: visual
 ---
 
+# Setup code
+
+Before we start, run the following chunk (click the green arrow in the corner) which will check that everything we need for today's session is installed and up to date (don't worry if you don't understand the code at this point!).
+
+```{r setup}
+#| echo: false
+# Required packages
+required_packages <- c("tidyverse", "arrow", "babynames", "curl", "duckdb", "gapminder", 
+    "ggrepel", "ggridges", "ggthemes", "hexbin", "janitor", "Lahman", 
+    "leaflet", "maps", "nycflights13", "openxlsx", "palmerpenguins", 
+    "repurrrsive", "tidymodels", "writexl")
+
+# Install BiocManager if needed
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+# Try BiocManager first, then fallback to install.packages
+for (pkg in required_packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    message("Trying BiocManager::install('", pkg, "')")
+    tryCatch({
+      BiocManager::install(pkg, ask = FALSE, update = FALSE)
+    }, error = function(e_bioc) {
+      message("BiocManager failed. Trying install.packages('", pkg, "')")
+      tryCatch({
+        install.packages(pkg, dependencies = TRUE)
+      }, error = function(e_cran) {
+        message("Failed to install '", pkg, "' via both methods.")
+      })
+    })
+  }
+}
+
+```
+
 # Welcome
 
 Welcome to this three-part course on the foundations of R for bioinformatics. It is designed with beginners in mind, so if you already have coding experience, some sections may feel straightforward. The aim is to demystify R and show how it can be both approachable and powerful for making sense of biological data. Using real examples from bulk RNA-seq, we’ll learn how to load, explore, and visualise data, and then gradually build up to a full analysis pipeline — all within a reproducible framework using Quarto in RStudio. No prior coding experience is required. We’ll move step by step so that you finish the course confident in applying these skills to your own research.
@@ -55,21 +91,27 @@ The resulting chunk will look something like the below:
 
 ```
 
+The little `{r}` box shows that we are using the R programming language. We can type more information in that box to give the chunk a unique label (but don't use spaces). E.g.,
+
+```{r empty-chunk}
+
+```
+
 Code is run (executed) by clicking the ![](images/clipboard-472830089.png){width="26" height="22"} in the top-right corner of the chunk. You can try it now with the above chunk, but nothing happens — why?
 
 Clearly, an empty chunk is not very useful: we need to write some instructions in the chunk to tell R what we want it to do.
 
 Continuing with the calculator theme, you can use R to perform basic calculations. If we type in 1 / 200 \* 30:
 
-```{r}
+```{r maths-demo}
 1 / 200 * 30
 ```
 
-Nothing happens until you run the chunk with the green arrow. The results then appear in a small box beneath the code. If you are working in RStudio, you’ll also see the console below the document fill with the code you ran and its output. The same output will occur if you just type 1 / 200 \* 30 directly into the console and hit enter.
+Nothing happens until you run the chunk with the green arrow. The results then appear in a small box beneath the code. If you are working in RStudio, you’ll also see the console below the document fill with the code you ran and its output. The same output will occur if you just type `1 / 200 * 30` directly into the console and hit enter.
 
 We don't have to put a single line of code within each chunk. Here is an example with 2 maths equations back to back:
 
-```{r}
+```{r 2-equations}
 (59 + 73 + 2) / 3
 sin(pi / 2)
 ```
@@ -84,23 +126,23 @@ If you’re ever unsure what a function does or what kind of input it expects, R
 
 `pi` is just an *object* with an assigned *value*. We can find out what that is (to a certain level of significant figures) by just running a chunk with `pi` in it, or typing pi into the console and hitting enter:
 
-```{r}
+```{r pi}
 pi
 ```
 
-*Quick note: later you might notice in some of the chunks "#\| eval: FALSE'* *— don't worry about this, I am just telling Quarto not to run that chunk when rendering the document. I've generally done it where the code in a chunk would give an error (e.g., in some of the exercises) which would break the render of the document if allowed to run. The chunk will still run as normal if you press the green arrow in your Rstudio application.*
+*Quick note: later you might notice in some of the chunks "#\| error: TRUE"* *— don't worry about this, I am just telling Quarto that the code in a chunk willf give an error (e.g., in some of the exercises) which would break the render of the document if not acknowledged. The chunk will still run as normal if you press the green arrow in your Rstudio application.*
 
 ## Creating objects
 
 You can create new objects with the assignment operator `<-`:
 
-```{r}
+```{r x}
 x <- 3 * 4
 ```
 
 Running this code, it seems like nothing has happened, except you might notice that something has appeared in our 'Environment' tab on the right hand side. We now have a new variable called `x` which has the 'value' of 12. If you want to check that, you can either type `x` into the console and press enter, or run `x` in a new chunk, like we did with `pi`:
 
-```{r}
+```{r what-is-x}
 x
 ```
 
@@ -132,7 +174,7 @@ The most common types you’ll use are:
 
 You can check the type of any variable with the `class()` function. For example:
 
-```{r}
+```{r classes}
 x <- 42
 class(x)     # numeric
 
@@ -149,21 +191,21 @@ Being aware of variable types will save you from many errors, because R will oft
 
 R is at its most powerful when working with **vectors** and **matrices**. You can **c**ombine multiple elements into a vector with `c()`:
 
-```{r}
+```{r primes}
 primes <- c(2, 3, 5, 7, 11, 13)
 ```
 
-You can extract specific positions of the vector using square brackets `[]` (note that in R, position 1 is 1, not 0, unlike certainn other programming languages... — if that sentence made no sense to you, don't worry! But IYKYK).
+You can extract specific positions of the vector using square brackets `[]` (note that in R, position 1 is 1, not 0, unlike certain other programming languages... — if that sentence made no sense to you, don't worry! But IYKYK).
 
 So if I want to extract the number at position 1 of the `primes` object:
 
-```{r}
+```{r primes-1}
 primes[1]
 ```
 
 And basic arithmetic on vectors is applied to every element of the vector:
 
-```{r}
+```{r primes-maths}
 primes * 2
 
 primes - 1
@@ -171,7 +213,7 @@ primes - 1
 
 You can also arrange numbers into a **matrix**, which is like a table of rows and columns. Use the `matrix()` function, and tell R how many rows or columns you want:
 
-```{r}
+```{r matrix}
 # Create a matrix with numbers 1 to 6, filled by row
 m <- matrix(1:6, nrow = 2, byrow = TRUE)
 m
@@ -179,7 +221,7 @@ m
 
 Just like with vectors, arithmetic is applied to every element of the matrix:
 
-```{r}
+```{r matrix-maths}
 m * 2
 
 m + 10
@@ -187,7 +229,7 @@ m + 10
 
 And you can access parts of a matrix using row and column indices:
 
-```{r}
+```{r matrix-indices}
 m[1, 2]   # row 1, column 2
 m[, 1]    # all rows, column 1
 ```
@@ -198,7 +240,7 @@ All R statements where you create objects, **assignment** statements, have the s
 
 When reading that code, say “object name gets value” in your head.
 
-You will make lots of assignments, and `<-` is a pain to type. You can save time with RStudio’s keyboard shortcut: Alt (option on mac) + - (the minus sign). Notice that RStudio automatically surrounds `<-` with spaces, which is a good code formatting practice.
+You will make lots of assignments, and `<-` is a pain to type. You can save time with RStudio’s keyboard shortcut: `Alt (option on mac) + -` (the minus sign). Notice that RStudio automatically surrounds `<-` with spaces, which is a good code formatting practice.
 
 One other thing to note is what happened to `m` when we ran the code a couple of chunks back:
 
@@ -214,7 +256,7 @@ m + 10
 
 If we wanted to store the result, we would either have to overwrite `m` or save the output to a new object, e.g.,:
 
-```{r}
+```{r n}
 n <- m * 2
 # View n
 n
@@ -226,7 +268,7 @@ You may have noticed in some of my code chunks above the use of the `#` symbol. 
 
 Comments can be helpful for briefly describing what the following code does.
 
-```{r}
+```{r comments}
 # create vector of primes
 primes <- c(2, 3, 5, 7, 11, 13)
 
@@ -245,13 +287,13 @@ Even if it feels like in the moment there's no way you can forget the point of y
 
 Object names must start with a letter and can only contain letters, numbers, `_`, and `.`. You want your object names to be descriptive, so you’ll need to adopt a convention for multiple words. Generally, people recommend **snake_case**, where you separate lowercase words with `_`.
 
-Say you have, for some reason, made a really-long variable name:
+Say you, for some reason, have made a really-long variable name:
 
-```{r}
+```{r long-name}
 this_is_a_really_long_name <- 2.5
 ```
 
-This could get annoying to type out all the time (so maybe it's not a great choice of name). However, if you do insist on using it, Rstudio has a handy autocomplete feature. You may notice if you start typing that variable into the console or code chunk a little preview window pop up: ![](images/clipboard-1285485139.png)
+This could get annoying to type out all the time (so maybe it's not a great choice of name). However, if you do insist on using it, Rstudio has a handy autocomplete feature. You may notice if you start typing that variable into the console or code chunk a little preview window will pop up: ![](images/clipboard-1285485139.png)
 
 Pressing TAB will autocomplete the word for you.
 
@@ -259,14 +301,14 @@ Pressing TAB will autocomplete the word for you.
 
 Let's make another object:
 
-```{r}
+```{r rocks}
 r_rocks <- 2^3
 ```
 
 And try to inspect it:
 
-```{r}
-#| eval: FALSE
+```{r error-rocks}
+#| error: TRUE
 r_rock
 R_rocks
 ```
@@ -279,27 +321,27 @@ R_rocks
 
 R has a large collection of built-in functions that are called like this:
 
-```{r}
+```{r functions}
 function_name(argument1 = value1, argument2 = value2, ...)
 ```
 
-Let’s try using [`seq()`](https://rdrr.io/r/base/seq.html), which makes regular **seq**uences of numbers. If we are unsure how to use `seq()` we can search for it in the help window (or typing help(seq)). Typing seq and then pressing TAB will automatically give us paired parentheses, which we need for functions.
+Let’s try using `seq()`, which makes regular **seq**uences of numbers. If we are unsure how to use `seq()` we can search for it in the help window (or typing `help(seq)`). Typing seq and then pressing TAB will automatically give us paired parentheses, which we need for functions.
 
 Type the name of the first argument, `from`, and set it equal to `1`. Then, type the name of the second argument, `to`, and set it equal to `10`.
 
-```{r}
+```{r seq}
 seq(from = 1, to = 10)
 ```
 
 We often omit the names of the first several arguments in function calls, so we can rewrite this as follows:
 
-```{r}
+```{r seq-omit}
 seq(1, 10)
 ```
 
-R also helps us paired quotation marks e.g., if you type x \<- ", a pair of quotation marks will appear for you to put a string of characters inside.
+R also helps us with paired quotation marks e.g., if you type `x <- "`, a pair of quotation marks will appear for you to put a string of characters inside.
 
-```{r}
+```{r hello-world}
 x <- "hello world"
 ```
 
@@ -310,19 +352,76 @@ Quotation marks and parentheses must always come in a pair. RStudio does its bes
 
 The `+` tells you that R is waiting for more input; it doesn’t think you’re done yet. Usually, this means you’ve forgotten either a `"` or a `)`. Either add the missing pair, or press ESCAPE to abort the expression and try again.
 
+## Packages
+
+In order to run the code in this course, we need **4** things. If you've got this far, then you've already got 2 of them sorted: R and Rstudio. R is the actual programming language we're using, which doesn't come installed on your computer by default. R can be downloaded from [https://cloud.r-project.org](https://cloud.r-project.org/). A new major version of R comes out once a year, and there are 2-3 minor releases each year. It’s a good idea to update regularly. Upgrading can be a bit of a hassle, especially for major versions that require you to re-install all your packages, but putting it off only makes it worse.
+
+R comes with a basic integrated development environment, or **IDE**, for programming; however, Rstudio is generally preferred as it comes with more user-friendly built-in features (and looks more like a desktop application which you will be used to). Rstudio can be downloaded from <https://posit.co/download/rstudio-desktop/>. RStudio is updated a couple of times a year, and it will automatically let you know when a new version is out, so there’s no need to check back. It’s a good idea to upgrade regularly to take advantage of the latest and greatest features.
+
+The other **2** things we need are a collection of **packages** called the **tidyverse**, and some other additional packages. An R **package** is a collection of functions, data, and documentation that extends the capabilities of base R. Using packages is key to the successful use of R.
+
+### The tidyverse
+
+The majority of the packages that you will learn in this course are part of the so-called tidyverse. All packages in the tidyverse share a common philosophy of data and R programming and are designed to work together.
+
+We have already installed the tidyverse in our setup code, but the code you would use to install this (or any other package) is a single line:
+
+```{r install-tidyverse}
+#| eval: false
+install.packages("tidyverse")
+```
+
+You will not be able to use the functions, objects, or help files in a package until you load it with `library()`. For example, later on in the course we will be using the package `DESeq2`, but we have not yet installed or loaded this package. If we try to run a function from this package:
+
+```{r deseq-error}
+#| error: TRUE
+DESeq(dds)
+```
+
+We get an error saying "could not find function...".
+
+So, in order to use the tidyverse, we need to load it using `library()`. *Note that when you install packages, you provide the name in quotes. When you load packages, you don't use the quotes.*
+
+```{r tidyverse-library}
+library(tidyverse)
+```
+
+This tells you that tidyverse loads nine packages: dplyr, forcats, ggplot2, lubridate, purrr, readr, stringr, tibble, tidyr. These are considered the **core** of the tidyverse because you’ll use them in almost every analysis.
+
+Packages in the tidyverse change fairly frequently. You can see if updates are available by running `tidyverse_update()`.
+
+### Other packages (KEEP THIS UPDATED)
+
+Other packages which are not part of the tidyverse are designed with a different set of underlying principles. However, they can be very useful for solving problems in a different domain. Honestly, working in R over the few years I have done so, I have come to realise that if I have a problem I can't quite figure out how to do in R, someone has probably already made a package which helps to solve it! (Google is your friend here!).
+
+As you tackle more data science projects with R, you’ll learn new packages and new ways of thinking about data.
+
+We’ll use many packages from outside the tidyverse in this course. For example, we’ll use the following packages because they provide interesting datasets for us to work with in the process of learning R (also notice how you don't have to type out `install.packages()` line-by-line for each package, which would be really tedious! You can use our old friend `c()` to provide a vector of package names surrounded by "" and separated by commas):
+
+```{r other-packages}
+#| eval: false
+install.packages(
+  c("arrow", "babynames", "curl", "duckdb", "gapminder", 
+    "ggrepel", "ggridges", "ggthemes", "hexbin", "janitor", "Lahman", 
+    "leaflet", "maps", "nycflights13", "openxlsx", "palmerpenguins", 
+    "repurrrsive", "tidymodels", "writexl")
+  )
+```
+
+*Note: we have already installed these in our setup chunk, so there is no need to run the above code right now.*
+
 ## Exercises
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+# Data visualisation
 
-```{r}
-1 + 1
-```
+R offers several systems for making graphs, but **ggplot2** is both the most versatile and the most elegant. It’s built on the *grammar of graphics* — a consistent way of describing and constructing plots. By learning this single system, you can quickly create a wide variety of visualisations without having to start from scratch each time.
 
-You can add options to executable code like this
+In this section, you’ll learn how to use ggplot2 to bring your data to life. We’ll begin with a simple scatterplot, introducing the two core ideas that underpin every plot: aesthetic mappings and geometric objects. From there, we’ll explore how to show distributions of single variables and how to visualise relationships between two or more variables. We’ll wrap up with some practical advice on saving your plots and troubleshooting common problems.
 
-```{r}
-#| echo: false
-2 * 2
-```
+As we are short on time, it will not be possible to cover all the features of ggplot2 — in fact, I discover new features every time I use it. There are plenty of great resources out there including this very handy [cheat sheet](https://posit.co/wp-content/uploads/2022/10/data-visualization-1.pdf). Here are a few that I found helpful making this course:
 
-The `echo: false` option disables the printing of code (only output is displayed).
+-   [***A ggplot2 tutorial for beautiful plotting in R***](https://www.cedricscherer.com/2019/08/05/a-ggplot2-tutorial-for-beautiful-plotting-in-r/) ***-*** By Cedric Scherer.
+
+-   [***R Graphics Cookbook, 2nd edition***](https://r-graphics.org/index.html) ***-*** By Wiston Chang
+
+-   [***ggplot2: Elegant Graphics for Data Analysis (3e)***](https://ggplot2-book.org/) ***-*** By Hadley Wickham, Danielle Navarro and Thomas Lin Pedersen
