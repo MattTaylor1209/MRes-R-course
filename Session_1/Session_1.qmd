@@ -3,9 +3,9 @@ title: "Session 1 — Introduction to R and the tidyverse"
 author: "Matthew Taylor"
 execute:
   dpi: 300
+  cache: false
 format: 
   html:
-    code-fold: true
     toc: true
     self-contained: true
 editor: visual
@@ -45,7 +45,12 @@ for (pkg in required_packages) {
   }
 }
 
+
 ```
+
+Also, before we start, click on the little gear above the document window and select "clear all output" from the dropdown menu (this prevents any *spoilers!*):
+
+![](images/clipboard-2730781017.png){width="590"}
 
 # Welcome
 
