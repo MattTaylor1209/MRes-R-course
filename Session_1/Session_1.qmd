@@ -345,8 +345,7 @@ x <- "hello world"
 
 Quotation marks and parentheses must always come in a pair. RStudio does its best to help you, but it’s still possible to mess up and end up with a mismatch. If this happens, R will show you the continuation character “+”:
 
-`> x <- "hello
-+`
+`> x <- "hello +`
 
 The `+` tells you that R is waiting for more input; it doesn’t think you’re done yet. Usually, this means you’ve forgotten either a `"` or a `)`. Either add the missing pair, or press ESCAPE to abort the expression and try again.
 
@@ -445,7 +444,7 @@ The following section is an abbreviated walkthrough of the ***R for Data Science
 
 ## Loading required packages
 
-In [*The Basics*], we installed the packages we need for this section. In order to access all of the functions and datasets we need, loading the packages using `library()` is required. We will load `tidyverse`, `palmerpenguins` which includes the `penguins` dataset containing body measurements for penguins on three islands in the Palmer Archipelago, and the `ggthemes` package, which offers a colourblind safe colour palette.
+In \[*The Basics*\], we installed the packages we need for this section. In order to access all of the functions and datasets we need, loading the packages using `library()` is required. We will load `tidyverse`, `palmerpenguins` which includes the `penguins` dataset containing body measurements for penguins on three islands in the Palmer Archipelago, and the `ggthemes` package, which offers a colourblind safe colour palette.
 
 ```{r loading-packages}
 library(tidyverse)
@@ -910,3 +909,21 @@ ggsave(filename = "penguin-plot.png")
 ```
 
 If you don’t specify the `width` and `height` they will be taken from the dimensions of the current plotting device. For reproducible code, you’ll want to specify them. You can learn more about `ggsave()` in the Help section or by using `help(ggsave)`.
+
+## Exercises
+
+# Summary
+
+In this first session, we:
+
+-   Learned how to run code in **Quarto** and use the console.
+
+-   Created **objects** in R, explored basic variable types, vectors, and matrices.
+
+-   Saw how to use **functions** (and get help with `?function_name`).
+
+-   Started exploring data with the **penguins dataset** and the **tidyverse**.
+
+-   Made our first plots in **ggplot2**, including histograms, aesthetics, and facets
+
+In the next session, we will start learning how to import, tidy, and manipulate data, focusing on the types of bioinformatics data you will encounter in a bulk RNAseq experiment.
