@@ -75,7 +75,7 @@ The other advantage is that there are *countless* tutorials, books, teaching res
 
 -   ***Analyzing RNAseq data with DESeq2*** — Michael I. Love, Simon Anders, and Wolfgang Huber. A thorough walkthrough of bulk RNAseq analysis using the popular tool which we will use later in the course, *DESeq2*. <https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html>
 
-# The basics
+# The Basics
 
 ## Running code
 
@@ -152,9 +152,10 @@ R classifies data into **types**. Knowing the type of a variable is important be
 
 The most common types you’ll use are:
 
--   **Numeric**: numbers you can do maths with.
+-   **Numeric**: numbers you can do maths with. These are split into subtypes:
 
-    -   *Examples*: `3.14`, `42`, `-7`
+    -   **Double:** A double allows you to store numbers as decimals. This is the default treatment for numbers. *Examples*: `3.14`, `6.0`
+    -   **Integer:** whole numbers.*Examples*: `1L`, `100L` (the `L` tells R it’s an integer).
 
 -   **Character**: text, always written inside quotes.
 
@@ -163,10 +164,6 @@ The most common types you’ll use are:
 -   **Logical**: true/false values (also written as `TRUE` or `FALSE`).
 
     -   *Examples*: `TRUE`, `FALSE`
-
--   **Integer**: whole numbers (like numeric but restricted to integers).
-
-    -   *Examples*: `1L`, `100L` (the `L` tells R it’s an integer).
 
 -   **Factor**: categorical variables with a set of defined levels (useful for grouping).
 
@@ -322,6 +319,7 @@ R_rocks
 R has a large collection of built-in functions that are called like this:
 
 ```{r functions}
+#| eval: false
 function_name(argument1 = value1, argument2 = value2, ...)
 ```
 
@@ -351,6 +349,23 @@ Quotation marks and parentheses must always come in a pair. RStudio does its bes
 +`
 
 The `+` tells you that R is waiting for more input; it doesn’t think you’re done yet. Usually, this means you’ve forgotten either a `"` or a `)`. Either add the missing pair, or press ESCAPE to abort the expression and try again.
+
+## Setting the working directory
+
+One aspect of coding which we haven't touched on yet is the need to tell R exactly *where* on your system you are working i.e., the working directory. You will almost certainly be familiar with the idea of folders and file systems (e.g., Finder on MacOS, File Explorer on Windows...) and how to navigate them using a keyboard and mouse.
+
+In R, we need to use 2 functions to figure out exactly where we are and where we want to be, so that we can save stuff in the right place, and load things into R from our working directory (or sub folders) if we need to.
+
+Because the actual directory will be unique to each of you, I will have to demonstrate this in class. But the 2 functions we need are:
+
+-   `getwd()` - tells us what our current working directory is.
+
+-   `setwd()` - allows us to set the working directory to a place of our choosing.
+
+```{r getwd}
+# Let's see where we currently are
+getwd()
+```
 
 ## Packages
 
@@ -425,3 +440,473 @@ As we are short on time, it will not be possible to cover all the features of gg
 -   [***R Graphics Cookbook, 2nd edition***](https://r-graphics.org/index.html) ***-*** By Wiston Chang
 
 -   [***ggplot2: Elegant Graphics for Data Analysis (3e)***](https://ggplot2-book.org/) ***-*** By Hadley Wickham, Danielle Navarro and Thomas Lin Pedersen
+
+The following section is an abbreviated walkthrough of the ***R for Data Science(2nd Edition)*** [Data Visualisation](https://r4ds.hadley.nz/data-visualize.html) section adapted for our needs.
+
+## Loading required packages
+
+In [*The Basics*], we installed the packages we need for this section. In order to access all of the functions and datasets we need, loading the packages using `library()` is required. We will load `tidyverse`, `palmerpenguins` which includes the `penguins` dataset containing body measurements for penguins on three islands in the Palmer Archipelago, and the `ggthemes` package, which offers a colourblind safe colour palette.
+
+```{r loading-packages}
+library(tidyverse)
+library(palmerpenguins)
+library(ggthemes)
+```
+
+## Overall aim
+
+Our overall aim in this section is to explore the question *do penguins with longer flippers weigh more or less than penguins with shorter flippers?*
+
+You might already have an inkling, but visualisation of the data will allow us to be more precise in our answers. For example, is the relationship linear/nonlinear? Does it vary by location or species?
+
+By the end of this section, we should be able to confidently create the following graph, which displays the relationship between body mass and flipper length across 3 different species of penguin.
+
+![](images/clipboard-969445509.png)
+
+## The Data
+
+Within the `palmerpenguins` package is a **data frame** called `penguins`. Think of a data frame a bit like an Excel spreadsheet - with variables in the columns and observations in the rows. `penguins` contains 344 observations collected and made available by Dr. Kristen Gorman and the Palmer Station, Antarctica LTER.
+
+With our `penguins` dataset, a variable refers to an attribute of all the penguins, and an observation refers to all the attributes of a single penguin.
+
+You can type `penguins` into a chunk or the console to see a preview of what this data frame looks like:
+
+```{r penguins}
+penguins
+```
+
+In the top corner of that preview, you will notice this: ![](images/clipboard-3070758854.png){width="94"}. That is telling us that our data frame is a special kind of data frame which is tidyverse friendly, a **tibble.** It has 344 rows (observations) and 8 columns (variables). Tibbles are part of the tidyverse, so they work seamlessly with packages like dplyr and ggplot2.
+
+Two key differences from base data frames are:
+
+-   Tibbles never change variable names or types unexpectedly.
+
+-   When printed, they show just the first 10 rows and as many columns as fit on screen — making them easier to read.
+
+The preview window is also useful for telling us the variable type as we learned earlier ([Variable types in R]). For example, we can see **species** is a factor ![](images/clipboard-1528439395.png){width="52"}while **bill_length_mm** is a double ![](images/clipboard-3998745827.png){width="83" height="22"}.
+
+For an alternative view, where you can see all variables and the first few observations of each variable, use `glimpse()`, or `View(penguins)` (to open an interactive data viewer).
+
+```{r glimpse}
+glimpse(penguins)
+```
+
+```{r View}
+View(penguins)
+```
+
+If you just want to see the first few rows:
+
+```{r head}
+head(penguins)
+# Any guesses what command can be used for the last few rows?
+```
+
+How can we find out how many rows and columns we have? (assuming we don't already know)
+
+```{r dim}
+dim(penguins)
+```
+
+We can find out what all of the different variables are called by using `names()`:
+
+```{r names}
+names(penguins) # note this doesn't show variable type
+```
+
+We can summarise key information:
+
+```{r summary}
+summary(penguins)
+```
+
+### A brief introduction to the "pipe"
+
+One of the most useful tools in the tidyverse is the **pipe**, which we will go into more detail on later. Think of it as "take what is on the left and feed it into the function on the right." Its symbol looks like this `%>%` although you might also see it written elsewhere as `|>`. We will be using this *a lot* in future sessions, but a quick example now, suppose you wanted to count how many different animals of each species of penguin are in our dataset.
+
+```{r first-pipe}
+# take the whole penguins dataset and 'pipe' it into the function count()
+penguins %>% 
+  count(species)
+```
+
+Can even do this for multiple variables combined together. **Before you run the following code, what do you predict will be the result?**
+
+```{r count-species-island}
+penguins %>% 
+  count(species, island)
+```
+
+## Creating the plot step-by-step
+
+### The plot object
+
+Plots are created in ggplot2 by assembling **layers** on top of a plot object. The first input which the `ggplot()` function expects is the data we are plotting, so let's give it the `penguins` dataset as our data. We can either do this by typing `ggplot(data = penguins)` or we can use a pipe. I am going to show you using the pipe method as it has one very useful consequence which we will see in a moment!
+
+```{r}
+penguins %>% 
+  ggplot()
+```
+
+Well that was underwhelming! But do not panic. What we have done there is simply create a **plot object**. It's basically telling ggplot2 to create a canvas and expect data from our `penguins` dataset to be painted onto it.
+
+### Mapping and aesthetics
+
+Next, we need to tell `ggplot()` how the information from our data will be visually represented. The `mapping` argument of the `ggplot()` function defines how variables in your dataset are mapped to visual properties (**aesthetics**) of your plot. The `mapping` argument is always defined in the `aes()` function, and the `x` and `y` arguments of `aes()` specify which variables to map to the x and y axes.
+
+For now, we will only map flipper length to the `x` aesthetic and body mass to the `y` aesthetic (but feel free to experiment with any of the others you like by editing the variables in the mapping). *Remember, you can use `names(penguins)` if you can't remember the exact spelling of all the variables — as always, spelling matters!* But I can now reveal the key advantage of using the pipe method: because ggplot is already aware it has to look inside `penguins` (left hand side of the pipe), as you start typing `x = ...` it will pop-up with a preview of the variable name, so you can just hit TAB to autocomplete. Handy!
+
+![](images/clipboard-146528764.png)
+
+```{r}
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g))
+```
+
+Our canvas now has a structure - we can see that flipper length will be on the x-axis and body mass on the y-axis. We also already can see some axis ticks, as ggplot has looked at our data and determined the appropriate x and y min and maxes automatically depending on the range. But *where are our penguins*?! They are nowhere to be seen because we have not defined *how* we want them represented.
+
+To do so, we need to define a **geom**: the geometrical object that a plot uses to represent data. These geometric objects are made available in ggplot2 with functions that start with `geom_`. People often describe plots by the type of geom that the plot uses. For example, bar charts use bar geoms (`geom_bar()`), line charts use line geoms (`geom_line()`), boxplots use boxplot geoms (`geom_boxplot()`), scatterplots use point geoms (`geom_point()`), and so on. More information on any of these can be found in the Help window or by using the `help()` function. There are loads more geoms than we can cover in these sessions - you can find them in the cheat sheet I linked earlier.
+
+The function [`geom_point()`](https://ggplot2.tidyverse.org/reference/geom_point.html) adds a layer of points to your plot, which creates a scatterplot. You can add layers on top of each other...but more on that later. In order to add a geom, you have to use the `+` symbol, and it's good formatting practice to then start on a new line:
+
+```{r}
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+```
+
+That's starting to look more like a scatterplot, and it helps us start to understand the relationship between body mass and flipper length. The relationship appears to be positive (as flipper length increases, so does body mass), fairly linear (the points are clustered around a line instead of a curve), and moderately strong (there isn’t too much scatter around such a line). Penguins with longer flippers are generally larger in terms of their body mass. We still have a way to go before we reach the plot we were aiming for but it is a good start.
+
+You will notice that we had a **warning**: "Removed 2 rows containing missing values or values outside the scale range (\`geom_point()\`)." This isn’t an error — it’s ggplot2 letting you know that some data points couldn’t be plotted because they were missing (`NA`).
+
+Like R, ggplot2 subscribes to the philosophy that missing values should never silently go missing. This type of warning is probably one of the most common types of warnings you will see when working with real data – missing values are a very common issue.
+
+In practice, you’ll often need to decide what to do with missing values — for example, remove them with `na.omit()`, replace them with a sensible default, or model around them. For now, it’s enough to notice when they appear and to understand why ggplot2 draws your attention to them.
+
+### Adding more aesthetics and layers
+
+While scatterplots can show the relationship between 2 variables, they may mask the contribution of other variables to the relationship. Remember our earlier question: *"Does it vary by location or species?"*
+
+We can incoporate this into our plot by modifying our aesthetics mapping to include this information. **Pause for a moment: how could we represent species on our plot?**
+
+*Scroll down for answer*
+
+The simplest method would be to colour our points according to the different species. We already know from some of our data viewing that we have 3 different species, so we know we aren't going to run out of colours!
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g, colour = species)) +
+  geom_point()
+```
+
+When a categorical variable is mapped to an aesthetic, ggplot2 will automatically assign a unique value of the aesthetic (here a unique colour) to each unique level of the variable (each of the three species), a process known as **scaling**. ggplot2 will also add a legend that explains which values correspond to which levels.
+
+Now let’s add one more layer: a smooth curve displaying the relationship between body mass and flipper length. **Pause point**: **refer back to the code above, and think about how we can add this to our existing plot. Is it an aesthetic, or a new geom?**
+
+*Scroll down for answer*
+
+Since this is a new geometric object representing our data, we will add a new geom as a layer on top of our point geom: `geom_smooth()`. Remember we need to do this by including the `+` sign after the previous geom. And we will specify that we want to draw the line of best fit based on a `l`inear `m`odel with `method = "lm"`.
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g, colour = species)) +
+  geom_point() +
+  geom_smooth(method = "lm") # see help(geom_smooth) for other options
+  
+```
+
+Nice! We have added lines to our data, but you'll notice there is now one line per species. Is this what we wanted?
+
+### Global *vs* local mapping
+
+Our "goal" plot only had one line going through the whole dataset.
+
+This is where we get more into the weeds on aesthetic mapping. When we use the `mapping =` argument within the `ggplot()` function, we are defining things at the *global* level, i.e., in the entire plot. So in the above graph, here is how R is understanding what we want in a step-by-step manner (R reads from left-to-right, top-to-bottom):
+
+1.  `penguins %>% ggplot(`: "Take the penguins dataset and feed it into the ggplot() function on the right.
+
+2.  `ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g, colour = species))`: "In the entire plot, every subsequent layer (geom) needs to plot flipper_length_mm on the x axis, body_mass_g on the y axis, and colour by the species."
+
+3.  `geom_point()`: "make points which have flipper_length_mm on the x axis, body_mass_g on the y axis, and are colourd by the species."
+
+4.  `geom_smooth(method = "lm")`: "make a smooth line of best fit for the dataset, coloured by species (so I will need one line per species) with flipper_length_mm on the x axis and body_mass_g on the y axis."
+
+So because `colour = species` is specified globally, each subsequent layer will be plot on a species-by-species basis (which in the case of our line of best fit, we don't want!). How to solve this?
+
+Fortunately, every geom inside ggplot can accept a *local* mapping that are added to those inherited from the global level. Since we want points to be coloured based on species but don’t want the lines to be separated out for them, we should specify `colour = species` for `geom_point()` only:
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(mapping = aes(colour = species)) + # moving our colour mapping into geom_point() only
+  geom_smooth(method = "lm")
+```
+
+We now have something that looks very much like our ultimate goal, though it’s not yet perfect. We still need to use different shapes for each species of penguins and improve labels.
+
+It’s generally not a good idea to represent information using only colours on a plot, as people perceive colours differently due to colour blindness or other colour vision differences. Therefore, in addition to colour, we can also map `species` to the `shape` aesthetic. (This demonstrates another important point which is that multiple different aesthetics can share the same mapping).
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(mapping = aes(colour = species, shape = species)) +
+  geom_smooth(method = "lm")
+```
+
+The legend handily updates itself to include shape information also.
+
+### Changing labels and putting it all together
+
+And finally, we can improve the labels of our plot using the `labs()` function in a new layer. Some of the arguments to `labs()` might be self explanatory: `title` adds a title and `subtitle` adds a subtitle to the plot. Other arguments match the aesthetic mappings, `x` is the x-axis label, `y` is the y-axis label, and `colour` and `shape` define the label for the legend. In addition, we can improve the colour palette to be colourblind safe with the `scale_colour_colourblind()` function from the `ggthemes` package.
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(mapping = aes(colour = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)", y = "Body mass (g)",
+    color = "Species", shape = "Species"
+  ) +
+  scale_color_colorblind()
+```
+
+We finally have a plot that perfectly matches our goal plot!
+
+## Visualising distributions
+
+How you visualise the distribution of a variable depends on its type: **categorical** or **numerical**. When we get on to the RNAseq part of the course, we will encounter both. For example, *categorical variables* might include sample groups such as “control” vs. “treated,” while *numerical variables* could be gene expression counts, library sizes, or quality scores.
+
+Different plot types highlight different aspects of the data — bar plots are useful for comparing counts across categories, while histograms, boxplots, or density plots are better for showing the spread of numerical values. Choosing the right type of plot is therefore very important.
+
+### Categorical variables
+
+A variable is **categorical** if it can only take one of a small set of values. To examine the distribution of a categorical variable, you can use a bar chart. **What geom do we use for this?**
+
+The height of the bars displays how many observations occurred with each `x` value. *Note: with ggplot, you don't actually have to write `mapping = aes`* *every time.*
+
+```{r}
+penguins %>%
+  ggplot(aes(x = species)) +
+    geom_bar()
+```
+
+Categorical data, such as species in our case, is **non-ordinal** i.e., there is no natural order to it. There is no good reason why it should go Adelie, Chinstrap, then Gentoo (except for alphabetical order). We might prefer to reorder based on the count such that the frequency decreases from left to right. To do this, we transform the variable to a factor (if it isn't already) — this is how R handles categorical data. We can then reorder the levels of that factor. We will return to this concept throughout the rest of the course.
+
+There are 2 ways we can do this, either manually or automatically.
+
+The manual way would be to specify the factor levels ourselves:
+
+```{r}
+penguins$species <- factor(penguins$species, levels = c("Adelie", "Gentoo", "Chinstrap")) # using $ allows us to select a specific variable in penguins
+
+unique(penguins$species) # unique means we are just looking at unique occurances rather than printing the entire species column!
+```
+
+You can now see the levels specified in the order we selected.
+
+The automatic way is to use built-in functions which deal with factors directly in our `ggplot()` function:
+
+```{r}
+penguins %>%
+  ggplot(aes(x = fct_infreq(species))) +
+  geom_bar()
+```
+
+### Numerical variables
+
+Numerical variables are quantitative, ordinal and can have maths operations performed on them. They can be continuous (e.g., height) or discrete (e.g., number of children).
+
+One commonly used visualization for distributions of continuous variables is a histogram. **Any guesses what geom we use here?**
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>%
+  ggplot(aes(x = body_mass_g)) + 
+    geom_histogram(binwidth = 200)
+```
+
+A histogram divides the x-axis into equal-sized bins and uses the height of each bar to show how many observations fall within that range. For example, in the plot above the tallest bar indicates that 39 penguins have a body mass between 3,500 and 3,700 grams — the left and right edges of that bin.
+
+The `binwidth` argument controls the size of these intervals, measured in the same units as the x-axis variable. It’s good practice to experiment with different binwidths, because the choice can strongly affect what patterns you see. If the binwidth is too small (e.g. 20), the histogram becomes cluttered with many tiny bars, making the overall distribution hard to interpret. If the binwidth is too large (e.g. 2,000), the data collapse into just a few bars, again obscuring the shape of the distribution. A binwidth of around 200 in this example strikes a sensible balance, showing both detail and overall structure.
+
+*Note: in a Quarto document, when you make 2 or more plots within the same chunk, they are presented in different tabs. We will come to different ways of presenting plots (e.g., side-by-side, over-under) using the* `patchwork` *package later.*
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>%
+  ggplot(aes(x = body_mass_g)) + 
+    geom_histogram(binwidth = 20)
+
+penguins %>%
+  ggplot(aes(x = body_mass_g)) + 
+    geom_histogram(binwidth = 2000)
+```
+
+An alternative visualization for distributions of numerical variables is a density plot. A density plot is a smoothed-out version of a histogram and a practical alternative, particularly for continuous data that comes from an underlying smooth distribution.
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>%
+  ggplot(aes(x = body_mass_g)) + 
+    geom_density()
+```
+
+## Visualising relationships
+
+When we talk of visualising relationships, we are essentially asking how different variables in our data interact with each other. This means we need at least 2 variables mapped to the aesthetics of our plot.
+
+### A numerical and a categorical variable
+
+For this, we can use a **boxplot**, which you may already be familiar with. A boxplot contains:
+
+-   A box showing the interquartile range (IQR) which stretches from the 25th to the 75th percentile. The middle of a box contains a line depicting the median. These three lines give you a sense of the spread of the distribution and whether or not the distribution is symmetric about the median or skewed to one side.
+
+-   Visual points that display observations that fall more than 1.5 times the IQR from either edge of the box. These outlying points are unusual so are plotted individually.
+
+-   A line (or whisker) that extends from each end of the box and goes to the farthest non-outlier point in the distribution.
+
+**Have a go at plotting body mass by species using a boxplot. You can scroll down for the answer if you get stuck.**
+
+```{r}
+
+```
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>%
+  ggplot(aes(x = species, y = body_mass_g)) +
+  geom_boxplot()
+```
+
+Alternatively, we can make density plots with `geom_density()`. **How might we need to change aes?**
+
+```{r}
+
+```
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>%
+  ggplot(aes(x = body_mass_g, colour = species)) +
+  geom_density(linewidth = 0.75) # customising line width to make it stand out a bit more
+```
+
+We’ve also adjusted the line thickness with the `linewidth` argument to help the curves stand out more clearly against the background.
+
+In addition, we’ve mapped `species` to both the `colour` and `fill` aesthetics, and controlled the transparency of the filled density curves with the `alpha` aesthetic. `alpha` takes values from 0 (fully transparent) to 1 (fully opaque); here it’s set to 0.5.
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>%
+  ggplot(aes(x = body_mass_g, colour = species, fill = species)) +
+  geom_density(alpha = 0.5)
+```
+
+**The** **key idea is this:** we *map* variables to aesthetics when we want that visual property (like colour, fill, or size) to change according to the data. Otherwise, we *set* aesthetics to fixed values.
+
+### Two categorical variables
+
+In our data, we have a number of categorical variables, such as `species` and `island`. How could we visualise the distribution of species within each island?
+
+One method is to use a stacked bar graph. You can just use `geom_bar()` for this, there isn't a specific geom for stacked bars.
+
+```{r}
+penguins %>%
+  ggplot(aes(x = island, fill = species)) + # map variable that will be separated into bars to the x aesthetic, and the fill colour variable to the fill aesthetic 
+  geom_bar()
+```
+
+This plot shows absolute values. But we can also look at the relative frequencies of the species per island by using the `position = "fill"` argument inside `geom_bar()` - I appreciate this isn't the most intuitive thing but this is where it's always worth just playing around with different settings in the geoms to see how things change. And we always have the Help window to consult if necessary. (We would have figured this out if we had gone to the help page of `geom_bar`, scrolled down to the information on position, and *then* clicked through to the "layer position" documentation page).
+
+Using this plot we can see that Gentoo penguins all live on Biscoe island and make up roughly 75% of the penguins on that island, Chinstrap all live on Dream island and make up roughly 50% of the penguins on that island, and Adelie live on all three islands and make up all of the penguins on Torgersen.
+
+```{r}
+penguins %>%
+  ggplot(aes(x = island, fill = species)) +
+  geom_bar(position = "fill")
+```
+
+### Two numerical variables
+
+We've already done this once before when we looked at flipper length *vs* body mass. A scatterplot is probably the most commonly used plot for visualizing the relationship between two numerical variables. Here is one of the plots we created earlier:
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+```
+
+**What other numerical variables are in our data that we could compare against each other?**
+
+```{r}
+penguins
+```
+
+Example answer: bill length *vs* flipper length
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = bill_length_mm)) +
+  geom_point()
+```
+
+Our data suddenly looks a bit different. Can we figure out what is going on?
+
+**If we have time...**
+
+Try adding in a line of best fit and species information like we did before. What do you notice?
+
+```{r}
+
+```
+
+### Three or more variables
+
+As we saw earlier, we can incorporate more variables into a plot by mapping them to additional aesthetics. For example, in the following scatterplot the colours of points represent species and the shapes of points represent islands.
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>%
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = island))
+```
+
+However now things are starting to get quite confusing. Remember the point of all this — we are visualising our data to see if we can spot relationships. If things are starting to get cluttered and we are overwhelmed with information, we have lost the plot (literally).
+
+Fortunately, we can fix this to be much neater. One way, which is particularly useful for categorical variables (such as `island`) is to use **facets**, which are sub-plots that each display one subset of the data.
+
+You can split your plot into small panels based on a variable using `facet_wrap()`. Just write `~` followed by the variable name (for example, `~island`). The variable you use should be categorical, because each category will get its own panel.
+
+```{r}
+#| warning: FALSE # suppressing that warning message
+penguins %>%
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species))+
+  facet_wrap(~island)
+```
+
+## Saving plots
+
+We will cover the different options we have available in R for saving plots more during the session. But if you want to save a plot as an image in your current working directory, you can use the `ggsave()` function, which will save the plot most recently created to disk:
+
+```{r}
+#| eval: false
+#| warning: false
+
+penguins %>% 
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+ggsave(filename = "penguin-plot.png")
+```
+
+If you don’t specify the `width` and `height` they will be taken from the dimensions of the current plotting device. For reproducible code, you’ll want to specify them. You can learn more about `ggsave()` in the Help section or by using `help(ggsave)`.
