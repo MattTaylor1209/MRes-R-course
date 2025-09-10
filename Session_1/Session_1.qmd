@@ -254,7 +254,31 @@ m + 10
 
 **Question:** What did happen to `m`?
 
+.
+
+.
+
+.
+
 *Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
 
 *Nothing happened to `m` because we have not used the assignment operator - we have just done some function on `m` and output it in the console, but not saved the results to an object.*
 
@@ -319,7 +343,31 @@ R_rocks
 
 **Question:** What has happened here? Why are we getting an error?
 
+.
+
+.
+
+.
+
+.
+
 *Scroll down for answer.*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
 
 *This illustrates the implied contract between you and R: R will do the tedious computations for you, but in exchange, you must be completely precise in your instructions. If not, you’re likely to get an error that says the object you’re looking for was not found. Typos matter; R can’t read your mind and say, “oh, they probably meant `r_rocks` when they typed `r_rock`”. Case matters; similarly, R can’t read your mind and say, “oh, they probably meant `r_rocks` when they typed `R_rocks`”.*
 
@@ -599,7 +647,33 @@ While scatterplots can show the relationship between 2 variables, they may mask 
 
 We can incoporate this into our plot by modifying our aesthetics mapping to include this information. **Pause for a moment: how could we represent species on our plot?**
 
+.
+
+.
+
+.
+
+.
+
 *Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
 
 The simplest method would be to colour our points according to the different species. We already know from some of our data viewing that we have 3 different species, so we know we aren't going to run out of colours!
 
@@ -612,9 +686,37 @@ penguins %>%
 
 When a categorical variable is mapped to an aesthetic, ggplot2 will automatically assign a unique value of the aesthetic (here a unique colour) to each unique level of the variable (each of the three species), a process known as **scaling**. ggplot2 will also add a legend that explains which values correspond to which levels.
 
-Now let’s add one more layer: a smooth curve displaying the relationship between body mass and flipper length. **Pause point**: **refer back to the code above, and think about how we can add this to our existing plot. Is it an aesthetic, or a new geom?**
+Now let’s add one more layer: a smooth curve displaying the relationship between body mass and flipper length. **Pause point**: **refer back to the code above, and think about how we can add this to our existing plot. Is it an aesthetic, or a new geom?.**
+
+.
+
+.
+
+.
+
+.
 
 *Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
 
 Since this is a new geometric object representing our data, we will add a new geom as a layer on top of our point geom: `geom_smooth()`. Remember we need to do this by including the `+` sign after the previous geom. And we will specify that we want to draw the line of best fit based on a `l`inear `m`odel with `method = "lm"`.
 
@@ -736,6 +838,36 @@ Numerical variables are quantitative, ordinal and can have maths operations perf
 
 One commonly used visualization for distributions of continuous variables is a histogram. **Any guesses what geom we use here?**
 
+.
+
+.
+
+.
+
+.
+
+*Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
 ```{r}
 #| warning: FALSE # suppressing that warning message
 penguins %>%
@@ -789,7 +921,31 @@ For this, we can use a **boxplot**, which you may already be familiar with. A bo
 
 ```
 
+*.*
+
+*.*
+
+*.*
+
+*.*
+
 *Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
 
 ```{r}
 #| warning: FALSE # suppressing that warning message
@@ -804,7 +960,33 @@ Alternatively, we can make density plots with `geom_density()`. **How might we n
 
 ```
 
+*.*
+
+*.*
+
+*.*
+
+*.*
+
 *Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
 
 ```{r}
 #| warning: FALSE # suppressing that warning message
@@ -861,7 +1043,31 @@ penguins %>%
 
 **What other numerical variables are in our data that we could compare against each other?**
 
+.
+
+.
+
+.
+
+.
+
 *Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
 
 ```{r}
 penguins
