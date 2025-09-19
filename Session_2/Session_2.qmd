@@ -277,7 +277,7 @@ uk_flights %>%
 
 ### **`distinct()`**
 
-`distinct()` finds all the unique rows in a dataset, however dataset is not the best for demonstrating this function as the rows are mostly all unique. If there are any duplicate rows in the data, you can use `distinct()` with no arguments to remove them:
+`distinct()` finds all the unique rows in a dataset, however our dataset is not the best for demonstrating this function as the rows are mostly all unique. If there are any duplicate rows in the data, you can use `distinct()` with no arguments to remove them:
 
 ```{r}
 # Remove duplicate rows, if any
