@@ -80,6 +80,18 @@ The other advantage is that there are *countless* tutorials, books, teaching res
 
 -   ***Analyzing RNAseq data with DESeq2*** — Michael I. Love, Simon Anders, and Wolfgang Huber. A thorough walkthrough of bulk RNAseq analysis using the popular tool which we will use later in the course, *DESeq2*. <https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html>
 
+## Goals for session 1:
+
+-   Become familiar with **Rstudio**, **Quarto** and running code
+
+-   Understand the **basics** of R - variable types, vectors, matrices, **packages** and **libraries**.
+
+-   Start to use **functions** and know where to find help for each function.
+
+-   Explore data with the **penguins dataset** and the **tidyverse**.
+
+-   Visualise data using **ggplot2**.
+
 # The Basics
 
 ## Running code
