@@ -224,4 +224,350 @@ uk_flights %>%
 
 ### `arrange()`
 
-# Applying what we've learned to RNAseq data
+`arrange()` changes the order of the rows based on the value of the columns. It takes a data frame and a set of column names (or more complicated expressions) to order by. If you provide more than one column name, each additional column will be used to break ties in the values of the preceding columns. In addition, you can use the `desc()` function on a column inside of `arrange()` to re-order the data frame based on that column from largest number to smallest. Say we wanted to sort our airports by the number of military flights:
+
+```{r}
+uk_flights %>%
+  arrange(desc(military))
+```
+
+How would we go from smallest to largest? It turns out, that is the default for `arrange()`. So if we remove `desc()` from the previous example:
+
+```{r}
+uk_flights %>%
+  arrange(military)
+```
+
+Note that the number of rows has not changed – we’re only arranging the data, we’re not filtering it.
+
+**What if we wanted to arrange by number of military flights from lowest to highest, and in the event of ties, to arrange by total number of flights from highest to lowest?**
+
+.
+
+.
+
+.
+
+*Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+```{r}
+uk_flights %>%
+  arrange(military, desc(grand_total))
+```
+
+### **`distinct()`**
+
+`distinct()` finds all the unique rows in a dataset, however dataset is not the best for demonstrating this function as the rows are mostly all unique. If there are any duplicate rows in the data, you can use `distinct()` with no arguments to remove them:
+
+```{r}
+# Remove duplicate rows, if any
+uk_flights %>%
+  distinct()
+```
+
+We have no duplicates, so the number of rows isn't changed.
+
+What if we just want to know all what of the different reporting airport groups are?
+
+```{r}
+uk_flights %>%
+  distinct(reporting_airport_group_name)
+```
+
+Notice how we've lost the other columns? This is fine in our case because we just wanted to know the unique values of the reporting_airport_group_name variable. But it is possible to keep the other columns in place using `.keep_all = TRUE`
+
+```{r}
+uk_flights %>%
+  distinct(reporting_airport_group_name, .keep_all = TRUE)
+```
+
+Most of the time, however, you’ll want the distinct combination of some variables, so you can also optionally supply column names. Say now we want to find all the unique combinations of reporting_area_group_name and reporting_airport_name:
+
+```{r}
+uk_flights %>%
+  distinct(reporting_airport_group_name, reporting_airport_name)
+```
+
+I.e,. we now have a quick overview of all of the airports in our dataset and their reporting area group name.
+
+What if we want to know how many of each group there are? In this case, we're betting off using `count()` and we can sort from highest to lowest using `sort = TRUE`.
+
+```{r}
+uk_flights %>%
+  count(reporting_airport_group_name, sort = TRUE)
+```
+
+## Columns
+
+There are 4 important functions which affect the columns without changing the rows:
+
+-   `select()` changes which columns are present
+
+-   `mutate()` creates new columns derived from existing columns
+
+-   `rename()` changes the names of columns
+
+-   `relocate()` changes the positions of columns
+
+### `select()`
+
+`select()` is sort of like the columns version of `filter()` — rather than filtering for rows which fit a certain criteria, we are selecting specific columns.
+
+Select columns by name:
+
+```{r}
+uk_flights %>%
+  select(reporting_airport_name, grand_total)
+```
+
+Select all columns within a range (inclusive):
+
+```{r}
+uk_flights %>%
+  select(reporting_airport_group_name:air_transport)
+```
+
+Select all columns *except* for those within a range:
+
+```{r}
+uk_flights %>%
+  select(!reporting_airport_group_name:air_transport)
+```
+
+`!` reads like "NOT".
+
+Select columns of a specific variable type, e.g., characters
+
+```{r}
+uk_flights %>%
+  select(where(is.character))
+```
+
+There are a number of helper functions you can use within `select()`:
+
+-   `starts_with("abc")`: matches names that begin with “abc”.
+
+-   `ends_with("xyz")`: matches names that end with “xyz”.
+
+-   `contains("ijk")`: matches names that contain “ijk”.
+
+-   `num_range("x", 1:3)`: matches `x1`, `x2` and `x3`.
+
+You can rename variables as you `select()` them by using `=`. The new name appears on the left-hand side of the `=`, and the old variable appears on the right-hand side.
+
+```{r}
+uk_flights %>%
+  select(airport_name = reporting_airport_name)
+```
+
+### `mutate()`
+
+This is a really useful function particularly for calculating new metrics from your data. E.g., suppose you wanted to calculate the percentage of flights at an airport which are related to business aviation. You give the column a name first (`business_percentage`) and write a formula relating to other columns to calculate it:
+
+```{r}
+uk_flights %>% 
+  mutate(
+    business_percentage = business_aviation / grand_total * 100
+  )
+```
+
+Now we can see that column at the end of the preview. (Note we still haven't changed `uk_flights` itself as we didn't overwrite it using the assignment operator `<-`).
+
+By default, `mutate()` adds new columns on the right-hand side of your dataset, which makes it difficult to see what’s happening here. We can use the `.before` argument to instead add the variables to the left-hand side:
+
+```{r}
+uk_flights %>% 
+  mutate(
+    business_percentage = business_aviation / grand_total * 100,
+    .before = 3 # means put it before the third column
+  )
+```
+
+As you may have guessed, to do the opposite, we use `.after`. You also can specify a particular column rather than just a column number, e.g., if we want to put the new `business_percentage` column after `grand_total`:
+
+```{r}
+uk_flights %>% 
+  mutate(
+    business_percentage = business_aviation / grand_total * 100,
+    .after = grand_total 
+  )
+```
+
+Another useful argument for `mutate()` is `.keep` which allows you to keep certain variables in the final data frame — a great use for this is to specify `"used"` which will only keep the variables used to make the new column:
+
+```{r}
+uk_flights %>% 
+  mutate(
+    business_percentage = business_aviation / grand_total * 100,
+    .keep = "used" 
+  )
+```
+
+However, now we can't see what airport we're referring to! **How could we fix this? (hint: will need to use 2 functions (`mutate()` and `select()`) and pipes).**
+
+.
+
+.
+
+.
+
+*Scroll down for answer*
+
+.
+
+.
+
+.
+
+*.*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+`.keep` *only accepts one of these fixed keywords:*
+
+-   `"all"` *(keep all existing columns, the default)*
+
+-   `"used"` *(keep only columns used to make the new variables)*
+
+-   `"unused"` *(drop those used, keep the rest)*
+
+-   `"none"` *(drop all original columns, keep only the new ones)*
+
+*So you would have to do this sequentially using `mutate()` then `select()`:*
+
+```{r}
+uk_flights %>% 
+  mutate(
+    business_percentage = business_aviation / grand_total * 100) %>% 
+  select(
+    reporting_airport_name, business_aviation, grand_total, business_percentage)
+```
+
+### `rename()`
+
+`select()` removes all of the other columns you haven't selected. If you want to keep them all but just rename a few:
+
+```{r}
+uk_flights %>%
+  rename(
+    airport_name = reporting_airport_name, 
+    reporting_group = reporting_airport_group_name)
+```
+
+If you have a bunch of inconsistently named columns and it would be painful to fix them all by hand, check out `janitor::clean_names()` which provides some useful automated cleaning.
+
+### `relocate()`
+
+`relocate()` moves columns around. You might want to collect related variables together or move important variables to the front. By default `relocate()` moves variables to the front:
+
+```{r}
+uk_flights %>%
+  relocate(grand_total, business_aviation)
+```
+
+You can also specify where to put them using the `.before` and `.after` arguments, just like in `mutate()`:
+
+```{r}
+uk_flights %>%
+  relocate(official:business_aviation, .after = reporting_airport_name)
+```
+
+## The pipe
+
+The **pipe** is one of the most powerful tools in the tidyverse. It takes the result of one step and passes it as the first argument to the next function. You’ve already seen simple examples, but its *real power* appears when we want to combine multiple steps.
+
+Suppose we want to find the airport, outside of the London area, with the highest percentage of official flights. To do this, we need to:
+
+-   `filter()` for airports not in the *London Area Airports* category
+
+-   Create a new column (`mutate()`) giving us the percentage of official flights
+
+-   `select()` just the columns we want to show, and
+
+-   `arrange()` by the percentage of official flights from high to low.
+
+Without the pipe, we have two options:
+
+1.  **Nesting functions** (ugly, hard to read, and a pain to type):
+
+```{r}
+arrange(
+  select(
+    mutate(
+      filter(
+        uk_flights, # here is our data frame - look how tucked away it is!!
+        reporting_airport_group_name != "London Area Airports"
+      ),
+      official_percentage = official / grand_total * 100
+    ),
+    reporting_airport_name, official_percentage
+  ),
+  desc(official_percentage)
+)
+```
+
+2.  **Creating lots of intermediate objects** (clearer, but verbose):
+
+```{r}
+uk_flights_1 <- filter(uk_flights, reporting_airport_group_name != "London Area Airports")
+uk_flights_2 <- mutate(uk_flights_1, official_percentage = official / grand_total * 100)
+uk_flights_3 <- select(uk_flights_2, reporting_airport_name, official_percentage)
+arrange(uk_flights_3, desc(official_percentage))
+```
+
+If we use the pipe instead, we get this:
+
+```{r}
+uk_flights %>% # take our data frame uk_flights
+  filter(reporting_airport_group_name != "London Area Airports") %>% # filter it
+  mutate(official_percentage = official / grand_total * 100) %>% # add new column
+  select(reporting_airport_name, official_percentage) %>% # select columns we want
+  arrange(desc(official_percentage)) # sort by official percentage descending
+  
+```
+
+This version reads like a sentence: *“Take the flights data, then filter, then mutate, then select, then arrange.”* It’s easier to type, avoids awkward brackets and commas, and because the data is piped in from the start, RStudio’s autocomplete works smoothly with column names.
+
+## Groups
+
+So far you’ve learned about functions that work with rows and columns. dplyr gets even more powerful when you add in the ability to work with groups. In this section, we’ll focus on the most important functions: `group_by()`, `summarize()`, and the slice family of functions.
+
+### `.group_by()`
+
+.
+
+.
+
+.
+
+# Applying what we've learned to RNAseq data (probably session 3 actually)
