@@ -74,11 +74,10 @@ In the previous session, we used the `penguins` dataset to create some useful vi
 
 ### Packages required
 
-First, we shall load the packages we need. `dplyr` is part of the `tidyverse` package, so loading that will be sufficient. We also need the `nycflights` package, and `ggplot2` for plotting (also part of `tidyverse`). Note: these were all installed in our setup chunk, so we just need to load them using the `library` function now.
+First, we shall load the packages we need. `dplyr` is part of the `tidyverse` package, so loading that will be sufficient. We're going to use some of our own data for this session (which we will load later), and `ggplot2` for plotting (also part of `tidyverse`). Note: these were all installed in our setup chunk, so we just need to load them using the `library` function now.
 
 ```{r}
 library(tidyverse)
-#library(nycflights13)
 ```
 
 We've been ignoring the output of this till now, but let's just quickly look at what this is telling us.
@@ -90,10 +89,6 @@ This is a warning that the package in question was compiled in a different versi
 ![](images/clipboard-77745967.png)
 
 This part is telling us that the `dplyr` package overwrites some functions in base R. If you want to use the base version of these functions after loading dplyr, you’ll need to use their full names: `stats::filter()` and `stats::lag()`. So far, we’ve mostly ignored which package a function comes from because it doesn’t usually matter. However, knowing the package can help you find help and find related functions, so when we need to be precise about which package a function comes from, we’ll use the same syntax as R: `packagename::functionname()`.
-
-### nycflights13 (maybe)
-
-Within the `nycflights13` package is a dataset called `nycflights13::flights`. This comes from the US Bureau of
 
 ### Our dataset
 
