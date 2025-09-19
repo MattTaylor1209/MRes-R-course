@@ -714,7 +714,7 @@ We shall close off this *Data transformation* section by bringing together what 
 
 It’s rare that a data analysis involves only a single data frame. Typically you have many data frames, and you must **join** them together to answer the questions that you’re interested in.
 
-In our case, are using data from the CAA for the number of flights of different categories across UK airports. It would be nice also if we could see, for example, the number of cancelled flights per airport. Unfortunately, our data frame does not include this information. Fortunately, the CAA *does* record this information — but it is in a *separate* file.
+In our case, we are using data from the CAA for the number of flights of different categories across UK airports. It would be nice also if we could see, for example, the number of cancelled flights per airport. Unfortunately, our data frame does not include this information. Fortunately, the CAA *does* record this information — but it is in a *separate* file.
 
 Let's import it into Rstudio now:
 
