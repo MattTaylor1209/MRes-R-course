@@ -54,7 +54,7 @@ Also, before we start, click on the little gear above the document window and se
 
 # Welcome
 
-Welcome to this three-part course on the foundations of R for bioinformatics. It is designed with beginners in mind, so if you already have coding experience, some sections may feel straightforward. The aim is to demystify R and show how it can be both approachable and powerful for making sense of biological data. Using real examples from bulk RNA-seq, we’ll learn how to load, explore, and visualise data, and then gradually build up to a full analysis pipeline — all within a reproducible framework using Quarto in RStudio. No prior coding experience is required. We’ll move step by step so that you finish the course confident in applying these skills to your own research.
+Welcome to this three-part course on the *foundations of R for bioinformatics*. It is designed with beginners in mind, so if you already have coding experience, some sections may feel straightforward. The aim is to demystify R and show how it can be both approachable and powerful for making sense of biological data. Using real examples from bulk RNA-seq, we’ll learn how to load, explore, and visualise data, and then gradually build up to a full analysis pipeline — all within a reproducible framework using Quarto in RStudio. No prior coding experience is required. We’ll move step by step so that you finish the course confident in applying these skills to your own research.
 
 We only have six hours together across three sessions, so the focus will be on practical foundations rather than comprehensive coverage. We’ll prioritise hands-on skills: importing data into R, working with tidy data frames, plotting with **ggplot2**, and running basic differential expression with **DESeq2**. More advanced areas — such as single-cell RNA-seq, batch correction, or complex statistical modelling — are beyond the scope of these sessions, but you’ll get resources and pointers for continuing your learning. By the end, you’ll not only have a practical toolkit for RNA-seq analysis, but also a set of plug-and-play templates you can adapt to your own data with minimal changes.
 
@@ -81,6 +81,8 @@ The other advantage is that there are *countless* tutorials, books, teaching res
 -   ***Analyzing RNAseq data with DESeq2*** — Michael I. Love, Simon Anders, and Wolfgang Huber. A thorough walkthrough of bulk RNAseq analysis using the popular tool which we will use later in the course, *DESeq2*. <https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html>
 
 ## Goals for session 1:
+
+By the end of this session, you will:
 
 -   Become familiar with **Rstudio**, **Quarto** and running code
 
@@ -590,7 +592,7 @@ summary(penguins)
 
 ### A brief introduction to the "pipe"
 
-One of the most useful tools in the tidyverse is the **pipe**, which we will go into more detail on later. Think of it as "take what is on the left and feed it into the function on the right." Its symbol looks like this `%>%` although you might also see it written elsewhere as `|>`. We will be using this *a lot* in future sessions, but a quick example now, suppose you wanted to count how many different animals of each species of penguin are in our dataset.
+One of the most useful tools in the tidyverse is the **pipe**, which we will go into more detail on in session 2. Think of it as "take what is on the left and feed it into the function on the right." Its symbol looks like this `%>%` although you might also see it written elsewhere as `|>`. We will be using this *a lot* in future sessions, but a quick example now, suppose you wanted to count how many different animals of each species of penguin are in our dataset.
 
 ```{r first-pipe}
 # take the whole penguins dataset and 'pipe' it into the function count()

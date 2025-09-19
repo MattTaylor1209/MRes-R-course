@@ -11,23 +11,217 @@ format:
 editor: visual
 ---
 
-## Quarto
+# Setup code
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+As we did in session 1, run the following chunk (click the green arrow in the corner) which will check that everything we need for today's session is installed and up to date.
 
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
-1 + 1
-```
-
-You can add options to executable code like this
-
-```{r}
+```{r setup}
 #| echo: false
-2 * 2
+# Required packages
+required_packages <- c("tidyverse", "arrow", "babynames", "curl", "duckdb", "gapminder", 
+    "ggrepel", "ggridges", "ggthemes", "hexbin", "janitor", "Lahman", 
+    "leaflet", "maps", "nycflights13", "openxlsx", "palmerpenguins", 
+    "repurrrsive", "tidymodels", "writexl")
+
+# Install BiocManager if needed
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+# Try BiocManager first, then fallback to install.packages
+for (pkg in required_packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    message("Trying BiocManager::install('", pkg, "')")
+    tryCatch({
+      BiocManager::install(pkg, ask = FALSE, update = FALSE)
+    }, error = function(e_bioc) {
+      message("BiocManager failed. Trying install.packages('", pkg, "')")
+      tryCatch({
+        install.packages(pkg, dependencies = TRUE)
+      }, error = function(e_cran) {
+        message("Failed to install '", pkg, "' via both methods.")
+      })
+    })
+  }
+}
+
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+Also, before we start, click on the little gear above the document window and select "clear all output" from the dropdown menu (this prevents any *spoilers!*):
+
+![](images/clipboard-2475862271.png)
+
+# Welcome
+
+Welcome to part 2 of the *foundations of R for bioinformatics* course. Today, we are going to hone our tidyverse skills as we learn how to import, tidy and transform data. You may already wondering what is meant by "tidying" data - can data be *un*tidy? The answer, from the perspective of R, is yes! But more on that later...
+
+We will also take a closer look at an important tidyverse tool that you have already seen in action during session 1 but that I haven’t yet explained properly: the **pipe**. The pipe, written as `%>%` or `|>`, allows us to link together a sequence of functions so that the output of one step becomes the input to the next. Instead of writing long, nested commands that are difficult to read, we can use the pipe to build analyses step by step in a way that mirrors how we think about the task: *take this dataset, then filter it, then summarise it, then plot it.* Using the pipe makes your code more readable, more reproducible, and easier to debug.
+
+As before, this session is heavily inspired by [R for Data Science(2nd Edition)](https://r4ds.hadley.nz/) by Hadley Wickham & Garrett Grolemund. However, **I WILL ALSO BE INCLUDING SOME REAL WORLD RNA SEQ DATA FROM REF** to make the course more applicable to our needs — namely to introduce you to how R can be used for big data/bioinformatics, such an an RNAseq experiment.
+
+## Goals for session 2
+
+By the end of this session, you will be able to:
+
+-   
+
+# Data transformation
+
+## Introduction
+
+In the previous session, we used the `penguins` dataset to create some useful visualisations of different relationships within the data. Often, however, the data you have is not exactly in the correct format to give the insight you want. Maybe the variables are named incorrectly, or you need to summarise the data in a particular way. Here, we will learn how to **transform** data using the **dplyr** package.
+
+### Packages required
+
+First, we shall load the packages we need. `dplyr` is part of the `tidyverse` package, so loading that will be sufficient. We also need the `nycflights` package, and `ggplot2` for plotting (also part of `tidyverse`). Note: these were all installed in our setup chunk, so we just need to load them using the `library` function now.
+
+```{r}
+library(tidyverse)
+#library(nycflights13)
+```
+
+We've been ignoring the output of this till now, but let's just quickly look at what this is telling us.
+
+![](images/clipboard-572882515.png)
+
+This is a warning that the package in question was compiled in a different version of R to the one we are running. Don’t panic — warnings are not errors. If your code runs and plots appear, you’re fine. (The way you would address this would be to update your R installation and re-install the packages; there is no need for us to do this now).
+
+![](images/clipboard-77745967.png)
+
+This part is telling us that the `dplyr` package overwrites some functions in base R. If you want to use the base version of these functions after loading dplyr, you’ll need to use their full names: `stats::filter()` and `stats::lag()`. So far, we’ve mostly ignored which package a function comes from because it doesn’t usually matter. However, knowing the package can help you find help and find related functions, so when we need to be precise about which package a function comes from, we’ll use the same syntax as R: `packagename::functionname()`.
+
+### nycflights13 (maybe)
+
+Within the `nycflights13` package is a dataset called `nycflights13::flights`. This comes from the US Bureau of
+
+### Our dataset
+
+In the Hadley course section on data transformation, they use some built-in data: this time, a dataset on flights which departed New York City in 2013. I've decide to adapt this to instead use data from the UK's own [Civil Aviation Authority (CAA)](https://www.caa.co.uk/data-and-analysis/) - specifically statistics on UK airports from February 2025.
+
+To get the dataset, we can import it directly from their website using the function `read_csv()` from the `tidyverse` package - more on this (and what exactly a 'csv' is) later in the *Data import* section. Remember: using `<-` assigns the code on the right to an object name on the left. There's nothing special about calling it `uk_flights` — we could call it `bananas` if we really wanted — but `uk_flights` is a more useful name for what the data actually is.
+
+```{r import_uk_flights}
+uk_flights <- read_csv("https://www.caa.co.uk/Documents/Download/23996/6890c139-9322-4a92-9e12-b6c70d505aa7/17059")
+
+# Fallback in case the URL doesn't work - you can download the data into your current working directory and read it in like this:
+# read_csv("Table_03_Aircraft_Movements.csv)
+
+# I'm also going to remove the first 2 columns, which aren't useful for us:
+uk_flights <- uk_flights[, -(1:2)] # this says "subset uk_flights without columns 1 to 2
+```
+
+We're also going to convert it quickly into a **tibble.** A tibble is a special type of data frame used by the tidyverse to avoid some common problems. The most important difference between tibbles and data frames is the way tibbles print; they are designed for large datasets, so they only show the first few rows and only the columns that fit on one screen. There are a few options to see everything: `View(uk_flights)` opens an interactive, scrollable, and filterable view. Otherwise you can use `print(uk_flights, width = Inf)` to show all columns, or use `glimpse()`:
+
+```{r convert_and_view}
+
+uk_flights <- tibble(uk_flights)
+glimpse(uk_flights)
+```
+
+The variable names are followed by abbreviations that tell you the **type** of each variable, which we talked a bit about in session 1: `<int>` is short for integer, `<dbl>` is short for double, `<chr>` for character, and `<dttm>` for date-time. The operations you can perform on a column depend heavily on its “type.”
+
+### dplyr basics
+
+The following sections will introduce you to the fundamental dplyr functions which will solve the majority of your data manipulation challenges. All of these functions have the following in common:
+
+-   The first *argument* of the function (input) is always a data frame
+
+-   The subsequent arguments typically describe which column you want the function to operate on, using the variable name without quotes, e.g., `reporting_airport_name`
+
+-   The output is always a new data frame.
+
+Each function typically does just one thing. Therefore, complex problems typically involve combining these functions one after another, which we do using the **pipe**. I know I keep mentioning this thing without fully explaining it — I'm sorry! — but I promise we will cover this in more detail soon. In brief, the pipe takes the thing on the left and passes it into the function on the right. Think of it as the word "then". That makes it possible to get a sense of the following code even though you haven’t yet learned the details: **Pause: what do you think the output of the following chunk will be? Read it as if reading a sentence "take the uk_flights data frame, then..."**
+
+```{r}
+uk_flights %>%
+  group_by(reporting_airport_group_name) %>%
+  summarise(
+    mean_total_flights = round(mean(grand_total, na.rm = TRUE))
+  )
+
+```
+
+dplyr’s verbs are organized into four groups based on what they operate on: **rows**, **columns**, **groups**, or **tables**. We will cover these one by one!
+
+## Rows
+
+The 2 most important functions here are:
+
+-   `filter()` - changes which rows are present without changing their order
+
+-   `arrange()` - changes the order of the rows without changing which are present
+
+The columns are left unchanged. Another function is `distinct()` which finds rows with unique values (and can optionally modify the columns, unlike the other 2).
+
+### `filter()`
+
+`filter()` allows you to keep rows based on the values of the columns. The first argument is the data frame. The second and subsequent arguments are the conditions that must be true to keep the row. For example, we could find all airports which reported more than 1000 flights in our dataset.
+
+```{r}
+uk_flights %>%
+  filter(grand_total > 1000)
+```
+
+Notice how we now have a preview of a new data table that satisfies the requirements of our filter — all of the values in the grand_total column are greater than 1000. Note that this hasn't changed our original data (we haven't overwritten it) and we also haven't saved it to a new object, so it literally only exists as a preview below that chunk. If we wanted to overwrite our original (not recommended usually), we would put `uk_flights <-` before that code; or, more likely, to save to a new object, we would put in a new variable name there e.g., `busy_airports <-`:
+
+```{r}
+busy_airports <- uk_flights %>%
+  filter(grand_total > 1000)
+```
+
+This is the key difference between the *assignment operator `<-`* and the pipe `%>%`.
+
+-   `<-` means assign what's on the right to the thing on the left.
+
+-   `%>%` means take what's on the left and do the thing on the right to it.
+
+Back to `filter()`...
+
+As well as `>` (greater than), you can use `>=` (greater than or equal to), `<` (less than), `<=` (less than or equal to), `==` (equal to), and `!=` (not equal to). You can also combine conditions with `&` or `,` to indicate “and” (check for both conditions) or with `|` to indicate “or” (check for either condition):
+
+```{r}
+# Airports with more than 1000 flights but less than 2000:
+uk_flights %>%
+  filter(grand_total > 1000 & grand_total < 2000)
+```
+
+```{r}
+# Airports which are in London or have more flights than 1000
+uk_flights %>%
+  filter(
+    grand_total > 1000 | reporting_airport_group_name == "London Area Airports")
+```
+
+```{r}
+# All airports not in London area
+uk_flights %>%
+  filter(
+    reporting_airport_group_name != "London Area Airports")
+```
+
+There’s a useful shortcut when you’re combining `|` and `==`, which is `%in%`. It keeps rows where the variable equals one of the values on the right:
+
+```{r}
+# Data for Birmingham and Stansted airports
+uk_flights %>%
+  filter(
+    reporting_airport_name %in% c("BIRMINGHAM", "STANSTED")
+  )
+```
+
+Note that when you want `filter()` to check if something is equal to something, you have to use the double equals `==` rather than single `=`. Basically, this is because R sometimes treats `=` like the assignment operator (as in other languages).
+
+Another mistakes is writing “or” statements like you would in English. We might read the following as "filter the airport names to only include them if they are Birmingham or Stansted." With some variables, this might not throw an error (but still won't give you what you meant). In our case it does:
+
+```{r}
+#| error: true
+uk_flights %>%
+  filter(
+    reporting_airport_name == "BIRMINGHAM" | "STANSTED"
+  )
+```
+
+### `arrange()`
+
+# Applying what we've learned to RNAseq data
