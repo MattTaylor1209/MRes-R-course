@@ -105,7 +105,7 @@ To get the dataset, we can import it directly from their website using the funct
 uk_flights <- read_csv("https://www.caa.co.uk/Documents/Download/23996/6890c139-9322-4a92-9e12-b6c70d505aa7/17059")
 
 # Fallback in case the URL doesn't work - you can download the data into your current working directory and read it in like this:
-# read_csv("Table_03_Aircraft_Movements.csv)
+# uk_flights <- read_csv("Table_03_Aircraft_Movements.csv")
 
 # I'm also going to remove the first 2 columns, which aren't useful for us:
 uk_flights <- uk_flights[, -(1:2)] # this says "subset uk_flights without columns 1 to 2
@@ -564,10 +564,299 @@ So far you’ve learned about functions that work with rows and columns. dplyr g
 
 ### `.group_by()`
 
+This function allows you to subdivide your dataset into groups which are useful for further analysis. E.g., we know we have multiple airports per *reporting_airport_group_name* so we could group by this variable:
+
+```{r}
+uk_flights %>%
+  group_by(reporting_airport_group_name)
+```
+
+Nothing major has happened there, except we now see that all of the London Area Airports are together, all of the Non UK Reporting Airports are together etc. You may also notice the output indicates what we are grouped by: ![](images/clipboard-727697052.png){width="289"} This means that subsequent operations (if we piped further) are applied per Group. We will see this in action in the next section.
+
+### `summarise()`
+
+The most important grouped operation is a summary, which, if being used to calculate a single summary statistic, reduces the data frame to have a single row for each group. In dplyr, this operation is performed by `summarise()`.
+
+```{r}
+uk_flights %>%
+  group_by(reporting_airport_group_name) %>%
+  summarise(
+    avg_total_flights = round(mean(grand_total, na.rm = TRUE))
+  )
+```
+
+*Note that I have included `na.rm = TRUE`* *within the `mean()`* *function - this was just in case we had missing data, which would have resulted in NA being the output of `mean()`*. *In our dataset, we didn't have to worry about this, you may need to worry about NAs in data you get elsewhere. We don't have time to go into detail about handling missing values in this course, so for more information, see [Chapter 18](https://r4ds.hadley.nz/missing-values.html) of the Hadley course.*
+
+You can create any number of summaries in a single call to `summarise()`; one very useful summary is `n()`, which returns the number of rows in each group:
+
+```{r}
+uk_flights %>%
+  group_by(reporting_airport_group_name) %>%
+  summarise(
+    avg_total_flights = round(mean(grand_total, na.rm = TRUE)),
+    n = n()
+  )
+```
+
+### The `slice_` functions
+
+There are five handy functions that allow you to extract specific rows within each group:
+
+-   `df |> slice_head(n = 1)` takes the first row from each group.
+
+-   `df |> slice_tail(n = 1)` takes the last row in each group.
+
+-   `df |> slice_min(x, n = 1)` takes the row with the smallest value of column `x`.
+
+-   `df |> slice_max(x, n = 1)` takes the row with the largest value of column `x`.
+
+-   `df |> slice_sample(n = 1)` takes one random row.
+
+You can vary `n` to select more than one row, or instead of `n =`, you can use `prop = 0.1` to select (e.g.) 10% of the rows in each group.
+
+Example: finding the busiest airports for each reporting group.
+
+```{r}
+uk_flights %>%
+  group_by(reporting_airport_group_name) %>%
+  slice_max(grand_total, n = 1) %>%
+  relocate(grand_total)
+```
+
+This is similar to computing the busiest airport with `summarise()`, but you get the whole corresponding row (or rows if there’s a tie) instead of the single summary statistic.
+
+### Grouping by multiple variables
+
+You can create groups using more than one variable. Our data doesn't work particularly well in this example, so let's make a new variable first. We'll call an airport "busy" if it saw more than 5000 flights in this reporting period:
+
+```{r}
+uk_flights <- uk_flights %>% # we want to actually add this column to our data
+  mutate(busy = ifelse(grand_total > 5000, "busy", "not_busy"))
+```
+
+Now let's say we want to group by the reporting airport group name and our new busy variable:
+
+```{r}
+busy_areas <- uk_flights %>%
+  group_by(reporting_airport_group_name, busy) %>%
+  relocate(busy, .after = reporting_airport_name)
+
+busy_areas
+```
+
+When you summarize a tibble grouped by more than one variable, each summary peels off the last group. To make it obvious what’s happening, dplyr displays a message that tells you how you can change this behavior:
+
+```{r}
+busy_n <- busy_areas %>%
+  summarise(n = n())
+
+busy_n
+```
+
+If you’re happy with this behavior, you can explicitly request it in order to suppress the message:
+
+```{r}
+busy_n <- busy_areas %>%
+  summarise(n = n(),
+            avg_flights = round(mean(grand_total, na.rm = TRUE)),
+            .groups = "drop_last")
+
+busy_n
+```
+
+Alternatively, change the default behavior by setting a different value, e.g., `"drop"` to drop all grouping or `"keep"` to preserve the same groups.
+
+### Ungrouping
+
+You might also want to remove grouping from a data frame without using `summarize()`. You can do this with `ungroup()`.
+
+```{r}
+busy_areas %>% 
+  ungroup()
+```
+
+Now let’s see what happens when you summarise an ungrouped data frame:
+
+```{r}
+busy_areas %>%
+  ungroup() %>%
+  summarise(
+    avg_flights = round(mean(grand_total, na.rm = TRUE)),
+    n = n()
+  )
+
+```
+
+Now we just have a single row because dplyr is treating them all as belonging to one group.
+
+### `.by`
+
+If you want to combine some of the above steps (grouping and then summarising) into one, dplyr also includes an experimental feature called `.by`. So say you want to summarise the mean number of flights, grouping both by the area of the airport and the "busy-ness":
+
+```{r}
+uk_flights %>%
+  summarise(
+    avg_flights = round(mean(grand_total, na.rm = TRUE)),
+    n = n(), 
+    .by = c(reporting_airport_group_name, busy)
+  )
+```
+
+`.by` works with all of these functions and has the advantage that you don’t need to use the `.groups` argument to suppress the grouping message or `ungroup()` when you’re done.
+
+## Tables - using joins
+
+Due to time constraints, I am only going to be able to briefly go over some of the dplyr functions which work on tables. For a more detailed overview, see [*Chapter 19*](https://r4ds.hadley.nz/joins.html) of the Hadley course. Their worked example, using the `nycflights13` package, is also much more involved than our one!
+
+We shall close off this *Data transformation* section by bringing together what we have learned so far, add in the ability to use **joins**, and ask the question: **which airports in our dataset had the highest percentage of cancelled flights, per reporting region?**
+
+---
+
+It’s rare that a data analysis involves only a single data frame. Typically you have many data frames, and you must **join** them together to answer the questions that you’re interested in.
+
+In our case, are using data from the CAA for the number of flights of different categories across UK airports. It would be nice also if we could see, for example, the number of cancelled flights per airport. Unfortunately, our data frame does not include this information. Fortunately, the CAA *does* record this information — but it is in a *separate* file.
+
+Let's import it into Rstudio now:
+
+```{r delays}
+cancelled <- read_csv("https://www.caa.co.uk/Documents/Download/23996/6890c139-9322-4a92-9e12-b6c70d505aa7/17062")
+
+# Fallback in case the URL doesn't work - you can download the data into your current working directory and read it in like this:
+# delays <- read_csv("Table_04a_Cancelled_Movements.csv")
+
+# Again, I'm also going to remove the first 2 columns, which aren't useful for us:
+cancelled <- cancelled[, -(1:2)] 
+
+# And convert to a tibble
+
+cancelled <- tibble(cancelled)
+```
+
+We can have a look at what is in this new dataset:
+
+```{r}
+glimpse(cancelled)
+```
+
+Immediately, something might stand out to you: 2 of those column names (reporting_airport_group_name and reporting_airport_name) are identical to 2 of the columns we had in our other dataset. This is good news for joining purposes!
+
+The most common form of join is `left_join()` which is special because the output will always have the same rows as the data frame you are joining *to*.
+
+By default, `left_join()` will use all variables that appear in both data frames as the join key, the so called **natural** join. In our case, both `reporting_airport_group_name` and `reporting_airport_name` appear in each dataset, so the join will use both of these to try and match the datasets:
+
+```{r}
+uk_flights %>%
+  left_join(cancelled)
+```
+
+Now we can see all of the other columns within `cancelled` have been added to the `uk_flights` data frame using the `reporting_airport_group_name` and `reporting_airport_name` to find matching **keys.** Note also the presence of some NAs in our data now. **Where have they come from?**
+
+.
+
+.
+
+.
+
+*Scroll down for answer*
+
+.
+
 .
 
 .
 
 .
+
+.
+
+.
+
+.
+
+.
+
+.
+
+*You may have noticed when looking at our new `cancelled`* *data frame that we only have 50 rows compared to the 57 before.* *To make this explicit:*
+
+```{r}
+dim(uk_flights) # 57 rows, 15 columns
+dim(cancelled) # 50 rows, 5 columns
+```
+
+*This means that some of our airports didn't collect information on the number of cancelled flights — so when we join the datasets, this is reflected by the values of NA.*
+
+We might only care about matching by one specific variable in our data. For this, we can use the `join_by()` function:
+
+```{r}
+uk_flights %>%
+  left_join(cancelled,
+            join_by(reporting_airport_name))
+```
+
+Additionally, we might only care to join certain columns into our data frame. We can use a pipe nested within our `left_join()` function to achieve this (note that at least one of the columns we select has to match a column in our destination dataset). We will do this to select the `total_cancelled_atms` column from the `cancelled` data frame and join it to our `uk_flights` data frame by matching `reporting_airport_name`, and make a new data frame called `uk_flights_detailed`
+
+```{r}
+uk_flights_detailed <- uk_flights %>%
+  left_join(delays %>% select(reporting_airport_name,total_cancelled_atms))
+
+uk_flights_detailed
+```
+
+One other thing you may have spotted is that even some of the airports that *are* included in our `cancelled` data frame have just a dash "-" instead of a number for `total_cancelled_atms`. This causes 2 problems, one of which is already present:
+
+-   The presence of a single character element in a column causes the whole variable to become the type "character", meaning basically that numbers are not being treated as numbers.
+
+-   The above, and the presence of "-", would therefore mess things up if we tried to do sums on this column, such as calculating the mean.
+
+To address this, we can use `mutate()` again, but this time rather than creating a whole new column, we can just edit the `total_cancelled_atms` column. We shall replace the "-" with NA (easier to omit when doing maths) and change the whole column type to numeric. We want to overwrite our old data frame, so we will also need to use the assignment operator `<-`:
+
+```{r}
+uk_flights_detailed <- uk_flights_detailed %>%
+  mutate(
+    total_cancelled_atms = na_if(total_cancelled_atms, "-"),
+    total_cancelled_atms = as.numeric(total_cancelled_atms)
+  )
+  
+uk_flights_detailed
+```
+
+We are now ready to put together what we have learned to answer the question at the start of this section: **which airports in our dataset had the highest percentage of cancelled flights, per reporting region?** Have a go yourself first, and if you get stuck or want to check you are right, scroll down for a model answer.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+```{r}
+uk_flights_detailed %>%
+  mutate(percentage_cancelled = total_cancelled_atms / grand_total * 100) %>% # make a new column with percentage cancelled flights
+  group_by(reporting_airport_group_name) %>% # group by the area
+  slice_max(percentage_cancelled, n = 1) %>% # take the highest number
+  select(reporting_airport_group_name, reporting_airport_name, percentage_cancelled) # select just the columns you want to display
+```
 
 # Applying what we've learned to RNAseq data (probably session 3 actually)
