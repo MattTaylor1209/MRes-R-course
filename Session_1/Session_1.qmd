@@ -60,7 +60,7 @@ We only have six hours together across three sessions, so the focus will be on p
 
 ## A quick note about Quarto
 
-Throughout this course, we’ll be using **Quarto**, a modern, flexible system for creating dynamic documents with embedded R code. If you’ve ever used R Markdown before, Quarto will feel familiar — think of it as the next generation, with a few more features and a slightly cleaner setup. Quarto lets us write code, text, and plots all in one place, making it easy to produce reproducible reports, figures, and even interactive documents.
+Throughout this course, we’ll be using **Quarto**, a modern, flexible system for creating dynamic documents with embedded R code. (If you’ve ever used R Markdown before, Quarto will feel familiar). Quarto lets us write code, text, and plots all in one place, making it easy to produce reproducible reports, figures, and even interactive documents.
 
 You don’t need to know anything about Quarto to get started — we’ll walk through the basics together. For now, all you need to know is that your `.qmd` file acts as your lab notebook: you can write plain English alongside R code, and Quarto will render it into a nicely formatted document with just one click.
 
