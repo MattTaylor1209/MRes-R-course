@@ -718,11 +718,11 @@ In our case, are using data from the CAA for the number of flights of different 
 
 Let's import it into Rstudio now:
 
-```{r delays}
+```{r cancelled}
 cancelled <- read_csv("https://www.caa.co.uk/Documents/Download/23996/6890c139-9322-4a92-9e12-b6c70d505aa7/17062")
 
 # Fallback in case the URL doesn't work - you can download the data into your current working directory and read it in like this:
-# delays <- read_csv("Table_04a_Cancelled_Movements.csv")
+# cancelled <- read_csv("Table_04a_Cancelled_Movements.csv")
 
 # Again, I'm also going to remove the first 2 columns, which aren't useful for us:
 cancelled <- cancelled[, -(1:2)] 
@@ -798,7 +798,7 @@ Additionally, we might only care to join certain columns into our data frame. We
 
 ```{r}
 uk_flights_detailed <- uk_flights %>%
-  left_join(delays %>% select(reporting_airport_name,total_cancelled_atms))
+  left_join(cancelled %>% select(reporting_airport_name,total_cancelled_atms))
 
 uk_flights_detailed
 ```
