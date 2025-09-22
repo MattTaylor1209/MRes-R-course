@@ -58,7 +58,7 @@ Welcome to part 2 of the *foundations of R for bioinformatics* course. Today, we
 
 We will also take a closer look at an important tidyverse tool that you have already seen in action during session 1 but that I haven’t yet explained properly: the **pipe**. The pipe, written as `%>%` or `|>`, allows us to link together a sequence of functions so that the output of one step becomes the input to the next. Instead of writing long, nested commands that are difficult to read, we can use the pipe to build analyses step by step in a way that mirrors how we think about the task: *take this dataset, then filter it, then summarise it, then plot it.* Using the pipe makes your code more readable, more reproducible, and easier to debug.
 
-As before, this session is heavily inspired by [R for Data Science(2nd Edition)](https://r4ds.hadley.nz/) by Hadley Wickham & Garrett Grolemund. However, **I WILL ALSO BE INCLUDING SOME REAL WORLD RNA SEQ DATA FROM REF** to make the course more applicable to our needs — namely to introduce you to how R can be used for big data/bioinformatics, such an an RNAseq experiment.
+As before, this session is heavily inspired by [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/) by Hadley Wickham & Garrett Grolemund. However, **I WILL ALSO BE INCLUDING SOME REAL WORLD RNA SEQ DATA FROM REF** to make the course more applicable to our needs — namely to introduce you to how R can be used for big data/bioinformatics, such an an RNAseq experiment.
 
 ## Goals for session 2
 
@@ -66,15 +66,9 @@ By the end of this session, you will be able to:
 
 -   
 
-# Data transformation
+## Packages required
 
-## Introduction
-
-In the previous session, we used the `penguins` dataset to create some useful visualisations of different relationships within the data. Often, however, the data you have is not exactly in the correct format to give the insight you want. Maybe the variables are named incorrectly, or you need to summarise the data in a particular way. Here, we will learn how to **transform** data using the **dplyr** package.
-
-### Packages required
-
-First, we shall load the packages we need. `dplyr` is part of the `tidyverse` package, so loading that will be sufficient. We're going to use some of our own data for this session (which we will load later), and `ggplot2` for plotting (also part of `tidyverse`). Note: these were all installed in our setup chunk, so we just need to load them using the `library` function now.
+We are going to be using `dplyr`, `readr` and `tidyr` which are all part of the `tidyverse` package, so loading that will be sufficient. We're going to use some of our own data for this session (which we will load later), and `ggplot2` for plotting (also part of `tidyverse`). Note: these were all installed in our setup chunk, so we just need to load them using the `library` function now:
 
 ```{r}
 library(tidyverse)
@@ -90,11 +84,146 @@ This is a warning that the package in question was compiled in a different versi
 
 This part is telling us that the `dplyr` package overwrites some functions in base R. If you want to use the base version of these functions after loading dplyr, you’ll need to use their full names: `stats::filter()` and `stats::lag()`. So far, we’ve mostly ignored which package a function comes from because it doesn’t usually matter. However, knowing the package can help you find help and find related functions, so when we need to be precise about which package a function comes from, we’ll use the same syntax as R: `packagename::functionname()`.
 
+# Data import
+
+## Introduction
+
+This section is adapted from [*Chapter 7*](https://r4ds.hadley.nz/data-import.html) of the [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/) course by Hadley Wickham & Garrett Grolemund. For the sake of time, we will only cover the sections which are most relevant for our needs today, but I would encourage you to take a look at that Chapter for further details—particularly the section on controlling column types as we will not have time for that today.
+
+Up to now, we have been using datasets that come pre-built into R packages. This is a great way for learning basic visualisations etc, but not reflective of your real-world use of R. In the following section, we are going to be working with some real-world data from the UK's Civil Aviation Authority, published online. Therefore, we need to equip ourselves with the tools necessary for reading this data into R. For this, we are going to use the **readr** package, which is part of the tidyverse.
+
+## Reading data from a file
+
+In R, you’ll most often work with data that comes in the form of tables—rows and columns of values, much like a spreadsheet. These tables are usually stored in plain text files, where special characters (called *delimiters*, such as commas, tabs, or spaces) separate the values in each row. The most common examples you’ll encounter are CSV (comma-separated values) files, TSV (tab-separated values) files, and sometimes Excel spreadsheets.
+
+We will take the most common format as an example: the CSV. To read a file like this into R, we use the function`read_csv()` from `readr`. The first argument this function needs is a file name, which can be the full name of a file in your working directory (or sub-directory) in quotation marks, e.g. `read_csv("some_file.csv")`. Note that we have to include the ".csv" part. Alternatively, if the data is hosted online somewhere, you can provide the URL (which is true in our example case here):
+
+```{r}
+students <- read_csv("https://pos.it/r4ds-students-csv")
+```
+
+When you use `read_csv()`, R prints a message that summarises the imported data. It tells you how many rows and columns were read, which delimiter was used, and the data types assigned to each column. It also explains how to see the full column specification and how to suppress the message if you prefer. This output is a built-in feature of the `readr` package.
+
+After reading data into R, you will normally have to transform it in some way to make it easier to work with. We will come onto more advanced transformation tips later. For now, let's look at what we have just imported:
+
+```{r}
+students
+```
+
+In the `favourite.food` column, there are a bunch of food items, and then the character string `N/A`, which should have been a real `NA` that R will recognize as “not available”. This is something we can address using the `na` argument. By default, `read_csv()` only recognizes empty strings (`""`) in this dataset as `NA`s, and we want it to also recognize the character string `"N/A"`. We can do this by specifying the `na` argument in `read_csv()`:
+
+```{r}
+students <- read_csv("https://pos.it/r4ds-students-csv", na = c("N/A", ""))
+```
+
+There's another issue with this dataset which is unfortunately hidden by Quarto - the columns "Student ID" and "Full Name" contain spaces, breaking R’s usual rules for variable names; they’re **non-syntactic** names. If you type `students` into the console, you will see how R deals with them.
+
+![](images/clipboard-3325204219.png){width="293"}
+
+Notice the backticks? Every time you want to refer to these columns, you would have to quote them using backticks, which is a pain. We should rename them, and we could do it manually. But way easier is to just use a function in the `janitor` package. Remember: `%>%` is our way of "piping" whatever we write on the left into a function on the right, which we will learn more about in the nextsection.
+
+```{r}
+library(janitor)
+
+students <- students %>% clean_names()
+
+students
+```
+
+Other issues with this data:
+
+-   `meal_plan` is currently a "character" variable type ![](images/clipboard-4225455390.png){width="76" height="27"}when it should be a factor.
+
+-   Some silly person typed "five" in as the age, which means now `age` has become a character variable type too, when it should be numeric.
+
+We can fix both these problems in one go using a function called `mutate()` which we will learn more about in the *Data transformation* section:
+
+```{r}
+students <- students %>%
+  janitor::clean_names() %>%
+  mutate(
+    meal_plan = factor(meal_plan),
+    age = parse_number(if_else(age == "five", "5", age))
+  )
+```
+
+A new function here is `if_else()`, which has three arguments. The first argument `test` should be a logical vector. The result will contain the value of the second argument, `yes`, when `test` is `TRUE`, and the value of the third argument, `no`, when it is `FALSE`. Here we’re saying if `age` is the character string `"five"`, make it `"5"`, and if not leave it as `age`.
+
+### Other `read_csv` arguments
+
+`read_csv()` has other arguments which are useful if you only want to read a certain part of the data, or skip rows which do not contain useful information. You can find out more using `?read_csv()` or at [*Chapter 7*](https://r4ds.hadley.nz/data-import.html) of the Hadley course. But to quickly demonstrate a couple here, if your data doesn't have column names in the first row, then you don't want `read_csv()` to treat the first row as column names, which is its default behaviour. To stop this, use `col_names = FALSE`:
+
+```{r}
+read_csv(
+  "1,2,3
+  4,5,6", ## these 2 rows are just making a dummy csv file with 1,2,3, as the first row and 4,5,6 as the second
+  col_names = FALSE # will just name the columns X1, X2....Xn
+)
+```
+
+Alternatively, you can pass `col_names` a character vector which will be used as the column names:
+
+```{r}
+read_csv(
+  "1,2,3
+  4,5,6",
+  col_names = c("x", "y", "z")
+)
+```
+
+## Reading data from multiple files
+
+Sometimes the data you are working from might be split across multiple files. Later on, we are going to be working on data from the CAA on UK airport statistics. The CAA publishes this data monthly. We are only going to be looking at one month's data (February 2025) but if we wanted to combine multiple months, `read_csv()` lets us do that:
+
+```{r}
+jan_feb_flights <- c(
+  "https://www.caa.co.uk/Documents/Download/23995/23907051-3e36-4e54-b7aa-53d0296849df/16963",
+  "https://www.caa.co.uk/Documents/Download/23996/6890c139-9322-4a92-9e12-b6c70d505aa7/17059"
+)
+
+read_csv(jan_feb_flights, id = "file")
+```
+
+The `id` argument adds a new column called `file` to the resulting data frame that identifies the file the data come from. This is especially helpful in circumstances where the files you’re reading in do not have an identifying column that can help you trace the observations back to their original sources.
+
+## Writing to a file
+
+If you want to save your data back to disk, you can use the function `write_csv()`. The most important arguments to this function are `x` (the data frame to save) and `file` (the location to save it). You can also specify how missing values are written with `na`, and if you want to `append` to an existing file.
+
+```{r}
+write_csv(students, "students-2.csv")
+```
+
+Now let’s read that csv file back in. Note that the variable type information that you just set up is lost when you save to CSV because you’re starting over with reading from a plain text file again:
+
+```{r}
+students
+```
+
+```{r}
+read_csv("students-2.csv")
+```
+
+This makes CSVs a little unreliable for caching interim results—you need to recreate the column specification every time you load in. As an alternative:
+
+`write_rds()` and `read_rds()` store data in R’s custom binary format called RDS. This means that when you reload the object, you are loading the *exact same* R object that you stored. We will be working with RDS files in the next session as they are useful ways of storing count data from RNAseq experiments which have been performed using R-based tools.
+
+```{r}
+write_rds(students, "students.rds")
+read_rds("students.rds")
+```
+
+# Data transformation
+
+## Introduction
+
+In the previous session, we used the `penguins` dataset to create some useful visualisations of different relationships within the data. Often, however, the data you have is not exactly in the correct format to give the insight you want. Maybe the variables are named incorrectly (which encountered briefly in the previous section), or you need to summarise the data in a particular way. Here, we will learn how to **transform** data using the **dplyr** package.
+
 ### Our dataset
 
 In the Hadley course section on data transformation, they use some built-in data: this time, a dataset on flights which departed New York City in 2013. I've decide to adapt this to instead use data from the UK's own [Civil Aviation Authority (CAA)](https://www.caa.co.uk/data-and-analysis/) - specifically statistics on UK airports from February 2025.
 
-To get the dataset, we can import it directly from their website using the function `read_csv()` from the `tidyverse` package - more on this (and what exactly a 'csv' is) later in the *Data import* section. Remember: using `<-` assigns the code on the right to an object name on the left. There's nothing special about calling it `uk_flights` — we could call it `bananas` if we really wanted — but `uk_flights` is a more useful name for what the data actually is.
+To get the dataset, we can import it directly from their website using the function `read_csv()` from the `tidyverse` package. Remember: using `<-` assigns the code on the right to an object name on the left. There's nothing special about calling it `uk_flights` — we could call it `bananas` if we really wanted — but `uk_flights` is a more useful name for what the data actually is.
 
 ```{r import_uk_flights}
 uk_flights <- read_csv("https://www.caa.co.uk/Documents/Download/23996/6890c139-9322-4a92-9e12-b6c70d505aa7/17059")
@@ -593,6 +722,32 @@ uk_flights %>%
   )
 ```
 
+And with any good summary, it's always nice to visualise the data afterwards. Let's use some of the skills we learned in lesson 1 to more clearly visualise this data. **Note how we can just continue the pipe into the ggplot function - this is similar to how in session 1 we were piping `penguins`** **into ggplot by `penguins %>% ggplot()`**
+
+```{r}
+uk_flights %>%
+  group_by(reporting_airport_group_name) %>%
+  summarise(
+    avg_total_flights = round(mean(grand_total, na.rm = TRUE)),
+    n = n()
+  ) %>%
+  ggplot(aes(
+    x = reorder(reporting_airport_group_name, avg_total_flights), # reordering lowest to highest
+    y = avg_total_flights
+  )) +
+  geom_bar(stat = "identity") + # telling geom_bar to use the x value as identity
+  labs(x = "Airport group", y = "Average total flights") + 
+  theme_minimal()
+```
+
+*Think about some of the other summaries we have done and how you could represent those visually. (If we have time, we will have a go.)*
+
+.
+
+.
+
+---
+
 ### The `slice_` functions
 
 There are five handy functions that allow you to extract specific rows within each group:
@@ -705,7 +860,7 @@ Due to time constraints, I am only going to be able to briefly go over some of t
 
 We shall close off this *Data transformation* section by bringing together what we have learned so far, add in the ability to use **joins**, and ask the question: **which airports in our dataset had the highest percentage of cancelled flights, per reporting region?**
 
----
+------------------------------------------------------------------------
 
 It’s rare that a data analysis involves only a single data frame. Typically you have many data frames, and you must **join** them together to answer the questions that you’re interested in.
 
