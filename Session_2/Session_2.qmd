@@ -1009,4 +1009,67 @@ uk_flights_detailed %>%
   select(reporting_airport_group_name, reporting_airport_name, percentage_cancelled) # select just the columns you want to display
 ```
 
-# Applying what we've learned to RNAseq data (probably session 3 actually)
+# Data tidying
+
+In the real world, data arrives in all sorts of different formats. Biologists might get spreadsheets with samples as columns and measurements as rows, statisticians might get multiple values crammed into a single cell, and social scientists might get separate sheets for different groups. These formats often make sense to humans, but they are awkward for computers to work with.
+
+In this section, we will cover a consistent way of organising data in R using a system called **tidy data**. We’ll focus on **tidyr**, a package that provides a bunch of tools to help tidy up your messy datasets. tidyr is also part of the larger `tidyverse` package.
+
+Tidy data is not just about neatness. Once a dataset is tidy:
+
+-   The useful `tidyverse` functions (`filter()`, `mutate()`, `summarise()`, `ggplot()`) work consistently.
+
+-   Code becomes shorter, clearer, and easier to share.
+
+-   Complex workflows (RNA-seq counts, clinical metadata, survey responses) become easier to visualise and analyse.
+
+-   Variables are placed into columns, which allows R's vectorised nature (it's main advantage over other programming languages) to shine.
+
+## Tidy data
+
+You can represent the same underlying data in multiple ways. The example below shows the same data organized in three different ways. Each dataset shows the same values of four variables: *country*, *year*, *population*, and number of documented *cases* of TB (tuberculosis), but each dataset organizes the values in a different way.
+
+```{r}
+table1
+```
+
+```{r}
+table2
+```
+
+```{r}
+table3
+```
+
+```{r}
+fc <- read_rds("fc.rds")
+
+View(fc)
+
+head(fc$counts)
+
+stat <- fc$stat
+
+stat <- stat %>%
+  set_names(c("Status", "TBI2", "TBI1", "sham4", "sham3", 
+              "sham2", "sham1", "TBI4", "TBI3"))
+```
+
+```{r}
+library(ggthemes)
+
+stat %>% 
+  pivot_longer(
+  cols = !Status,
+  names_to = "Sample",
+  values_to = "Count"
+) %>% 
+  filter(Status == "Assigned") %>%
+  ggplot(aes(x = Status, y = Count, fill = Sample)) +
+  geom_col(position = "dodge") + 
+  theme_minimal()+
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 0.6, face = "bold")
+  ) +
+  scale_fill_colorblind()
+```
