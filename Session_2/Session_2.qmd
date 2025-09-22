@@ -64,7 +64,17 @@ As before, this session is heavily inspired by [*R for Data Science(2nd Edition)
 
 By the end of this session, you will be able to:
 
--   
+-   Import data into R from different file types.
+
+-   Explain what “tidy data” means and why tidying is important for analysis.
+
+-   Understand the difference between wide and long data.
+
+-   Apply common tidyverse functions such as `mutate()`, `select()`, `filter()`, `arrange()`, and `summarise()` to explore and transform data.
+
+-   Identify and correct issues such as missing values and incorrect variable types.
+
+-   Understand the pipe (`%>%`) and how to use it to build clear, readable, reproducible code.
 
 ## Packages required
 
@@ -217,7 +227,7 @@ read_rds("students.rds")
 
 ## Introduction
 
-In the previous session, we used the `penguins` dataset to create some useful visualisations of different relationships within the data. Often, however, the data you have is not exactly in the correct format to give the insight you want. Maybe the variables are named incorrectly (which encountered briefly in the previous section), or you need to summarise the data in a particular way. Here, we will learn how to **transform** data using the **dplyr** package.
+In the previous session, we used the `penguins` dataset to create some useful visualisations of different relationships within the data. Often, however, the data you have is not exactly in the correct format to give the insight you want. Maybe the variables are named incorrectly (which we encountered briefly in the previous section), or you need to summarise the data in a particular way. Here, we will learn how to **transform** data using the **dplyr** package.
 
 ### Our dataset
 
@@ -411,7 +421,7 @@ uk_flights %>%
 
 We have no duplicates, so the number of rows isn't changed.
 
-What if we just want to know all what of the different reporting airport groups are?
+What if we just want to know what all of the different reporting airport groups are?
 
 ```{r}
 uk_flights %>%
@@ -1009,6 +1019,8 @@ uk_flights_detailed %>%
   select(reporting_airport_group_name, reporting_airport_name, percentage_cancelled) # select just the columns you want to display
 ```
 
+*For reasons why Barra might have the highest percentage of cancelled flights, see this!* <https://www.visitouterhebrides.co.uk/see-and-do/traigh-mhor-beach-barra-airport-p561201>
+
 # Data tidying
 
 In the real world, data arrives in all sorts of different formats. Biologists might get spreadsheets with samples as columns and measurements as rows, statisticians might get multiple values crammed into a single cell, and social scientists might get separate sheets for different groups. These formats often make sense to humans, but they are awkward for computers to work with.
@@ -1027,7 +1039,7 @@ Tidy data is not just about neatness. Once a dataset is tidy:
 
 ## Tidy data
 
-You can represent the same underlying data in multiple ways. The example below shows the same data organized in three different ways. Each dataset shows the same values of four variables: *country*, *year*, *population*, and number of documented *cases* of TB (tuberculosis), but each dataset organizes the values in a different way.
+The 3 tables below show the exact same information. Each shows the same values of four variables: *country*, *year*, *population*, and number of documented *cases* of TB (tuberculosis). The only difference between them is *how* they organise the data, and each are likely equally intelligible to us, but vastly different in the eyes of R!
 
 ```{r}
 table1
@@ -1041,35 +1053,246 @@ table2
 table3
 ```
 
+Only the first, `table1`, will be easy to work with using the `tidyverse`, because it is in fact **tidy.** What do we mean by this?
+
+There are 3 interrelated rules which make a dataset tidy:
+
+1.  Each **variable** is a **column**; each **column** is a **variable**.
+
+2.  Each **observation** is a **row**; each **row** is an **observation**.
+
+3.  Each **value** is a **cell**; each **cell** is a single **value**.
+
+With this in mind, **can you see how `table2` and `table3` violate the tidiness rules?**
+
+.
+
+.
+
+.
+
+*Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+-   *`table2` only satisfies rule 3. Each column isn't a different variable, as "type" and "count" relate to 2 separate things (total population and total TB cases): violating rule 1. Each row isn't a different observation as it looks like there are 2 separate observations per year, when in reality there is only 1: violating rule 2.*
+
+-   *`table3`* *satisfies rule 2 as each row is seemingly a separate observation. However, rule 1 and 3 are violated as there are no separate columns for total population and TB cases, and the cells in the "rate" column do not contain single values.*
+
+`dplyr`, `ggplot2`, and all the other packages in the tidyverse are designed to work with tidy data.
+
+## Wide vs long data
+
+Unfortunately, most real data is untidy because researchers often organise data with its *collection* in mind, rather than its *analysis*. (Perhaps a good lesson for you to take forward with your own research is instead to think how your data could be organised with an analysis-centric mindset).
+
+This means that most real analysis will require tidying, which in turn, requires **pivoting**. Pivoting is the process of converting between **wide** and **long** format.
+
+**Wide** data is untidy but easier for humans to read. In wide data, each subject (or gene, airport, penguin...) is a row, while the measurements go into columns. An example we will come across in the next session is RNAseq count data, which may be structured similar to this:
+
+![](images/clipboard-1903654721.png)
+
+**Long** data is tidy and easier for R to read. It follows the 3 rules we outlined above, where each measurement gets its *own row*. We add extra columns to say *which* sample or condition it belongs to. E.g., if the RNAseq counts were above were **pivoted** into long format:
+
+![](images/clipboard-2062496887.png)
+
+`tidyr` provides two functions for pivoting data: `pivot_longer()` and `pivot_wider()`. We are only going to cover `pivot_longer()` here because it is far more common.
+
+### `featurecounts` read statistics
+
+To demonstrate the utility of `pivot_longer()` and bring together many of the things we have learned this session, we are going to look at some read statistics from an RNAseq experiment which has been conducted using the `featurecounts` function of the `Rsubread` package—much more on this next session! **Our goal is to make a plot comparing the number of assigned reads across all 8 samples.**
+
+In your working directory, there should be a file called `fc.RDS`. This file was generated after running `featurecounts()` on aligned BAM files from an RNAseq experiment looking at the global transcriptional effects on brains from rats post traumatic brain injury (TBI). The data was uploaded to the NIH Bioproject repository under the accession name PRJNA902029, and the original paper is *Zhu, Xiaolu, Jin Cheng, Jiangtao Yu, Ruining Liu, Haoli Ma, and Yan Zhao. ‘Nicotinamide Mononucleotides Alleviated Neurological Impairment via Anti-Neuroinflammation in Traumatic Brain Injury’. International Journal of Medical Sciences 20, no. 3 (2023): 307–17. <https://doi.org/10.7150/ijms.80942>.*
+
+We will dig in deeper to how this file was made and what it contains in our final session next week. For now, we will read it into R using the function we learned about earlier, `read_rds()`.
+
 ```{r}
 fc <- read_rds("fc.rds")
+```
 
+We can have a look at this file using `View()` or `glimpse()`.
+
+```{r}
+#| eval: false
 View(fc)
-
-head(fc$counts)
-
-stat <- fc$stat
-
-stat <- stat %>%
-  set_names(c("Status", "TBI2", "TBI1", "sham4", "sham3", 
-              "sham2", "sham1", "TBI4", "TBI3"))
 ```
 
 ```{r}
-library(ggthemes)
+glimpse(fc)
+```
 
+You will notice that this object contains a few subdivisions, named `counts`, `annotation`, `targets` and `stat`. We will come on to what these are in the next session.
+
+For now, the information we require is contained within the `stat` component. One highly useful operator in R is the `$` sign, as this allows you to select different components within objects. Note: you can also use `$` to select specific columns in data frames—which I have not covered here as we are following a tidyverse-centric approach to working with data frames—but this is still a very useful feature in the right context.
+
+We can use this to select the `stat` component of `fc` and assign it to a new object, which we will just call `stat`:
+
+```{r}
+stat <- fc$stat
+stat
+```
+
+You can see from this that `stat` is another data frame. Is this **tidy?**
+
+.
+
+.
+
+.
+
+*Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+This data frame contains separate samples in columns, and is therefore **wide** data. It would be very difficult to filter the data for just assigned reads and summarise the number of assigned reads across all samples.
+
+In addition, all of those column names are unnecessarily long, so before we go any further, I am going to rename them using the `set_names()` function from `purrr` (also part of the tidyverse).
+
+```{r}
+stat <- stat %>%
+  set_names(c("Status", "TBI2", "TBI1", "sham4", "sham3", 
+              "sham2", "sham1", "TBI4", "TBI3"))
+
+stat
+```
+
+To tidy this data so that we can apply the tidyverse functions and plot in `ggplot2`, we are going to use `pivot_longer()` to turn the data from wide format to long format.
+
+```{r}
 stat %>% 
   pivot_longer(
   cols = !Status,
   names_to = "Sample",
   values_to = "Count"
+)
+```
+
+After the data, there are three key arguments:
+
+-   `cols` specifies which columns need to be pivoted, i.e. which columns aren’t variables. This argument uses the same syntax as `select()`. Here we have said `!Status` as this contains our variables. The other columns are our samples, and need to be pivoted.
+
+-   `names_to` names the variable stored in the column names; we named that variable `Sample`.
+
+-   `values_to` names the variable stored in the cell values; we named that variable `Count`.
+
+Note that our data is definitely *longer —* we have gone from a 14x9 table to a 112x3 table!
+
+Note also that the new columns inherit the type of the previous columns or cells.
+
+Pivoting our table in this way means it is much easier to now apply the tidyverse functions we have learned in this session. We are ready now to achieve our aim and **make a plot comparing the number of assigned reads across all 8 samples. Using all you have learned this session and the previous, have a go at writing the code to achieve this.**
+
+Hint: You will need to
+
+-   Pivot `stat` to make it longer with the appropriate arguments
+
+-   Filter for only the `Assigned` read counts
+
+-   Plot these counts using `ggplot2` with appropriate aesthetics and geoms. (If you want a colourblind palette, remember the `ggthemes` package from session 1).
+
+.
+
+.
+
+.
+
+*Scroll down for answer if you get stuck!*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+```{r}
+library(ggthemes) # loading ggthemes so we can use its colourblind-safe colour palette
+
+stat %>% 
+  pivot_longer(            # <- This section of the code converts stat to long format
+  cols = !Status,
+  names_to = "Sample",
+  values_to = "Count"
 ) %>% 
-  filter(Status == "Assigned") %>%
-  ggplot(aes(x = Status, y = Count, fill = Sample)) +
+  filter(Status == "Assigned") %>% # This function filters for Assigned reads
+  ggplot(aes(x = Status, y = Count, fill = Sample)) + # ggplot code for plotting
   geom_col(position = "dodge") + 
   theme_minimal()+
   theme(
     axis.text.x = element_text(angle = 45, vjust = 0.6, face = "bold")
   ) +
   scale_fill_colorblind()
+
+# I have chosen geom_col to show each sample, but there may be other appropriate geoms too!
 ```
+
+# Summary
+
+By the end of this session, you should now be able to:
+
+-   Import data into R from different file types (`read_csv()`, `readRDS()`).
+
+-   Understand the concept of *tidy data* and why it matters for analysis.
+
+-   Reshape data from **wide** to **long** using `pivot_longer()`.
+
+-   Use `left_join()` to combine data tables.
+
+-   Apply `mutate()`, `select()`, `filter()`, `arrange()`, and `summarise()` to explore and transform data.
+
+-   Handle NAs and inappropriate variable types.
+
+-   Use the pipe (`%>%`) to chain steps together in a clear, readable workflow.
+
+In our final bumper session, we will apply all that we have learned in sessions 1 and 2 to an R-based bioinformatics workflow using real world data from a published bulk RNAseq experiment.

@@ -1163,4 +1163,4 @@ In this first session, we:
 
 -   Made our first plots in **ggplot2**, including histograms, aesthetics, and facets
 
-In the next session, we will start learning how to import, tidy, and manipulate data, focusing on the types of bioinformatics data you will encounter in a bulk RNAseq experiment.
+In the next session, we will start learning how to import, tidy, and transform data, which will leave you in good stead for handling typical data you will encounter in a bulk RNAseq experiment.
