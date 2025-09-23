@@ -12,42 +12,13 @@ format:
 editor: visual
 ---
 
-# Setup code
+# Setup
 
-Before we start, run the following chunk (click the green arrow in the corner) which will check that everything we need for today's session is installed (don't worry if you don't understand the code at this point!).
+Before we start, there's a small bit of setup code we need to run to make sure everything we need is installed. To do this, click "File -\> Open File..." and load the file called "setup.R".
 
-```{r setup}
-#| echo: false
-# Required packages
-required_packages <- c("tidyverse", "yaml", "arrow", "babynames", "curl", "duckdb", "gapminder", 
-    "ggrepel", "ggridges", "ggthemes", "hexbin", "janitor", "Lahman", 
-    "leaflet", "maps", "nycflights13", "openxlsx", "palmerpenguins", 
-    "repurrrsive", "tidymodels", "writexl")
+Click the "Source" button in the top right ![](images/clipboard-3683134815.png){width="105"}
 
-# Install BiocManager if needed
-if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
-}
-
-# Try BiocManager first, then fallback to install.packages
-for (pkg in required_packages) {
-  if (!requireNamespace(pkg, quietly = TRUE)) {
-    message("Trying BiocManager::install('", pkg, "')")
-    tryCatch({
-      BiocManager::install(pkg, ask = FALSE, update = FALSE)
-    }, error = function(e_bioc) {
-      message("BiocManager failed. Trying install.packages('", pkg, "')")
-      tryCatch({
-        install.packages(pkg, dependencies = TRUE)
-      }, error = function(e_cran) {
-        message("Failed to install '", pkg, "' via both methods.")
-      })
-    })
-  }
-}
-
-
-```
+Now you can close that file.
 
 Also, before we start, click on the little gear above the document window and select "clear all output" from the dropdown menu (this prevents any *spoilers!*):
 
@@ -1165,3 +1136,9 @@ In this first session, we:
 -   Made our first plots in **ggplot2**, including histograms, aesthetics, and facets
 
 In the next session, we will start learning how to import, tidy, and transform data, which will leave you in good stead for handling typical data you will encounter in a bulk RNAseq experiment.
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
