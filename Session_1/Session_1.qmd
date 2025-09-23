@@ -447,7 +447,7 @@ This tells you that tidyverse loads nine packages: dplyr, forcats, ggplot2, lubr
 
 Packages in the tidyverse change fairly frequently. You can see if updates are available by running `tidyverse_update()`.
 
-### Other packages (KEEP THIS UPDATED)
+### Other packages
 
 Other packages which are not part of the tidyverse are designed with a different set of underlying principles. However, they can be very useful for solving problems in a different domain. Honestly, working in R over the few years I have done so, I have come to realise that if I have a problem I can't quite figure out how to do in R, someone has probably already made a package which helps to solve it! (Google is your friend here!).
 
@@ -455,7 +455,7 @@ As you tackle more data science projects with R, you’ll learn new packages and
 
 We’ll use many packages from outside the tidyverse in this course. For example, we’ll use the following packages because they provide interesting datasets for us to work with in the process of learning R (also notice how you don't have to type out `install.packages()` line-by-line for each package, which would be really tedious! You can use our old friend `c()` to provide a vector of package names surrounded by "" and separated by commas):
 
-*Note: we have already installed these in our setup chunk, so there is no need to run the following code right now.*
+*Note: we have already installed these in our setup so there is no need to run the following code right now.*
 
 ```{r other-packages}
 #| eval: false
