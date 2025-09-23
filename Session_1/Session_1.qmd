@@ -4,6 +4,7 @@ author: "Matthew Taylor"
 execute:
   dpi: 300
   cache: false
+  working-directory: project
 format: 
   html:
     toc: true
@@ -13,12 +14,12 @@ editor: visual
 
 # Setup code
 
-Before we start, run the following chunk (click the green arrow in the corner) which will check that everything we need for today's session is installed and up to date (don't worry if you don't understand the code at this point!).
+Before we start, run the following chunk (click the green arrow in the corner) which will check that everything we need for today's session is installed (don't worry if you don't understand the code at this point!).
 
 ```{r setup}
 #| echo: false
 # Required packages
-required_packages <- c("tidyverse", "arrow", "babynames", "curl", "duckdb", "gapminder", 
+required_packages <- c("tidyverse", "yaml", "arrow", "babynames", "curl", "duckdb", "gapminder", 
     "ggrepel", "ggridges", "ggthemes", "hexbin", "janitor", "Lahman", 
     "leaflet", "maps", "nycflights13", "openxlsx", "palmerpenguins", 
     "repurrrsive", "tidymodels", "writexl")

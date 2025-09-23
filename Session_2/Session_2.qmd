@@ -18,7 +18,7 @@ As we did in session 1, run the following chunk (click the green arrow in the co
 ```{r setup}
 #| echo: false
 # Required packages
-required_packages <- c("tidyverse", "arrow", "babynames", "curl", "duckdb", "gapminder", 
+required_packages <- c("tidyverse", "yaml", "arrow", "babynames", "curl", "duckdb", "gapminder", 
     "ggrepel", "ggridges", "ggthemes", "hexbin", "janitor", "Lahman", 
     "leaflet", "maps", "nycflights13", "openxlsx", "palmerpenguins", 
     "repurrrsive", "tidymodels", "writexl")
@@ -756,7 +756,7 @@ uk_flights %>%
 
 .
 
----
+------------------------------------------------------------------------
 
 ### The `slice_` functions
 
