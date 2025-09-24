@@ -17,9 +17,9 @@ Each session is two hours long and builds progressively in difficulty and indepe
 
 | Session | Date        | Topic                                           |
 |---------|-------------|-------------------------------------------------|
-| 1       | TBC | Introduction to R and the tidyverse            |
-| 2       | TBC | Working with Count Data and Visualising Expression       |
-| 3       | TBC | Differential Expression and Biological Interpretation              |
+| 1       | 13/11, 3pm | Introduction to R and the tidyverse            |
+| 2       | 20/11, 3pm | The tidyverse continued: import, transformation, tidying      |
+| 3       | 27/11, 2pm | Putting it all together: analysis of RNAseq data in R              |
 
 ---
 
