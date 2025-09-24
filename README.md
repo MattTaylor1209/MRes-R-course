@@ -27,7 +27,7 @@ The goal is to introduce students to some fundamental concepts of programming an
 
 - [R](https://cran.r-project.org/) 
 - [RStudio](https://posit.co/download/rstudio/)  
-- R packages: will be bundled if you download this whole github repository.
+- R packages: will be installed during setup phase.
 
 Setup:
 - Go to https://posit.co/download/rstudio/
