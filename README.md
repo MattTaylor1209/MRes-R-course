@@ -25,7 +25,7 @@ The goal is to introduce students to some fundamental concepts of programming an
 
 ## 💻 Software Requirements
 
-- [R](https://cran.r-project.org/) 
+- [R](https://cran.r-project.org/) (version 4.5.1+)
 - [RStudio](https://posit.co/download/rstudio/)  
 - R packages: will be installed during setup phase.
 
