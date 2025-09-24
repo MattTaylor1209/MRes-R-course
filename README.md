@@ -29,13 +29,13 @@ The goal is to introduce students to some fundamental concepts of programming an
 - [RStudio](https://posit.co/download/rstudio/)  
 - R packages: will be installed during setup phase.
 
-Setup:
+**First-time setup**:
 - Go to https://posit.co/download/rstudio/
 - Follow the instructions for downloading and installing R and Rstudio
 - Download this repository as a zip file, then extract to a location of your choosing.
 - Open the .Rproj file in Rstudio.
 - Open the setup.R script in Rstudio.
-- Run the two lines from that script.
+- Click the source button in the top right corner above the script.
 - Open the .qmd file for the session in Rstudio.
   
 ---
