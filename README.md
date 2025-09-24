@@ -9,7 +9,7 @@ The course is designed to introduce MRes students to:
 2. **Data visualisation and wrangling** in R  
 3. **RNA-seq data analysis**, including differential expression and pathway analysis  
 
-Each session is two hours long and builds progressively in difficulty and independence.
+The goal is to introduce students to some fundamental concepts of programming and data analysis in R which they can apply to their own research questions. This course is meant to give a broad overview of key concepts and will point students to resources where they can further their understanding and follow their specific interests.
 
 ---
 
@@ -25,16 +25,19 @@ Each session is two hours long and builds progressively in difficulty and indepe
 
 ## 💻 Software Requirements
 
-- [R](https://cran.r-project.org/) (≥ 4.2)  
+- [R](https://cran.r-project.org/) 
 - [RStudio](https://posit.co/download/rstudio/)  
-- [Quarto](https://quarto.org/)  
-- R packages: `tidyverse`, `DESeq2`, `gage`, `msigdbr`, `patchwork`, etc.
+- R packages: will be bundled if you download this whole github repository.
 
-Install packages (in R console):
-```r
-install.packages("tidyverse")
-BiocManager::install(c("DESeq2", "gage", "msigdbr"))
-```
+Setup:
+- Go to https://posit.co/download/rstudio/
+- Follow the instructions for downloading and installing R and Rstudio
+- Download this repository as a zip file, then extract to a location of your choosing.
+- Open the .Rproj file in Rstudio.
+- Open the setup.R script in Rstudio.
+- Run the two lines from that script.
+- Open the .qmd file for the session in Rstudio.
+  
 ---
 
 ## 🧑‍🏫 Author
