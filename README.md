@@ -9,7 +9,7 @@ The course is designed to introduce MRes students to:
 2. **Data visualisation and wrangling** in R  
 3. **RNA-seq data analysis**, including differential expression and pathway analysis  
 
-Each session is two hours long and builds progressively in difficulty and independence.
+The goal is to introduce students to some fundamental concepts of programming and data analysis in R which they can apply to their own research questions. This course is meant to give a broad overview of key concepts and will point students to resources where they can further their understanding and follow their specific interests.
 
 ---
 
@@ -17,24 +17,27 @@ Each session is two hours long and builds progressively in difficulty and indepe
 
 | Session | Date        | Topic                                           |
 |---------|-------------|-------------------------------------------------|
-| 1       | TBC | Introduction to R and the tidyverse            |
-| 2       | TBC | Working with Count Data and Visualising Expression       |
-| 3       | TBC | Differential Expression and Biological Interpretation              |
+| 1       | 13/11, 3pm | Introduction to R and the tidyverse            |
+| 2       | 20/11, 3pm | The tidyverse continued: import, transformation, tidying      |
+| 3       | 27/11, 2pm | Putting it all together: analysis of RNAseq data in R              |
 
 ---
 
 ## 💻 Software Requirements
 
-- [R](https://cran.r-project.org/) (≥ 4.2)  
+- [R](https://cran.r-project.org/) (version 4.5.1+)
 - [RStudio](https://posit.co/download/rstudio/)  
-- [Quarto](https://quarto.org/)  
-- R packages: `tidyverse`, `DESeq2`, `gage`, `msigdbr`, `patchwork`, etc.
+- R packages: will be installed during setup phase.
 
-Install packages (in R console):
-```r
-install.packages("tidyverse")
-BiocManager::install(c("DESeq2", "gage", "msigdbr"))
-```
+**First-time setup**:
+- Go to https://posit.co/download/rstudio/
+- Follow the instructions for downloading and installing R and Rstudio
+- Download this repository as a zip file, then extract to a location of your choosing.
+- Open the .Rproj file in Rstudio.
+- Open the setup.R script in Rstudio.
+- Click the source button in the top right corner above the script.
+- Open the .qmd file for the session in Rstudio.
+  
 ---
 
 ## 🧑‍🏫 Author
