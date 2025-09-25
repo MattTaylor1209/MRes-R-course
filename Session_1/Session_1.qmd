@@ -727,7 +727,7 @@ This is where we get more into the weeds on aesthetic mapping. When we use the `
 
 2.  `ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g, colour = species))`: "In the entire plot, every subsequent layer (geom) needs to plot flipper_length_mm on the x axis, body_mass_g on the y axis, and colour by the species."
 
-3.  `geom_point()`: "make points which have flipper_length_mm on the x axis, body_mass_g on the y axis, and are colourd by the species."
+3.  `geom_point()`: "make points which have flipper_length_mm on the x axis, body_mass_g on the y axis, and are coloured by the species."
 
 4.  `geom_smooth(method = "lm")`: "make a smooth line of best fit for the dataset, coloured by species (so I will need one line per species) with flipper_length_mm on the x axis and body_mass_g on the y axis."
 
