@@ -1,0 +1,25 @@
+---
+title: "Session 3 — Putting it all together: analysis of RNAseq data in R"
+author: "Matthew Taylor"
+execute:
+  dpi: 300
+  cache: false
+  working-directory: project
+format: 
+  html:
+    toc: true
+    self-contained: true
+editor: visual
+---
+
+# Setup code
+
+As we did in the previous 2 sessions, there's a small bit of setup code we need to run to make sure everything we need is installed. To do this, click "File -\> Open File..." and load the file called "setup.R".
+
+Click the "Source" button in the top right ![](images/clipboard-1124686291.png)
+
+Now you can close that file.
+
+Also, before we start, click on the little gear above the document window and select "clear all output" from the dropdown menu (this prevents any *spoilers!*):
+
+![](images/clipboard-2475862271.png)

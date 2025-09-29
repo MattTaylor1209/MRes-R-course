@@ -460,10 +460,9 @@ We’ll use many packages from outside the tidyverse in this course. For example
 ```{r other-packages}
 #| eval: false
 install.packages(
-  c("arrow", "babynames", "curl", "duckdb", "gapminder", 
-    "ggrepel", "ggridges", "ggthemes", "hexbin", "janitor", "Lahman", 
-    "leaflet", "maps", "nycflights13", "openxlsx", "palmerpenguins", 
-    "repurrrsive", "tidymodels", "writexl")
+  c("tidyverse","arrow", "babynames", "curl","ggrepel", "ggridges", "ggthemes", "hexbin", 
+                       "janitor", "leaflet", "maps", "nycflights13", "openxlsx", "palmerpenguins",
+                       "repurrrsive", "tidymodels", "writexl")
   )
 ```
 
