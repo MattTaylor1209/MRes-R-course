@@ -685,7 +685,7 @@ The easiest way to see if this has worked is to use the function `unique()` and 
 unique(dds$Group)
 ```
 
-# **Data quality assessment**
+# Data quality assessment
 
 Data quality assessment and quality control (i.e. the removal of insufficiently good data) are essential steps of any data analysis. These steps should typically be performed very early in the analysis of a new data set, preceding or in parallel to the differential expression testing.
 
