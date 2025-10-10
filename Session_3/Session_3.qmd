@@ -959,7 +959,7 @@ res %>%
   dplyr::count()
 ```
 
-## **log2 fold change thresholds and false discovery rate**
+## log2 fold change thresholds and false discovery rate
 
 By default, `results()` does not take into account the **magnitude** of the log2 fold change—i.e., it will test for significant differential expression regardless of whether the log2 fold change is tiny (and potentially biologically insignificant). In addition, the default adjusted p-value cutoff (i.e., the false discovery rate (FDR), ***alpha***) is 0.1. If you want to be more **stringent**, you specify a higher log2 fold change threshold (e.g., 1) and a lower alpha value (e.g., 0.05):
 
