@@ -868,7 +868,7 @@ We want to plot the 500 most variable genes in our dataset. To do this, we will 
 # Compute variance per gene
 row_variances <- rowVars(normalized_counts) %>% 
   as_tibble(rownames = "GeneID") %>% 
-  arrange(desc(value))
+  dplyr::arrange(desc(value))
 
 row_variances
 ```
@@ -878,7 +878,7 @@ Next, we extract the GeneIDs for the top 500 most variable genes in our dataset.
 ```{r}
 # Identify top 500 most variable genes
 topVarGenes <- row_variances %>%
-  slice_head(n = 500) %>% # 500 because we want the top 500 most variable genes
+  dplyr::slice_head(n = 500) %>% # 500 because we want the top 500 most variable genes
   pull(GeneID) # we "pull" because we only need the names of these genes, which is contained in the GeneID column
 
 topVarGenes
@@ -1127,7 +1127,7 @@ To make our data exploration and export more convenient and tidyverse-friendly, 
 ```{r}
 res_tbl <- res %>% 
   as_tibble(rownames = "GeneID") %>%
-  mutate(padj = replace_na(padj, 1))
+  dplyr::mutate(padj = replace_na(padj, 1))
 ```
 
 We use the argument `rownames = "GeneID"` because in `res`, our rownames corresponded to the GeneID and we don't want to lose this information, so instead we will store this information as a new column.
@@ -1465,7 +1465,7 @@ First, we will use our tidyverse functions to filter our `res_tbl` object for si
 
 ```{r}
 sig_genes <- res_tbl %>%
-  filter(padj < 0.05 & !is.na(padj)) %>% # removing any with NA in the padj column
+  dplyr::filter(padj < 0.05 & !is.na(padj)) %>% # removing any with NA in the padj column
   pull(GeneID)
 
 summary(sig_genes)
@@ -1477,7 +1477,7 @@ Next, we will extract all of the genes we performed differential analysis on, in
 
 ```{r}
 all_genes <- res_tbl %>%
-  filter(!is.na(padj)) %>%
+  dplyr::filter(!is.na(padj)) %>%
   pull(GeneID)
 
 summary(all_genes)
