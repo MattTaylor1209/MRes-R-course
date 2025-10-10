@@ -1458,6 +1458,7 @@ This tool requires a list of our significant genes and a list of all the genes t
 
 ```{r}
 library(clusterProfiler)
+library(org.Rn.eg.db)
 ```
 
 First, we will use our tidyverse functions to filter our `res_tbl` object for significant genes (p-adjusted below 0.05) and extract their GeneIDs:
