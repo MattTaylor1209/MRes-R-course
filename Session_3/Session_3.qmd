@@ -1452,7 +1452,7 @@ Over-representation analysis allows us to take our list of significant different
 
 ## `clusterProfiler`
 
-To answer this question, we will use the [`clusterProfiler`](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) package. As with testing for differential gene expression, there are a plethora of different packages and tools out there for over-representation analysis, but clusterProfiler provides an accessible and well-integrated framework that handles the statistical testing and annotation steps behind the scenes. It’s widely used, actively maintained, and works seamlessly with other Bioconductor objects such as DESeq2 results.
+To answer this question, we will use the [`clusterProfiler`](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) package. As with testing for differential gene expression, there are a plethora of different packages and tools out there for over-representation analysis, but *clusterProfiler* provides an accessible and well-integrated framework that handles the statistical testing and annotation steps behind the scenes. It’s widely used, actively maintained, and works seamlessly with other Bioconductor objects such as *DESeq2* results.
 
 This tool requires a list of our significant genes and a list of all the genes tested for differential expression. It then performs statistical enrichment analysis using [hypergeometric testing](https://en.wikipedia.org/wiki/Hypergeometric_distribution). The basic arguments allow the user to select the appropriate organism and GO ontology (BP, CC, MF) to test.
 
