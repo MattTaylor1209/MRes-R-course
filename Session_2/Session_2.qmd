@@ -29,7 +29,7 @@ Welcome to part 2 of the *foundations of R for bioinformatics* course. Today, we
 
 We will also take a closer look at an important tidyverse tool that you have already seen in action during session 1 but that I haven’t yet explained properly: the **pipe**. The pipe, written as `%>%` or `|>`, allows us to link together a sequence of functions so that the output of one step becomes the input to the next. Instead of writing long, nested commands that are difficult to read, we can use the pipe to build analyses step by step in a way that mirrors how we think about the task: *take this dataset, then filter it, then summarise it, then plot it.* Using the pipe makes your code more readable, more reproducible, and easier to debug.
 
-As before, this session is heavily inspired by [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/) by Hadley Wickham & Garrett Grolemund. However, **I WILL ALSO BE INCLUDING SOME REAL WORLD RNA SEQ DATA FROM REF** to make the course more applicable to our needs — namely to introduce you to how R can be used for big data/bioinformatics, such an an RNAseq experiment.
+As before, this session is heavily inspired by [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/) by Hadley Wickham & Garrett Grolemund. Later on in this session, I will also include some published RNAseq data to make the course more applicable to our needs — namely to introduce you to how R can be used for big data/bioinformatics, such an an RNAseq experiment.
 
 ## Goals for session 2
 

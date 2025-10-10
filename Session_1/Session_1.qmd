@@ -38,6 +38,8 @@ You don’t need to know anything about Quarto to get started — we’ll walk t
 
 You can also see at the top left of the document a 'source' and 'visual' tab. The *source* tab shows you the raw text and code, while the *visual* tab gives a word-processor-style view of the same content. I’d recommend keeping it in *visual* for now, as it will feel more familiar if you’re used to working in word processors.
 
+**These documents are *yours*.** Treat them like you would any set of lecture notes (except way more interactive and useful). Write notes on them using comments like this ![](images/clipboard-3055594606.png){width="219"}. <!--# this is a comment! --> Rephrase things in your own way. Add chunks of code if you have an idea and want to test it. It's a *living document* and it's here to help you learn in whatever way you find easiest. You can always re-download the original from my GitHub if you accidentally delete something important!
+
 ## Sources and Inspirations
 
 One of the main advantages of R — and all of the other tools we will be using — is that they are **open-source**. This means the code behind them is freely available for anyone to view, use, modify, and share.
