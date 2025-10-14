@@ -11,15 +11,7 @@ format:
 editor: visual
 ---
 
-# Setup code
-
-As we did in session 1, there's a small bit of setup code we need to run to make sure everything we need is installed. To do this, click "File -\> Open File..." and load the file called "setup.R".
-
-Click the "Source" button in the top right ![](images/clipboard-1833989252.png)
-
-Now you can close that file.
-
-Also, before we start, click on the little gear above the document window and select "clear all output" from the dropdown menu (this prevents any *spoilers!*):
+Before we start, click on the little gear above the document window and select "clear all output" from the dropdown menu (this prevents any *spoilers!*):
 
 ![](images/clipboard-2475862271.png)
 
