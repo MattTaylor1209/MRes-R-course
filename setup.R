@@ -2,22 +2,23 @@
 # Setup script for MRes R course
 # ----------------------------------------------------------
 
-# 1. Ensure renv (specific version) is installed
+# Ensure renv
 if (!requireNamespace("renv", quietly = TRUE) ||
     utils::packageVersion("renv") != "1.1.5") {
   install.packages("renv", version = "1.1.5")
 }
 
-# 2. Use Posit Package Manager (faster, more reliable)
 options(repos = c(CRAN = "https://packagemanager.posit.co/cran/latest"))
+if (.Platform$OS.type == "windows") options(pkgType = "binary")
 
-# 3. On Windows, prefer precompiled binaries
-if (.Platform$OS.type == "windows") {
-  options(pkgType = "binary")
-}
+# If lockfile pins an openssl that lacks a Win binary on this R, bump it
+try({
+  ap <- available.packages()
+  if ("openssl" %in% rownames(ap)) {
+    # Use the repo's current openssl (has a binary for this R)
+    ver <- ap["openssl", "Version"]
+    renv::record(paste0("openssl@", ver))
+  }
+}, silent = TRUE)
 
-# 4. Activate the project (ensures correct renv context)
-renv::activate(".")
-
-# 5. Restore all packages listed in renv.lock
 renv::restore(prompt = FALSE)
