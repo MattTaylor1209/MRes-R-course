@@ -20,13 +20,5 @@ if (.Platform$OS.type == "windows" || Sys.info()[["sysname"]] == "Darwin") {
   options(pkgType = "binary")
 }
 
-# 4) Nudge lockfile to binary-available versions for native-heavy pkgs
-#    (prevents renv from downgrading to source-only builds)
-try({
-  ap <- available.packages(type = "binary")
-  bump <- function(p) if (p %in% rownames(ap)) renv::record(sprintf("%s@%s", p, ap[p,"Version"]))
-  for (p in c("openssl","BiocParallel","Rsubread","DESeq2","igraph")) bump(p)
-}, silent = TRUE)
-
 # 5) Restore everything
 renv::restore(prompt = FALSE)
