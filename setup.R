@@ -1,28 +1,29 @@
-# ----------------------------------------------------------
-# Setup script for MRes R course (binary-only, no toolchains)
-# ----------------------------------------------------------
+required_packages <- c("tidyverse","arrow","babynames","curl","ggrepel","ggridges","ggthemes","hexbin",
+                       "janitor","leaflet","nycflights13","openxlsx","palmerpenguins","plotly",
+                       "repurrrsive","tidymodels","writexl","AnnotationDbi", "BiocManager","BiocVersion",
+                       "DESeq2","lattice","Matrix","tidySummarizedExperiment","org.Rn.eg.db", 
+                       "GO.db",
+                       "limma","edgeR","Rsubread","biomaRt","pheatmap","clusterProfiler")
 
-# 1) Ensure renv at a known version
-if (!requireNamespace("renv", quietly = TRUE) ||
-    utils::packageVersion("renv") != "1.1.5") {
-  install.packages("renv", version = "1.1.5")
+
+# Install BiocManager if needed
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
 }
 
-# 1) Bioc repos + binary preference for everything else
-if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
-options(repos = BiocManager::repositories())
-if (.Platform$OS.type == "windows" || Sys.info()[["sysname"]] == "Darwin") {
-  options(pkgType = "binary")
+# Try BiocManager first, then fallback to install.packages
+for (pkg in required_packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    message("Trying BiocManager::install('", pkg, "')")
+    tryCatch({
+      BiocManager::install(pkg, ask = FALSE, update = FALSE)
+    }, error = function(e_bioc) {
+      message("BiocManager failed. Trying install.packages('", pkg, "')")
+      tryCatch({
+        install.packages(pkg, dependencies = TRUE)
+      }, error = function(e_cran) {
+        message("Failed to install '", pkg, "' via both methods.")
+      })
+    })
+  }
 }
-options(install.packages.compile.from.source = "never")
-
-# 2) Install source-only *data* packages explicitly (no compilers required)
-data_pkgs <- c("org.Rn.eg.db", "GO.db", "GenomeInfoDbData")
-
-old <- getOption("install.packages.compile.from.source")
-options(install.packages.compile.from.source = "always")
-try(renv::install(data_pkgs, type = "source"), silent = TRUE)
-options(install.packages.compile.from.source = old)
-
-# 3) Now restore the rest (will use binaries)
-renv::restore(prompt = FALSE)
