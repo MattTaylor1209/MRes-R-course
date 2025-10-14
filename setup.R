@@ -1,24 +1,24 @@
 # ----------------------------------------------------------
-# Setup script for MRes R course
+# Setup script for MRes R course  (binary-only, cross-platform)
 # ----------------------------------------------------------
 
-# Ensure renv
+# 1) Ensure a known renv version
 if (!requireNamespace("renv", quietly = TRUE) ||
     utils::packageVersion("renv") != "1.1.5") {
   install.packages("renv", version = "1.1.5")
 }
 
-options(repos = c(CRAN = "https://packagemanager.posit.co/cran/latest"))
-if (.Platform$OS.type == "windows") options(pkgType = "binary")
+# 2) Use Bioconductor + CRAN repos (so Bioc binaries are visible)
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+options(repos = BiocManager::repositories())
 
-# If lockfile pins an openssl that lacks a Win binary on this R, bump it
-try({
-  ap <- available.packages()
-  if ("openssl" %in% rownames(ap)) {
-    # Use the repo's current openssl (has a binary for this R)
-    ver <- ap["openssl", "Version"]
-    renv::record(paste0("openssl@", ver))
-  }
-}, silent = TRUE)
+# 3) Prefer precompiled binaries on Windows & macOS
+if (.Platform$OS.type == "windows" || Sys.info()[["sysname"]] == "Darwin") {
+  options(pkgType = "binary")
+}
 
+renv::settings$use.cache(TRUE)
+renv::settings$bioconductor.version(BiocManager::version())
+
+# 5) Restore the project library
 renv::restore(prompt = FALSE)
