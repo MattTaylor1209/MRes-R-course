@@ -12,7 +12,7 @@ format:
 editor: visual
 ---
 
-Before we start, click on the little gear above the document window and select "clear all output" from the dropdown menu (this prevents any *spoilers!*):
+Before we start, click on the little gear above the document window and select "clear all output" from the drop-down menu (this prevents any *spoilers!*):
 
 ![](images/clipboard-2475862271.png)
 
@@ -20,7 +20,7 @@ Before we start, click on the little gear above the document window and select "
 
 Welcome to the 3rd and final session in our *Foundations of R for Bioinformatics* course. In this session, we will finally turn our full attention to the latter part of that title and start applying what we have learned to a standard bulk RNA-sequencing workflow. This session is slightly longer that our previous two (3 hours instead of 2) but I don't want to completely fill our time with more and more information! So the actual content of this session should be roughly the same as the previous two, leaving us time at the end for practise and to go over any questions or parts of the course you found more challenging.
 
-This session will *not* be covering the biology of RNA sequencing in much detail (hopefully you will already have had a lecture or workshop on that) except where relevant to the computational steps — rather, we will be focusing on the computational side of how you actually perform each step in an R-based environment.
+This session will *not* be covering the biology of RNA sequencing in much detail (hopefully you will already have had a lecture or workshop on that) except where relevant to the computational steps—rather, we will be focusing on the computational side of how you actually perform each step in an R-based environment.
 
 ## Aim
 
@@ -28,13 +28,13 @@ Our goal for today will be to walk through all of the different steps which are 
 
 ## Sources and inspirations
 
-We are finally moving away from the Hadley Wickham [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/)as their tutorial does not cover RNAseq. In 2-3 hours, we will only really be able to scratch the surface of what is possible when analysing RNAseq data in R, and there many online tutorials covering the enormous amount of tools available. In this session, we will be mainly using the [**Rsubread**](https://bioconductor.org/packages/3.21/bioc/vignettes/Rsubread/inst/doc/Rsubread.pdf "User guide for Rsubread") and [**DESeq2**](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html "User guide for DESeq2") packages; you can find the user guides (which we will be referring to) by clicking on those links. We will also take inspiration from the following 2 online courses:
+We are finally moving away from the Hadley Wickham [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/) as their tutorial does not cover RNAseq. In 2-3 hours, we will only really be able to scratch the surface of what is possible when analysing RNAseq data in R, and there many online tutorials covering the enormous amount of tools available. In this session, we will be mainly using the [**Rsubread**](https://bioconductor.org/packages/3.21/bioc/vignettes/Rsubread/inst/doc/Rsubread.pdf "User guide for Rsubread") and [**DESeq2**](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html "User guide for DESeq2") packages; you can find the user guides (which we will be referring to) by clicking on those links. We will also take inspiration from the following 2 online courses:
 
 -   ***RNAseq Analysis in R: Alignment and counting*** — Stephane Ballereau, Mark Dunning, Oscar Rueda, Ashley Sawle*.* <https://bioinformatics-core-shared-training.github.io/RNAseq-R/align-and-count.nb.html>
 
 -   ***Analysis of RNAseq data in R*** — Sheffield Bioinformatics Core. <https://sbc.shef.ac.uk/rnaseq-r-online/>
 
-As we are severly time limited, I will only be able to teach you the essentials which will help get you going through a standard bulk RNAseq workflow. For a highly-detailed, self-paced walkthrough of RNAseq analysis in R, I can also recommend the various courses from Harvard Bioinformatics Core — the one most relevant to our workshop today can be found [here](https://hbctraining.github.io/Intro-to-DGE/schedule/links-to-lessons.html), and it goes way beyond the scope of this course. You can also find links to other bioinformatics workflows there, such as for single-cell RNAseq.
+As we are severly time limited, I will only be able to teach you the essentials which will help get you going through a standard bulk RNAseq workflow. For a highly-detailed, self-paced walkthrough of RNAseq analysis in R, I can also recommend the various courses from Harvard Bioinformatics Core—the one most relevant to our workshop today can be found [here](https://hbctraining.github.io/Intro-to-DGE/schedule/links-to-lessons.html), and it goes way beyond the scope of this course. You can also find links to other bioinformatics workflows there, such as for single-cell RNAseq.
 
 ## Goals for session 3:
 
@@ -58,7 +58,7 @@ As before, we will be using the `tidyverse` and its associated packages.
 library(tidyverse)
 ```
 
-Up to this point, the data wrangling we have been doing can be broadly applied to many different fields of study — the first 2 sessions of this course would look very similar if I was teaching a group of Psychologists, for example. Thus we have been using packages which are hosted on [**CRAN**](https://cran.r-project.org/) (The Comprehensive R Archive Network). CRAN is where you first downloaded R itself, and it’s also the source that `install.packages()` searches when you supply a package name.
+Up to this point, the data wrangling we have been doing can be broadly applied to many different fields of study—the first 2 sessions of this course would look very similar if I was teaching a group of Psychologists, for example. Thus we have been using packages which are hosted on [**CRAN**](https://cran.r-project.org/) (The Comprehensive R Archive Network). CRAN is where you first downloaded R itself, and it’s also the source that `install.packages()` searches when you supply a package name.
 
 For today, however, we’ll also need packages that aren’t on CRAN. These come from a different, more specialised source. We will load these as we go.
 
@@ -96,7 +96,7 @@ Due to lack of time and the fact that these tools are not R-based (although, ine
 
 ## Alignment (read mapping)
 
-The next step (orange box) is **alignment.** While this is also commonly performed outside of R, there are some excellent packages available which allow us to do this within R and they incorporate seamlessly into our downstream analyses. The package I will introduce to you today is called **Rsubread**, and as the title of its seminal paper says, it is "[easier, faster, cheaper and better for alignment and quantification of RNA sequencing reads](https://academic.oup.com/nar/article/47/8/e47/5345150)". What's not to like? (Of course, the authors of that paper *would* say that as they were the ones who developed *Rsubread*, but anyway...).
+The next step (orange box) is **alignment.** While this is also commonly performed outside of R, there are some excellent packages available which allow us to do this within R and they incorporate seamlessly into our downstream analyses. The package I will introduce to you today is called **Rsubread**, and as the title of its seminal paper says, it is "[easier, faster, cheaper and better for alignment and quantification of RNA sequencing reads](https://academic.oup.com/nar/article/47/8/e47/5345150)". What's not to like? (Of course, the authors of that paper *would* say that as they were the ones who developed *`Rsubread`*, but anyway...).
 
 We will load this package now:
 
@@ -104,7 +104,7 @@ We will load this package now:
 library(Rsubread)
 ```
 
-You can find a detailed user guide for *Rsubread* by running the command `RsubreadUsersGuide()`
+You can find a detailed user guide for *`Rsubread`* by running the command `RsubreadUsersGuide()`
 
 ```{r usersguide}
 #| eval: false
@@ -129,13 +129,13 @@ Unfortunately, alignment of reads to a genome is a *computationally-intensive pr
 
 Some of you may be fortunate enough to have a powerful machine at home to do the alignment steps. However, I imagine many of you will be like me and do not have personal access to high performance computing. Fortunately, there are ways around this: here at Birmingham, research projects can be assigned access to the [BlueBEAR High Performance Clusters](https://www.birmingham.ac.uk/research/arc/bear/bluebear). Through their web portal, you can open Rstudio in an interactive environment and run your scripts on there instead of your local PC, enabling you to take advantage of the processing power offered from BlueBEAR.
 
-We won't be doing this today — instead, we will use the tutorial data directly contained within `Rsubread` as it is tiny and the code runs quickly on any device. But I thought I would point this out to you anyway.
+We won't be doing this today—instead, we will use the tutorial data directly contained within `Rsubread` as it is tiny and the code runs quickly on any device. But I thought I would point this out to you anyway.
 
 TLDR: **alignment (and counting) are computationally intensive; I do not recommend you run those functions locally unless you are using a high-performance computer (e.g., a CPU with at least 8 cores) or have plenty of time on your hands. All other steps in this session are far less intensive and can be run on any low-mid range laptop from the last few years.**
 
 ### the `buildindex()` function
 
-The first step of alignment is to build an index from a reference genome. To do this, we need to use the `buildindex()` function, which is part of the `Rsubread` package. `buildindex()` has 2 required arguments: *basename,* which is the name you want to call the created index files, and *reference*, which is the name of a FASTA file containing the reference genome. Therefore, you need to download and provide a reference genome of whichever organism you are working on and extract it to your current working directory. These can be found on the [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/) website from the NIH National Library of Medicine.
+The first step of alignment is to build an index from a reference genome. To do this, we need to use the `buildindex()` function, which is part of the `Rsubread` package. `buildindex()` has 2 required arguments: *`basename`,* which is the name you want to call the created index files, and *`reference`*, which is the name of a FASTA file containing the reference genome. Therefore, you need to download and provide a reference genome of whichever organism you are working on and extract it to your current working directory. These can be found on the [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/) website from the NIH National Library of Medicine.
 
 For example, later we are going to be looking at some data from an RNAseq experiment using rats (*Rattus norvegicus*) which required alignment using the latest published rat genome, **GRCr8**. To find this genome, I searched for "Rattus norvegicus" on the NCBI Datasets webpage: (**you do not need to do these steps yourself right now**)
 
@@ -158,7 +158,7 @@ You then get the following popup. Note that only "Genome sequences (FASTA)" is s
 buildindex(basename="GRCr8",reference="GCF_036323735.1_GRCr8_genomic.fa")
 ```
 
-However, this process is also slow on low-end machines (especially for large mammalian genomes). Therefore, to demonstrate, we will use the built-in tutorial dataset from the *Rsubread* package:
+However, this process is also slow on low-end machines (especially for large mammalian genomes). Therefore, to demonstrate, we will use the built-in tutorial dataset from the *`Rsubread`* package:
 
 ```{r ref}
 ref <- system.file("extdata","reference.fa",package="Rsubread")
@@ -166,7 +166,7 @@ ref <- system.file("extdata","reference.fa",package="Rsubread")
 ref
 ```
 
-We have made a reference object we have called `ref` which points to a file within the *Rsubread* package called `reference.fa`. The path in the above chunk will look unique to each of you, but should all end in the same thing: `Rsubread/extdata/reference.fa`. Notice the file extension `.fa`. This tells us we have a FASTA file, which is what the *reference* argument of `buildindex()` required.
+We have made a reference object we have called `ref` which points to a file within the *`Rsubread`* package called `reference.fa`. The path in the above chunk will look unique to each of you, but should all end in the same thing: `Rsubread/extdata/reference.fa`. Notice the file extension `.fa`. This tells us we have a FASTA file, which is what the *reference* argument of `buildindex()` required.
 
 Now we are ready to use `buildindex()`:
 
@@ -174,9 +174,9 @@ Now we are ready to use `buildindex()`:
 buildindex(basename="reference_index",reference=ref)
 ```
 
-All of the functions within *Rsubread* contain lengthy and useful output code, which prints to the console (and to your Quarto document) allowing you to see for yourself what is actually happening. Notice on my dodgy and slow Macbook Air, I get the message "WARNING: available memory is lower than 3.0 GB. The program may run very slow." This is why I am only using this very small tutorial reference to demonstrate the `buildindex()` function, as we would be here all day otherwise!
+All of the functions within *`Rsubread`* contain lengthy and useful output code, which prints to the console (and to your Quarto document) allowing you to see for yourself what is actually happening. Notice on my dodgy and slow Macbook Air, I get the message "WARNING: available memory is lower than 3.0 GB. The program may run very slow." This is why I am only using this very small tutorial reference to demonstrate the `buildindex()` function, as we would be here all day otherwise!
 
-In our working directory, we now have some new files, all of which contain the prefix "reference_index" which came from our *basename* argument above. You can see these files by clicking the "Files" pane on the right hand side of Rstudio, or using the `list.files()` function:
+In our working directory, we now have some new files, all of which contain the prefix "reference_index" which came from our *`basename`* argument above. You can see these files by clicking the "Files" pane on the right hand side of Rstudio, or using the `list.files()` function:
 
 ```{r}
 list.files()
@@ -188,7 +188,7 @@ All of those files make up our **reference index** which we will use next in the
 
 Alignment in `Rsubread` is generally performed using the `align()` function, which uses a paradigm called the "seed-and-vote" mapping paradigm. More information on this can be found in their published [paper](https://academic.oup.com/nar/article/47/8/e47/5345150) and the Users Guide.
 
-Required arguments for the `align()` function are *index*, which points the aligner to the index we just built (specifically the *basename* we gave it) and *readfile1 —* this will be a single *fastq* file or a list of such files. Note also there are many other arguments we can give to `align()` (see ?align for details) including *readfile2* which is NULL by default. This is because sequencing data can be single-end or paired-end, and `align()` will assume single-ended sequencing data by default. If we had paired end data, we might make a folder containing our forward-read *fastq* files to use for *readfile1*, and another containing our reverse-read *fastq* files to use for *readfile2*. We can then call these files into the `align()` function as in the following example:
+Required arguments for the `align()` function are *`index`*, which points the aligner to the index we just built (specifically the *`basename`* we gave it) and *`readfile1` —* this will be a single *fastq* file or a list of such files. Note also there are many other arguments we can give to `align()` (see ?align for details) including *`readfile2`* which is NULL by default. This is because sequencing data can be single-end or paired-end, and `align()` will assume single-ended sequencing data by default. If we had paired end data, we might make a folder containing our forward-read *fastq* files to use for *`readfile1`*, and another containing our reverse-read *fastq* files to use for *`readfile2`*. We can then call these files into the `align()` function as in the following example:
 
 ```{r example_align_paired_end}
 #| eval: false
@@ -203,24 +203,26 @@ If you are getting unusual results e.g., poor alignment, or errors, it is likely
 
 For our tutorial example, we will use a small file contained within the `Rsubread` package which pretends to be some reads from a dummy sequencing experiment:
 
-```{r}
+```{r align-tutorial}
 reads <- system.file("extdata","reads.txt.gz",package="Rsubread")
 
 align.stat <- align(index="reference_index",readfile1=reads,
                     output_file="alignResults.BAM",phredOffset=64)
 ```
 
-*Note that we have also specified an output file in this code, and a* phredOffset *which we don't need to worry about here.* Even on my pedestrian laptop, this code only takes a few seconds to run. We can see in our output that of our total 1000 reads (comically low for a real RNAseq dataset), 904 of them mapped, which is a mapping rate of 90.4%.
+*Note that we have also specified an output file in this code, and a* `phredOffset` *which we don't need to worry about here.* Even on my pedestrian laptop, this code only takes a few seconds to run. We can see in our output that of our total 1000 reads (comically low for a real RNAseq dataset), 904 of them mapped, which is a mapping rate of 90.4%.
 
 The output of the `align()` function will be a host of new files (as many as the number of unique *fastq* files, or experimental samples) which are in the BAM file format (Binary Alignment Map). These are the files we need for the next step of the process — **counting.**
 
 ## Counting
 
-So far, we have taken our sequencing data and aligned (or attempted to align) each sequence to a region in the genome. We know that in our tutorial data, 904 out of 1000 reads were successfully assigned to genomic regions. However, at this stage, we do not know *where* the reads were aligned, and crucially for our quantitative RNA sequencing, *how many times* each genomic region was aligned to — i.e., the count of how many times each gene was *seen* in our data. We therefore need some way of counting these features, a process known as *read quantification,* which produces a record of the number of occurrences of each feature in a *count table*. Enter stage left: the `featureCounts()` function.
+So far, we have taken our sequencing data and aligned (or attempted to align) each sequence to a region in the genome. We know that in our tutorial data, 904 out of 1000 reads were successfully assigned to genomic regions. However, at this stage, we do not know *where* the reads were aligned, and crucially for our quantitative RNA sequencing, *how many times* each genomic region was aligned to—i.e., the count of how many times each gene was *seen* in our data. We therefore need some way of **counting** these features, a process known as ***read quantification**,* which produces a record of the number of occurrences of each feature in a ***count table***. Enter stage left: the `featureCounts()` function.
 
 ### `featureCounts()`
 
-The `featureCounts()` function requires 2 inputs. The first is the *files* argument which can be a single file or a list of files in the BAM format (which we will have generated from our alignment step). The second is an *annotation*, which is a list of *genomic features* — basically a way of saying what the reads actually correspond to on the gene level. `featureCounts()` has some annotation files built-in, which can be accessed using the *annot.inbuilt* argument (e.g., for mouse data, you could use `annot.inbuilt = "mm39"`). Alternatively, you can provide your own annotation file using the *annot.ext* argument and pointing it to a GTF, GFF or SAF file.
+The `featureCounts()` function requires 2 inputs. The first is the *`files`* argument which can be a single file or a list of files in the BAM format (which we will have generated from our alignment step). The second is an *`annotation`*, which is a list of *genomic features*—basically a way of saying what the reads actually correspond to on the gene level.
+
+`featureCounts()` has some annotation files built-in, which can be accessed using the *`annot.inbuilt`* argument (e.g., for mouse data, you could use `annot.inbuilt = "mm39"`). Alternatively, you can provide your own annotation file using the *`annot.ext`* argument and pointing it to a GTF, GFF or SAF file.
 
 E.g., from our rat example above: we selected a GTF file to be included in our download, and we could use this in our `featureCounts()` step like this:
 
@@ -254,14 +256,14 @@ ann
 
 We will then perform the feature counting using this dummy annotation data frame:
 
-```{r}
+```{r fc_dummy}
 fc_dummy <- featureCounts("alignResults.BAM",annot.ext=ann)
 glimpse(fc_dummy)
 ```
 
-If we have a look at our new `fc_dummy` object (by clicking on it or using `View(fc_dummy)`, we can see that it it divided into 4 sections: counts, annotation, targets and stat. We will dig into what these mean in the following sections.
+If we have a look at our new `fc_dummy` object (by clicking on it or using `View(fc_dummy)`, we can see that it it divided into 4 sections: `counts`, `annotation`, `targets` and `stat`. We will dig into what these mean in the following sections.
 
-Note that on large datasets, `featureCounts()` can take a long time on an average personal computer, so this is another function which benefits from being run on a high performance computer cluster, such as BlueBEAR. Once run, the `featureCounts` object which is generated can be saved as an RDS file using the tidyverse function `write_rds()` and loaded elsewhere for downstream analysis (`read_rds()`). This requires much less computing power than generating the `featureCounts` object every time you want to do any analysis. For example, with our tutorial `fc_dummy`:
+Note that on large datasets, `featureCounts()` can take a long time on an average personal computer, so this is another function which benefits from being run on a high performance computer cluster, such as **BlueBEAR**. Once run, the `featureCounts` object which is generated can be saved as an RDS file using the tidyverse function `write_rds()` and loaded elsewhere for downstream analysis (`read_rds()`). This requires much less computing power than generating the `featureCounts` object every time you want to do any analysis. For example, with our tutorial `fc_dummy`:
 
 ```{r save_rds}
 #| eval: false
@@ -281,23 +283,25 @@ From here on, we will be working with a `featureCounts` RDS file generated elsew
 
 For the remainder of this session, we are going to be working with an RDS file which I introduced to you at the end of last week's session.
 
-If you downloaded the entire course as one zip file, then in your working directory for Session_3 (where this document is located) there should be a file called `fc.RDS`. This was generated after alignment (using the `align()` function from Rsubread) and counting (using `featureCounts()` on those aligned BAM files). The raw sequencing data originated from an RNAseq experiment investigating the global transcriptional changes in rat brain samples post traumatic brain injury (TBI). For our purposes, I selected only the "sham" group and the "TBI" (injured) group—each group contains 4 samples.
+If you downloaded the entire course as one zip file, then in your working directory for Session_3 (where this document is located) there should be a file called `fc.RDS`. This was generated after alignment (using the `align()` function from `Rsubread`) and counting (using `featureCounts()` on those aligned BAM files). The raw sequencing data originated from an RNAseq experiment investigating the global transcriptional changes in rat brain samples post traumatic brain injury (TBI). For our purposes, I selected only the "sham" group and the "TBI" (injured) group—each group contains 4 samples.
 
 For reference, their data were uploaded to the NIH Bioproject repository under the accession name PRJNA902029, and the original paper is *Zhu, Xiaolu, Jin Cheng, Jiangtao Yu, Ruining Liu, Haoli Ma, and Yan Zhao. ‘Nicotinamide Mononucleotides Alleviated Neurological Impairment via Anti-Neuroinflammation in Traumatic Brain Injury’. International Journal of Medical Sciences 20, no. 3 (2023): 307–17. <https://doi.org/10.7150/ijms.80942>.*
 
-```{r}
+```{r fc}
 fc <- read_rds("fc.rds")
 ```
 
 We can take a peek at what's inside our `fc` object by using `glimpse(fc)`. If you find the output a bit messy and hard to interpret, you can also open `fc` by clicking on it in the right hand side 'Environment' panel.
 
-```{r}
+```{r glimpse_fc}
 glimpse(fc)
 ```
 
 **How else could we find the names of the subdivisions in `fc`**? **Hint: we learned about this function in session 1**
 
-.
+```{r student-answer-1}
+
+```
 
 .
 
@@ -329,7 +333,9 @@ glimpse(fc)
 
 .
 
-```{r}
+.
+
+```{r model-answer-1}
 names(fc)
 ```
 
@@ -337,27 +343,27 @@ We can see from this that `fc` contains 4 sub-divisions: `counts`, `annotation`,
 
 `counts` contains our count data. Every row is a unique genomic feature (mostly genes), and every column is one of our samples. Since our dataset contains 8 samples, we would expect 8 columns. The number of rows we would expect depends on the number of annotated genomic locations in our GTF file from earlier—in our case, 38675. We can check we have the dimensions we expect:
 
-```{r}
+```{r fc-counts}
 dim(fc$counts)
 ```
 
 What are the names of our samples? Rather than using the `names()` function, we can use the `colnames()` function:
 
-```{r}
+```{r colnames-fc-counts}
 colnames(fc$counts)
 ```
 
-These names seem a bit long and unwieldy, but they come from an iterative naming process: the files initially downloaded from NIH Bioproject were called *SRR* files and each had a unique number—I downloaded them and labelled them with which group they corresponded to (e.g., "sham" or "TBI"); the next step was to convert them to *fastq* files (hence the .fastq); those *fastq* files were then aligned (using Rsubread) to produce the *BAM* files you see here. As `featureCounts()` takes *BAM* files as input, it has assigned each one to be the name of each sample. But don't worry! We will be renaming those samples soon to much more concise, informative names.
+These names seem a bit long and unwieldy, but they come from an iterative naming process: the files initially downloaded from NIH Bioproject were called *SRR* files and each had a unique number—I downloaded them and labelled them with which group they corresponded to (e.g., "sham" or "TBI"); the next step was to convert them to *fastq* files (hence the .fastq); those *fastq* files were then aligned (using `Rsubread`) to produce the *BAM* files you see here. As `featureCounts()` takes *BAM* files as input, it has assigned each one to be the name of each sample. But don't worry! We will be renaming those samples soon to much more concise, informative names.
 
 There is another way we could have seen the names of our samples: they are contained in the `targets` subdivision of `fc`.
 
-```{r}
+```{r fc-targets}
 fc$targets
 ```
 
 `annotation` is a data frame containing the genomic annotation data:
 
-```{r}
+```{r fc-annotation}
 glimpse(fc$annotation)
 ```
 
@@ -365,13 +371,13 @@ Unsurprisingly, it has 38675 rows (one for each genomic feature), and 6 columns,
 
 Finally, `stat` we explored last session, which contains the read statistics for each of our samples:
 
-```{r}
+```{r fc-stat}
 fc$stat
 ```
 
 Remember, we can use our data tidying, transforming and plotting knowledge from last session to compare the number of assigned reads across all samples:
 
-```{r}
+```{r assigned-reads-plot}
 library(ggthemes) # loading ggthemes so we can use its colourblind-safe colour palette
 
 fc$stat %>% 
@@ -392,13 +398,13 @@ fc$stat %>%
 
 # Differential gene expression with `DESeq2`
 
-There are numerous fantastic tools for downstream analysis of RNAseq data, including [*edgeR*](https://bioconductor.org/packages/release/bioc/html/edgeR.html), [*limma*](https://bioconductor.org/packages/release/bioc/html/limma.html)*,* and [*DESeq2*](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)*,* to name a few. All of these tools have similar design ideas—they take raw read counts, apply some kind of normalisation to the data and perform something called [empirical Bayes shrinkage](https://en.wikipedia.org/wiki/Empirical_Bayes_method) to stabilise variance estimates across genes. The subtle differences between them come later—*edgeR* and *DESeq2* assume that the data follow a [negative binomial distribution](https://en.wikipedia.org/wiki/Negative_binomial_distribution), while *limma* involves transforming the data to log counts per million and applying linear modelling.
+There are numerous fantastic tools for downstream analysis of RNAseq data, including [*edgeR*](https://bioconductor.org/packages/release/bioc/html/edgeR.html), [*limma*](https://bioconductor.org/packages/release/bioc/html/limma.html)*,* and [*DESeq2*](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)*,* to name a few. All of these tools have similar design ideas—they take raw read counts, apply some kind of normalisation to the data and perform something called [empirical Bayes shrinkage](https://en.wikipedia.org/wiki/Empirical_Bayes_method) to stabilise variance estimates across genes. The subtle differences between them come later—*`edgeR`* and *`DESeq2`* assume that the data follow a [negative binomial distribution](https://en.wikipedia.org/wiki/Negative_binomial_distribution), while *`limma`* involves transforming the data to log counts per million and applying linear modelling.
 
-We will be using **DESeq2** as it is particularly well suited to dealing with small sample sizes, which is what you will likely be faced with if you ever perform your own RNAseq experiments. A highly detailed walkthrough of how to use *DESeq2* to analyse RNAseq data can be found in its [*vignette*](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) on Bioconductor *Note that if you do look at that for reference, our tutorial starts from the section where it talks about using count matrices as input. Alternatively, a slower-paced walkthrough, which also includes a different way to generate count data from* fastq *files, can be found [here](https://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html).*
+We will be using **`DESeq2`** as it is particularly well suited to dealing with small sample sizes, which is what you will likely be faced with if you ever perform your own RNAseq experiments. A highly detailed walkthrough of how to use *`DESeq2`* to analyse RNAseq data can be found in its [*vignette*](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) on Bioconductor *Note that if you do look at that for reference, our tutorial starts from the section where it talks about using count matrices as input. Alternatively, a slower-paced walkthrough, which also includes a different way to generate count data from* fastq *files, can be found [here](https://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html).*
 
-Of course, to use *DESeq2*, we first need to load the package as usual using the `library()` function. We are also going to borrow a function from *edgeR,* so we will load this here too:
+Of course, to use *`DESeq2`*, we first need to load the package as usual using the `library()` function. We are also going to borrow a function from *`edgeR`,* so we will load this here too:
 
-```{r}
+```{r edgeR-DESeq2}
 library(edgeR)
 library(DESeq2)
 ```
@@ -409,17 +415,21 @@ Loading these two packages gives us quite a lot of text in the output, because t
 
 ### A note on "tidyness"
 
-This whole course, we have had a *tidyverse-centric* mindset to our data analysis. However, some packages in R (most of the Bioconductor packages included) are not designed to be naturally compatible with the tidyverse. The *DESeqDataSet,* which we will come to in a moment, is a subset of the class of R objects called *SummarizedExperiment* objects: by default, it is *not*, for example, a **tibble**, which as we learned last week is a **tidy** representation of a data frame.
+This whole course, we have had a *tidyverse-centric* mindset to our data analysis. However, some packages in R (most of the Bioconductor packages included) are not designed to be naturally compatible with the tidyverse. The *`DESeqDataSet`,* which we will come to in a moment, is a subset of the class of R objects called *`SummarizedExperiment`* objects: by default, it is *not*, for example, a **tibble**, which as we learned last week is a **tidy** representation of a data frame.
 
-Fortunately, "where there is a will, there is a package." The *tidySummarizedExperiment* package causes a *DESeqDataSet* to be treated a tibble for tidyverse function purposes, while still allowing normal *DESeq2* functions to work properly.
+Fortunately, "where there is a will, there is a package." The *`tidySummarizedExperiment`* package causes a *`DESeqDataSet`* to be treated a tibble for tidyverse function purposes, while still allowing normal *`DESeq2`* functions to work properly.
 
-```{r}
+```{r tidySummarizedExperiment}
 library(tidySummarizedExperiment)
 ```
 
 ## Count data input
 
-*DESeq2* requires un-normalised count data as input, as library size differences are corrected internally. **Where is that stored in our `fc`** **object?**
+*`DESeq2`* requires un-normalised count data as input, as library size differences are corrected internally. **Where is that stored in our `fc`** **object?**
+
+```{r student-answer-2}
+
+```
 
 .
 
@@ -449,7 +459,15 @@ library(tidySummarizedExperiment)
 
 .
 
-We have already seen that `fc$counts` contains a matrix where the rows are the genes and the columns are the samples, with each value being a count of how many times that gene was detected in that sample. We can therefore use this as the input for *DESeq2*—we will make a new object called `countdata` which will contain this count matrix:
+.
+
+We have already seen that `fc$counts` contains a matrix where the rows are the genes and the columns are the samples, with each value being a count of how many times that gene was detected in that sample.
+
+```{r model-answer-2}
+glimpse(fc$counts)
+```
+
+We can therefore use this as the input for *DESeq2*—we will make a new object called `countdata` which will contain this count matrix:
 
 ```{r countdata}
 countdata <- fc$counts
@@ -460,17 +478,17 @@ glimpse(countdata)
 
 If we look at the column names of `countdata`, we can see that it corresponds to the *BAM* file names we saw earlier:
 
-```{r}
+```{r colnames-countdata}
 colnames(countdata)
 ```
 
 We could leave things as they are. However, things would be much cleaner if we could rename this to be less wordy! We are also lacking information about how these samples should be grouped together. You can see a hint of that in the names (sham and TBI) but we haven't made the grouping explicit.
 
-It is generally recommended to include information (metadata) about your experiment in a separate file, which you can refer to yourself and also use in R to help provide information to *DESeq2* about the experimental design. In your working directory, I have provided a file called `SampleInfo.txt`, containing the sample information in a table: the original file name; a simplified sample name; and the Group each sample belongs to (i.e., sham or TBI). This is a text file which is in a tab-separated format, which is easy to edit if you are using different samples/group names. (There's also no reason you couldn't make this a CSV file in Excel if you prefer).
+It is generally recommended to include information (**metadata**) about your experiment in a separate file, which you can refer to yourself and also use in R to help provide information to *`DESeq2`* about the experimental design. In your working directory, I have provided a file called `SampleInfo.txt`, containing the sample information in a table: the original `file name`; a simplified `sample name`; and the `Group` each sample belongs to (i.e., sham or TBI). This is a text file which is in a tab-separated format, which is easy to edit if you are using different samples/group names. (There's also no reason you couldn't make this a CSV file in Excel if you prefer).
 
 Let's load this file into R now:
 
-```{r}
+```{r sampleinfo}
 sampleinfo <- read_delim("SampleInfo.txt", col_types = "ccf") # read_delim allows reading of files with any of the common separators e.g., TAB in this case
 sampleinfo <- as_tibble(sampleinfo) # convert to tibble for ease of use
 sampleinfo
@@ -478,19 +496,19 @@ sampleinfo
 
 *Quick note: in `read_delim()`* *I am using the argument `col_types = "ccf"`* —*this means I am specifying the **data type** of each column, from 1st to 3rd (character, character, factor) because I want Group to be a factor—see `?read_delim()`* *for more details. This is just a quicker way than having to reassign the column types afterwards.*
 
-You may notice that the column names of `countdata` are the same as FileName in the `sampleinfo` file - **this is deliberate: I made the file such that this would be true**. If you make your own metadata file for your experiment, I would recommend you check the order of the columns in your `countdata` first and make your metadata with this order in mind, as it will save you time.
+You may notice that the column names of `countdata` are the same as `FileName` in the `sampleinfo` file - **this is deliberate: I made the file such that this would be true**. If you make your own metadata file for your experiment, I would recommend you check the order of the columns in your `countdata` first and make your metadata with this order in mind, as it will save you time.
 
 This means our sample information in `sampleinfo` is in the same order as the columns in `countdata`, as we can check below using the `table()` function's equality test:
 
-```{r}
+```{r table-colnames}
 table(colnames(countdata)==sampleinfo$FileName)
 
 # If this is at all FALSE, you will need to remake the SampleInfo.txt file to ensure that it is listing the samples in the same order as in countdata
 ```
 
-We can take advantage of this fact to rename our `countdata` columns (which represent the samples remember) to the simplified SampleName in `sampleinfo`:
+We can take advantage of this fact to rename our `countdata` columns (which represent the samples) to the simplified `SampleName` in `sampleinfo`:
 
-```{r}
+```{r reassign-sample-names}
 colnames(countdata) <- sampleinfo$SampleName
 colnames(countdata)
 ```
@@ -499,7 +517,7 @@ That looks much better—it's now easy to see which sample is being referred to 
 
 ### The DESeqDataSet object
 
-In *DESeq2*, read counts and the intermediate values generated during analysis are stored in a special object called a **DESeqDataSet**, usually represented in code as an object `dds`. A DESeqDataSet can be generated in different ways; but here, we will generate it using our count matrix, `countdata`.
+In *`DESeq2`*, read counts and the intermediate values generated during analysis are stored in a special object called a **DESeqDataSet**, usually represented in code as an object `dds`. A *`DESeqDataSet`* can be generated in different ways; but here, we will generate it using our count matrix, `countdata`.
 
 Every `DESeqDataSet` requires a **design formula**, which specifies the variables to be included in the model. We only have one variable of interest, which is contained within our `sampleinfo` object: Group. This variable is how we will distinguish the samples which came from the "sham" controls from those which came from the "TBI" injured animals.
 
@@ -507,16 +525,18 @@ The design formula begins with a tilde (`~`), followed by the variables separate
 
 You can change the design later, but keep in mind that all differential expression steps must then be re-run, since the design formula is used when estimating dispersions and calculating log2 fold changes.
 
-Because we are creating a DESeqDataSet from a count matrix, we need to use the (very thoroughly named) function `DESeqDataSetFromMatrix()`. As inputs to this function, we need to provide the **counts matrix**, the **information** **about the samples** (the columns of the count matrix) **as a data frame**, and the **design formula**. With the count matrix, `countdata`, and the sample information, `sampleinfo`, we can construct a *DESeqDataSet*. Our design uses the `Group` column from our `sampleinfo` object (i.e., that is the independent variable which differential gene expression is measured against - the differences between the groups).
+Because we are creating a *`DESeqDataSet`* from a count matrix, we need to use the (very robustly named) function `DESeqDataSetFromMatrix()`. As inputs to this function, we need to provide the **counts matrix**, the **information** **about the samples** (the columns of the count matrix) **as a data frame**, and the **design formula**.
 
-```{r}
+With the count matrix, `countdata`, and the sample information, `sampleinfo`, we can construct a *`DESeqDataSet`*. Our design uses the `Group` column from our `sampleinfo` object (i.e., that is the independent variable which differential gene expression is measured against—the differences between the groups).
+
+```{r dds-deseqdatasetfrommatrix}
 dds <- DESeqDataSetFromMatrix(countData = countdata,
                               colData = sampleinfo,
                               design = ~ Group)
 dds
 ```
 
-Because we loaded *tidySummarizedExperiment*, our *DESeqDataSet* is exposed as a *SummarizedExperiment–tibble abstraction*. That means we can use tidyverse functions for exploration while the object still holds assays (counts), row metadata (genes), and column metadata (samples). The preview reports **38,675 features** and **8 samples**—the same dimensions as our count matrix. Row names are **Gene IDs**; column names are our **sample IDs**.
+Because we loaded *`tidySummarizedExperiment`*, our *`DESeqDataSet`* is exposed as a *SummarizedExperiment–tibble abstraction*. That means we can use tidyverse functions for exploration while the object still holds assays (`counts`), row metadata (`genes`), and column metadata (`samples`). The preview reports **38,675 features** and **8 samples**—the same dimensions as our count matrix. Row names are **Gene IDs**; column names are our **sample IDs**.
 
 We can use some of those tidyverse functions we learned about last week to explore our `dds` object a little bit to understand it a bit better.
 
@@ -528,35 +548,35 @@ We can use some of those tidyverse functions we learned about last week to explo
 
 #### `filter()`
 
-```{r}
+```{r filter}
 dds %>% 
   dplyr::filter(Group == "TBI")
 ```
 
 #### `select()`
 
-```{r}
+```{r select}
 dds %>%
   dplyr::select(.sample)
 ```
 
 #### `count()`
 
-```{r}
+```{r count}
 dds %>%
   dplyr::count(.sample)
 ```
 
 #### `distinct()`
 
-```{r}
+```{r distinct}
 dds %>%
   dplyr::distinct(.sample, SampleName, Group)
 ```
 
 #### `group_by()` and `summarise()`
 
-```{r}
+```{r group_by-summarise}
 dds %>%
     dplyr::group_by(.sample) %>%
     dplyr::summarise(total_counts=sum(counts))
@@ -564,7 +584,7 @@ dds %>%
 
 #### `group_by()`, `mutate()` and `filter()`
 
-```{r}
+```{r group_by-mutate-filter}
 dds %>%
     dplyr::group_by(.feature) %>%
     dplyr::mutate(mean_count=mean(counts)) %>%
@@ -575,7 +595,7 @@ dds %>%
 
 We can also treat our `dds` object as a normal tibble for plotting in `ggplot2`. For example, if we wanted to plot the distribution of counts per sample (on a log10 scale):
 
-```{r}
+```{r count-distribution}
 library(ggthemes)
 dds %>%
     ggplot(aes(counts + 1, group=.sample, color=Group)) +# +1 to counts to avoid zeros
@@ -589,13 +609,13 @@ dds %>%
 
 You can see from the plot we made above that our samples have a peak on the left hand side of the plot—this represents genes with very low counts.
 
-While it is not necessary to pre-filter low count genes before running the *DESeq2* functions, there are two reasons which make pre-filtering useful: by removing rows in which there are very few reads, we reduce the memory size of the `dds` data object, and we increase the speed of count modeling within *DESeq2*. It can also improve visualizations, as features with no information for differential expression are not plotted in dispersion plots or MA-plots.
+While it is not necessary to pre-filter low count genes before running the *`DESeq2`* functions, there are two reasons which make pre-filtering useful: by removing rows in which there are very few reads, we reduce the memory size of the `dds` data object, and we increase the speed of count modeling within *`DESeq2`*. It can also improve visualizations, as features with no information for differential expression are not plotted in dispersion plots or MA-plots.
 
-Pre-filtering can be performed manually. For example, one common method is to keep only rows that have a count of at least 10 for a minimal number of samples. A recommendation for the minimal number of samples is to specify the smallest group size, e.g., for our example, that would be n = 4. The *DESeq2* vignette provides [an example of how to do this](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#pre-filtering).
+Pre-filtering can be performed manually. For example, one common method is to keep only rows that have a count of at least 10 for a minimal number of samples. A recommendation for the minimal number of samples is to specify the smallest group size, e.g., for our example, that would be n = 4. The *`DESeq2`* vignette provides [an example of how to do this](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#pre-filtering).
 
-For automatic pre-filtering, we can borrow a function from the *edgeR* package, called `filterByExpr()`. We will call every row where we want to keep the data "keep" and use this to filter our `dds` object:
+For automatic pre-filtering, we can borrow a function from the *`edgeR`* package, called `filterByExpr()`. We will call every row where we want to keep the data "keep" and use this to filter our `dds` object:
 
-```{r}
+```{r filterByExpr}
 # Check dimensions before filtering
 dim(dds)
 
@@ -605,23 +625,27 @@ keep <- filterByExpr(counts(dds), group = dds$Group)
 
 What does `keep` look like?
 
-```{r}
+```{r keep}
 head(keep) # just print the first few positions of keep
 ```
 
-You can see we now have what is known as a *named vector*—every element of the vector `keep` corresponds to a GeneID, and the value is a *logical* (i.e., TRUE or FALSE). We can use this to filter our `dds` object to keep only the rows where this value is true. (Here it makes way more sense to *not* use a tidyverse approach but to rather use the matrix subsetting tools we learned about all the way back near the beginning of *Session 1*):
+You can see we now have what is known as a *named vector*—every element of the vector `keep` corresponds to a `GeneID`, and the value is a *logical* (i.e., `TRUE` or `FALSE`). We can use this to filter our `dds` object to keep only the rows where this value is true. (Here it makes way more sense to *not* use a tidyverse approach but to rather use the matrix subsetting tools we learned about all the way back near the beginning of *Session 1*):
 
-```{r}
-dds <- dds[keep,] # select only the ROWS where the gene ID is TRUE in our keep vector.
+```{r dds-keep}
+dds <- dds[keep,] # select only the ROWS where the gene ID is TRUE in our keep vector
 ```
 
 How many genes have we kept?
 
-```{r}
+```{r dim-dds}
 dim(dds)
 ```
 
 **How does this affect our density plot? Try plotting it again yourselves.**
+
+```{r student-answer-3}
+
+```
 
 .
 
@@ -653,7 +677,7 @@ dim(dds)
 
 .
 
-```{r}
+```{r model-answer-3}
 dds %>%
     ggplot(aes(counts + 1, group=.sample, color=Group)) +# +1 to counts to avoid zeros
     geom_density() +
@@ -662,18 +686,20 @@ dds %>%
     scale_colour_colorblind()
 ```
 
+*You can see we have lost the 'tail' on the left hand side as genes with low counts have been filtered out.*
+
 ### Factor levels
 
-The `Group` variable in our *DESeqDataSet* tells *DESeq2* which samples belong to which experimental group. Because R orders factor levels alphabetically by default, it’s good practice to explicitly set the reference level so that *DESeq2* compares other groups against it. In *Session 1,* we briefly encountered the need to change the levels of a factor when we wanted to switch the order that our different penguin species were plotted on the graph. We can do a similar thing here to set our reference level (our "sham" group):
+The `Group` variable in our *`DESeqDataSet`* tells *`DESeq2`* which samples belong to which experimental group. Because R orders factor levels alphabetically by default, it’s good practice to explicitly set the reference level so that *`DESeq2`* compares other groups against it. In *Session 1,* we briefly encountered the need to change the levels of a factor when we wanted to switch the order that our different penguin species were plotted on the graph. We can do a similar thing here to set our reference level, the `relevel` (our "sham" group):
 
-```{r}
+```{r fct_relevel}
 dds <- dds %>%
-  dplyr::mutate(Group = fct_relevel(Group, "sham"))
+  dplyr::mutate(Group = fct_relevel(Group, "sham")) #fct_relevel means factor reference level
 ```
 
 The easiest way to see if this has worked is to use the function `unique()` and access the `Group` variable using `dds$Group`:
 
-```{r}
+```{r unique}
 unique(dds$Group)
 ```
 
@@ -687,15 +713,15 @@ We define the term *quality* as *fitness for purpose*. Our purpose is the detect
 
 A **principle components analysis (PCA)** is an example of an unsupervised analysis, where we don’t specify the grouping of the samples. If your experiment is well controlled and has worked well, we should see that replicate samples cluster closely, whilst the greatest sources of variation in the data should be between treatments/sample groups. It is also an incredibly useful tool for checking for outliers and batch effects.
 
-To run the PCA we should first normalise our data for library size and transform to a log scale. *DESeq2* provides two commands that can be used to do this: here we will use the command *rlog*. *rlog* performs a log2 scale transformation in a way that compensates for differences between samples for genes with low read count and also normalizes between samples for library size.
+To run the PCA we should first normalise our data for library size and transform to a log scale. *`DESeq2`* provides two commands that can be used to do this: here we will use the command *`rlog()`*. *`rlog()`* performs a log2 scale transformation in a way that compensates for differences between samples for genes with low read count and also normalizes between samples for library size.
 
-```{r}
+```{r rlog}
 rld <- rlog(dds, blind = TRUE)
 ```
 
 Next, we will use this as our input for running the PCA, using the `plotPCA()` function from `DESeq2`. To save computational power, this function will by default only use the top 500 most variable features to calculate the PCA. In addition, we can specify `pcsToUse` to select the principle components we want to analyse (defaults to 1 and 2).
 
-```{r}
+```{r plotPCA}
 plotPCA(rld, intgroup = "Group", # intgroup specifies a variable we are splitting the samples by: in our case, Group 
         pcsToUse = 1:2 # pcsToUse specifies which principle components to plot (default is first 2)
         ) 
@@ -703,19 +729,19 @@ plotPCA(rld, intgroup = "Group", # intgroup specifies a variable we are splittin
 
 This plot is actually a `ggplot` object, meaning we can customise it to look however we want. First, we extract the PCA data itself by using the argument `returnData = TRUE` inside `plotPCA()`.
 
-```{r}
+```{r pca_data}
 pca_data <- plotPCA(rld, intgroup = "Group", pcsToUse = 1:2, returnData = TRUE) 
 ```
 
 We also need a small vector which contains the percentage variance explained by each principle component, which will be useful for labelling our x and y axes.
 
-```{r}
+```{r percentVar}
 percentVar <- round(100 * attr(pca_data, "percentVar"), 2) # round to 3 sig fig.
 ```
 
 Now we are ready to plot using `ggplot2`. The following chunk contains a lot of code but try to read it line by line to figure out what each part is doing. I have added in the `geom_text_repel` geom from the `ggrepel` package, which enables labelling of the points with the sample names. I am also specifying which shape I want to be in the legend using the `guides()` layer. **Have a go at changing some of the values in the geoms—what effects do your changes have on the figure?**
 
-```{r}
+```{r pca_plot-ggplot}
 library(ggrepel)
 pca_plot <- pca_data %>%
   ggplot(aes(x = PC1, y = PC2, fill = Group, shape = Group)) + # plot PC1 and PC2
@@ -740,25 +766,29 @@ Quick note on `paste0`—this is a great way to *dynamically label* our axes dep
 
 Just to make it explicit what `paste0` is doing:
 
-```{r}
+```{r paste0}
 paste0("PC1 (", percentVar[1], "% variance)")
 ```
 
 If we wanted to manually say how much variance was explained:
 
-```{r}
+```{r paste0-2}
 paste0("PC1 (", 81.53, "% variance)")
 ```
 
 Let's look at our PCA plot again:
 
-```{r}
+```{r pca-plot-full}
 pca_plot
 ```
 
 This plot is telling us that about 82% of our variance is explained on the x axis (by PC1), and about 6% is explained on the y axis (PC2). This is expected, as the variance explained decreases with each principle component. The distance between samples on the plot corresponds to how similar or different they are from each other. The good news is that our samples seem to broadly cluster together by their `Group`, with sham samples on the right and TBI samples on the left.
 
 **Try and plot the 3rd and 4th principle components of our data. What do you notice?**
+
+```{r student-answer-4}
+
+```
 
 .
 
@@ -792,7 +822,11 @@ This plot is telling us that about 82% of our variance is explained on the x axi
 
 .
 
-```{r}
+.
+
+.
+
+```{r model-answer-4}
 # Calculate the pca for PCs 3 and 4 - change pcsToUse
 pca_34 <- plotPCA(rld, intgroup = "Group", pcsToUse = 3:4, returnData = TRUE) 
 # Calculate the percentage variance explained
@@ -822,9 +856,9 @@ plot_pca34
 
 ## Checking the data - heatmaps
 
-A **heatmap** is a colour-coded representation of a data matrix — in RNA-seq, typically **genes (rows)** by **samples (columns)**, with colours indicating expression levels (often after transformation such as *rlog* or *vst*).
+A **heatmap** is a colour-coded representation of a data matrix—in RNA-seq, typically **genes (rows)** by **samples (columns)**, with colours indicating expression levels (often after transformation such as *rlog* or *vst*).
 
-Before diving into differential expression, heatmaps help you visually check data structure and sample relationships:
+Before diving into differential expression, heatmaps help you visually check data structure and sample relationships. They are useful for:
 
 1.  **Detecting sample clustering and group separation**
 
@@ -836,19 +870,19 @@ Before diving into differential expression, heatmaps help you visually check dat
 
     -   An outlier sample will show a **distinct colour pattern** (e.g., consistently higher or lower expression across most genes).
 
-    -   This can flag **technical issues** such as low library complexity, contamination, or failed normalization.
+    -   This can flag **technical issues** such as low library complexity, contamination, or failed normalisation.
 
-3.  **Visualizing high-variance or most variable genes**
+3.  **Visualising high-variance or most variable genes**
 
     -   Heatmaps of the top 500–1000 most variable genes give an overview of biological variability versus noise.
 
     -   It’s a quick way to see whether biological signal dominates technical variation.
 
-We will use the `pheatmap` library for plotting our heatmap. Unfortunately, it isn't completely tidyverse friendly, but we can still use our tidyverse functions and the `%>%` pipe to prepare our data for `pheatmap`. We will use the `rld` object which contains an rlog transformation of our `dds` *DESeqDataSet.*
+We will use the `pheatmap` library for plotting our heatmap. Unfortunately, it isn't completely tidyverse friendly, but we can still use our tidyverse functions and the `%>%` pipe to prepare our data for `pheatmap`. We will use the `rld` object which contains an rlog transformation of our `dds` *`DESeqDataSet`.*
 
 Firstly, we will extract the rlog-normalised counts from `rld` using `assay()`:
 
-```{r}
+```{r normalized-counts}
 # Extract the transformed values
 normalized_counts <- assay(rld)
 glimpse(normalized_counts)
@@ -856,7 +890,7 @@ glimpse(normalized_counts)
 
 We want to plot the 500 most variable genes in our dataset. To do this, we will calculate the row variances using `rowVars`, ensure it is a **tibble** with the gene IDs in their own column, and arrange by variance from highest to lowest:
 
-```{r}
+```{r variance-per-gene}
 # Compute variance per gene
 row_variances <- rowVars(normalized_counts) %>% 
   as_tibble(rownames = "GeneID") %>% 
@@ -867,18 +901,18 @@ row_variances
 
 Next, we extract the GeneIDs for the top 500 most variable genes in our dataset. Since we have arranged our `row_variances` tibble from most to least variable, we can use a `slice` function—specifically `slice_head()` to extract from the top:
 
-```{r}
+```{r geneIDs}
 # Identify top 500 most variable genes
 topVarGenes <- row_variances %>%
   dplyr::slice_head(n = 500) %>% # 500 because we want the top 500 most variable genes
   pull(GeneID) # we "pull" because we only need the names of these genes, which is contained in the GeneID column
 
-topVarGenes
+head(topVarGenes) # look at the top most variable
 ```
 
-Finally, we can use this to subset our `normalized_counts` matrix as input for `pheatmap()`. Note that `pheatmap()` requires a matrix as input so we cannot convert `normalized_counts` to a tidyverse friendly tibble. This means we will have to use a matrix subsetting technique, like we did early in *Session 1.* We use the `%in%` function because we are looking for the row names of `normalized_counts` which match the names of our top variable GeneIDs.
+Finally, we can use this to subset our `normalized_counts` matrix as input for `pheatmap()`. Note that `pheatmap()` requires a matrix as input so we cannot convert `normalized_counts` to a tidyverse friendly tibble. This means we will have to use a matrix subsetting technique, like we did earlier this session*.* We use the `%in%` function because we are looking for the row names of `normalized_counts` which match the names of our top variable `GeneIDs`.
 
-```{r}
+```{r heatmap}
 library(pheatmap)
 
 # Subset and plot
@@ -892,7 +926,7 @@ pheatmap(
 
 In this heatmap, each row is a gene and each column is a sample. We have designated that we want to cluster by rows and columns (feel free to experiment with what happens if you set either or both of those to FALSE)—so genes with most similar expression are closest together, and samples with most similar patterns of gene expression are closest together. Blue cells indicate lower gene expression, while red cells indicate higher gene expression.
 
-We can see, like our PCA, that our samples have clustered together by their Group (i.e., all of our shams are next to each other and all of our TBIs are next to each other). We also can see that generally the expresison of genes is well conserved across each sample in each group (e.g., genes that are lowly expressed in one sham sample are also lowly expressed in the other sham samples) meaning that the variation is due to Group differences and not sample differences.
+We can see, like our PCA, that our samples have clustered together by their `Group` (i.e., all of our shams are next to each other and all of our TBIs are next to each other). We also can see that generally the expression of genes is well conserved across each sample in each group (e.g., genes that are lowly expressed in one sham sample are also lowly expressed in the other sham samples) meaning that the variation is due to `Group` differences and not `sample` differences.
 
 # Differential expression analysis
 
@@ -900,13 +934,13 @@ After the basic quality control steps we have performed above, we are now ready 
 
 Performing this is as simple as running the code in the following chunk. Note that we want to overwrite `dds` with our differential expression analysis, so we use the assignment operator `<-`:
 
-```{r}
+```{r deseq}
 dds <- DESeq(dds)
 ```
 
-The `results()` function extracts a result table from a *DESeq* analysis giving **base means** across samples, **log2 fold change**, **standard errors**, **test statistics**, **p-values**, and **adjusted p-values** for each gene.
+The `results()` function extracts a result table from a *`DESeq`* analysis giving **base means** across samples, **log2 fold change**, **standard errors**, **test statistics**, **p-values**, and **adjusted p-values** for each gene.
 
-If you run `results()` without any extra arguments, DESeq2 will automatically use the **last variable** in your design formula to define the comparison. If that variable is a factor, DESeq2 compares the **last level** of the factor against its **reference level** (see earlier note on setting factor levels).
+If you run `results()` without any extra arguments, `DESeq2` will automatically use the **last variable** in your design formula to define the comparison. If that variable is a factor, `DESeq2` compares the **last level** of the factor against its **reference level** (see earlier note on setting factor levels).
 
 For example, our design was (see [The DESeqDataSet object]):
 
@@ -923,14 +957,14 @@ results(dds, name = "Group_TBI_vs_sham")
 
 or
 
-```{r}
+```{r results}
 res <- results(dds, contrast = c("Group", "TBI", "sham"))
 res
 ```
 
 The `name` and `contrast` arguments of `results()` usually produce the same output.
 
-However, there is one subtle difference: when you use the **`contrast`** argument, DESeq2 will automatically set the **log2 fold change (LFC)** to **0** if *both groups being compared have all counts equal to zero*, even if other groups in the dataset have nonzero counts.
+However, there is one subtle difference: when you use the **`contrast`** argument, `DESeq2` will automatically set the **log2 fold change (LFC)** to **0** if *both groups being compared have all counts equal to zero*, even if other groups in the dataset have nonzero counts.
 
 This behaviour can be useful, since it avoids reporting undefined or misleading fold changes in cases where no reads were detected in either group. If you want this automatic handling of zero-count comparisons, use the `contrast` argument to create your results table.
 
@@ -938,13 +972,49 @@ As always, more detail on the `results()` function and the options available can
 
 To get some summary statistics on our results, we can use the `summary()` function:
 
-```{r}
+```{r summary}
 summary(res)
 ```
 
-How many adjusted p-values were less than 0.1 (i.e., significant as defined by the default settings)?
+**How many adjusted p-values were less than 0.1 (i.e., significant as defined by the default settings)?**
 
-```{r}
+```{r student-answer-5}
+
+```
+
+.
+
+.
+
+.
+
+.
+
+Scroll down for answer
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+```{r model-answer-5}
 res %>%
   as_tibble() %>%
   dplyr::filter(padj < 0.1, ) %>%
@@ -953,14 +1023,18 @@ res %>%
 
 ## log2 fold change thresholds and false discovery rate
 
-By default, `results()` does not take into account the **magnitude** of the log2 fold change—i.e., it will test for significant differential expression regardless of whether the log2 fold change is tiny (and potentially biologically insignificant). In addition, the default adjusted p-value cutoff (i.e., the false discovery rate (FDR), ***alpha***) is 0.1. If you want to be more **stringent**, you specify a higher log2 fold change threshold (e.g., 1) and a lower alpha value (e.g., 0.05):
+By default, `results()` does not take into account the **magnitude** of the log2 fold change—i.e., it will test for significant differential expression regardless of whether the log2 fold change is tiny (and potentially biologically insignificant). In addition, the default adjusted p-value cutoff (i.e., the false discovery rate (FDR), ***alpha***) is 0.1. If you want to be more **stringent**, you specify a higher log2 fold change threshold, `lfcThreshold` (e.g., 1) and a lower `alpha` value (e.g., 0.05):
 
-```{r}
+```{r res05}
 res05 <- results(dds, lfcThreshold=1, alpha = 0.05, contrast=c("Group","TBI","sham"))
 res05
 ```
 
 **How do you predict this will affect the number of significant differentially-expressed genes we discover? How can you tell if you are right?**
+
+```{r student-answer-6}
+
+```
 
 .
 
@@ -992,7 +1066,7 @@ res05
 
 .
 
-```{r}
+```{r model-answer-6}
 summary(res05)
 ```
 
@@ -1002,11 +1076,11 @@ summary(res05)
 
 The MA plot is a visualisation that plots the log2-fold-change between experimental groups (M) against the mean expression across all the samples (A) for each gene. *DESeq2* contains a function called `plotMA()` for this purpose. We can use this to visualise the effects of different parameters in `results()`. Points are coloured in blue if their adjusted p-value is below the *alpha* value specified in `results()`. If we have specified a log2 fold change cutoff, we can add horizontal lines to the plot depicting that using the function `abline()`.
 
-```{r}
+```{r plotMA}
 DESeq2::plotMA(res, ylim = c(-5, 5))
 ```
 
-```{r}
+```{r draw-line}
 DESeq2::plotMA(res05, ylim = c(-5, 5))
 abline(h=c(-1,1),col="dodgerblue",lwd=2) # function to draw lines onto a plot
 ```
@@ -1025,7 +1099,7 @@ The `results()` function also allows you to specify which direction you want to 
 
 The four possible values of `altHypothesis` are demonstrated in the following code and visually by MA-plots in the following figures:
 
-```{r}
+```{r althypothesis}
 ylim <- c(-5, 5)
 resGA <- results(dds, lfcThreshold=1, altHypothesis="greaterAbs")
 resLA <- results(dds, lfcThreshold=1, altHypothesis="lessAbs")
@@ -1042,6 +1116,10 @@ DESeq2::plotMA(resL, ylim=ylim); drawLines()
 
 Putting this together, say you wanted to test for DEGs along the following parameters of \|log2FC\| \> 0.5 and FDR \< 0.05 comparing the TBI group vs the sham group: **what is the code you need to write?**
 
+```{r student-answer-7}
+
+```
+
 .
 
 .
@@ -1074,33 +1152,37 @@ Putting this together, say you wanted to test for DEGs along the following param
 
 .
 
-```{r}
+.
+
+.
+
+```{r model-answer-7}
 res <- results(dds, lfcThreshold=0.5, alpha = 0.05, contrast=c("Group","TBI","sham"))
 res
 ```
 
 And produce an MA plot to visualise:
 
-```{r}
+```{r plotMA-res}
 DESeq2::plotMA(res, ylim = c(-8, 8))
 abline(h=c(-0.5,0.5),col="dodgerblue",lwd=2) 
 ```
 
 To get a summary of our results object, `res`:
 
-```{r}
+```{r summary-res}
 summary(res)
 ```
 
 We've seen this summary a few times now but it's worth digging in to what it's telling us:
 
-The first line says we have a total of 17138 genes which we are testing for differential expression. We pre-filtered our data to ensure we had no genes with a read count of zero, but it's worth knowing that *DESeq2* would have excluded them anyway, as seen here.
+The first line says we have a total of 17138 genes which we are testing for differential expression. We pre-filtered our data to ensure we had no genes with a read count of zero, but it's worth knowing that *`DESeq2`* would have excluded them anyway, as seen here.
 
 The next line tells us what we had set as our FDR: i.e., an adjusted p-value cutoff of 0.05.
 
 The following 2 lines are self explanatory: we have 914 significant genes with a positive log2 fold change of at least 0.5, which is 5.3% of our total genes; and we have 451 significant genes with a negative log2 fold change of at least -0.5, which is 2.6% of our total genes.
 
-26 genes have been flagged as outliers, as identified by a statistical test called [Cook's distance](https://en.wikipedia.org/wiki/Cook%27s_distance). Here, it's application is to flag genes where the observed counts do not fit a Negative Binomial distribution, which is one of the core assumptions of *DESeq2*'s statistical model.
+26 genes have been flagged as outliers, as identified by a statistical test called [Cook's distance](https://en.wikipedia.org/wiki/Cook%27s_distance). Here, it's application is to flag genes where the observed counts do not fit a Negative Binomial distribution, which is one of the core assumptions of *`DESeq2`*'s statistical model.
 
 We have 0 genes with low counts (defined here as mean count \< 7); again, this is likely due to our pre-filtering step.
 
@@ -1110,13 +1192,13 @@ In the next section, we will be working primarily with our `res` object and seei
 
 ## Exploring the `res` object
 
-If you click on the `res` object in the right hand Environment sidebar, you can get some information about what this object is by default. For example, you can see that its object class is *DESeqResults* which is a special class of object unique to the *DESeq2* package. It also tells us that we have 17138 rows, which are the number of genes that have been tested for differential expression in total (not the number of *significant* genes).
+If you click on the `res` object in the right hand Environment sidebar, you can get some information about what this object is by default. For example, you can see that its object class is *`DESeqResults`* which is a special class of object unique to the *`DESeq2`* package. It also tells us that we have 17138 rows, which are the number of genes that have been tested for differential expression in total (not the number of *significant* genes).
 
-Of particular use is the **metadata** subsection, which contains our **alpha** and **lfcThreshold—**handy in case you had lost or forgotten the parameters you had set when making the object. It's worth keeping this version of the object around, but unfortunately a *DESeqResults* object does not play nicely with tidyverse functions.
+Of particular use is the **metadata** subsection, which contains our **alpha** and **lfcThreshold—**handy in case you had lost or forgotten the parameters you had set when making the object. It's worth keeping this version of the object around, but unfortunately a *`DESeqResults`* object does not play nicely with tidyverse functions.
 
 To make our data exploration and export more convenient and tidyverse-friendly, we will make a **tibble** version of our `res` object. Recall from last week that a tibble is basically an improved version of the basic R data frame. This object unfortunately doen not contain all of the extra information and metadata which `res` contains, which is why we are not overwriting `res` directly. We shall call this new object `res_tbl`. We will also just replace any NA values in the `padj` column with 1.
 
-```{r}
+```{r res_tbl}
 res_tbl <- res %>% 
   as_tibble(rownames = "GeneID") %>%
   dplyr::mutate(padj = replace_na(padj, 1))
@@ -1124,15 +1206,15 @@ res_tbl <- res %>%
 
 We use the argument `rownames = "GeneID"` because in `res`, our rownames corresponded to the GeneID and we don't want to lose this information, so instead we will store this information as a new column.
 
-```{r}
+```{r look-at-res_tbl}
 res_tbl
 ```
 
-You can see from the preview that this object has the columns GeneID, baseMean, log2FoldChange, lfcSE (standard error), stat, pvalue and padj. At the moment, the table is just ordered in its default arrangement, which just happens to be the order of the GeneIDs from our GTF file from earlier.
+You can see from the preview that this object has the columns `GeneID`, `baseMean`, `log2FoldChange`, `lfcSE` (standard error), `stat`, `pvalue` and `padj`. At the moment, the table is just ordered in its default arrangement, which just happens to be the order of the `GeneIDs` from our GTF file from earlier.
 
 A more useful ordering might be by adjusted p-value, from smallest to largest (so that our most significant genes are at the top:
 
-```{r}
+```{r arrange}
 res_tbl <- res_tbl %>% 
   dplyr::arrange(padj)
 
@@ -1141,13 +1223,17 @@ res_tbl
 
 If we just want to save data table of all of our results from the differential gene expression, we could export this table as a CSV using the function we learned about last week:
 
-```{r}
+```{r write_csv}
 write_csv(res_tbl, "full_results.csv")
 ```
 
 This is now saved in our current working directory, and can be opened in Excel or shared with your less R-confident colleagues and friends!
 
 You might just want to save only the genes which show significant differential gene expression, i.e., those with a FDR (adjusted p-value) of less than your accepted alpha value. Say we only want to consider genes with adjusted p-value of less than 0.05. **How could we do this using a tidyverse function we learned about last session?**
+
+```{r student-answer-8}
+
+```
 
 .
 
@@ -1156,6 +1242,10 @@ You might just want to save only the genes which show significant differential g
 .
 
 *Scroll down for answer*
+
+.
+
+.
 
 .
 
@@ -1177,7 +1267,7 @@ You might just want to save only the genes which show significant differential g
 
 The function we need for this is `filter()`:
 
-```{r}
+```{r model-answer-8}
 res_sig <- res_tbl %>%
   dplyr::filter(padj < 0.05)
 res_sig
@@ -1185,7 +1275,7 @@ res_sig
 
 Now we can export this as a CSV:
 
-```{r}
+```{r write-significant}
 write_csv(res_sig, "significant_genes_only.csv")
 ```
 
@@ -1193,13 +1283,13 @@ write_csv(res_sig, "significant_genes_only.csv")
 
 ### Using `ggplot2`
 
-A volcano plot is a type of scatter plot which displays the relationship between fold change (on the x-axis) and statistical significance, typically represented by the negative log of the p-value (on the y-axis), for each gene in the dataset. Genes with large changes in expression (either upregulated or downregulated) and high statistical significance are found further from the origin, typically forming the “wings” of the volcano shape. The plot helps to quickly identify genes that are both highly differentially expressed and statistically significant, which are potential candidates for further study.
+A **volcano plot** is a type of **scatter plot** which displays the relationship between **fold change** (on the x-axis) and **statistical significance**, typically represented by the **negative log of the p-value** (on the y-axis), for each gene in the dataset. Genes with large changes in expression (either upregulated or downregulated) and high statistical significance are found further from the origin, typically forming the “wings” of the volcano shape. The plot helps to quickly identify genes that are both highly differentially expressed and statistically significant, which are potential candidates for further study.
 
-We can visualise our results as a volcano plot in a various ways, but the prettiest (in my opinion) and most flexible is using *ggplot2*. We will build this plot and add features step by step, a bit like how we did for our `penguins` dataset in *Session 1.*
+We can visualise our results as a volcano plot in a various ways, but the prettiest (in my opinion) and most flexible is using *`ggplot2`*. We will build this plot and add features step by step, a bit like how we did for our `penguins` dataset in *Session 1.*
 
-Let's set up a basic plot. We will use our `res_tbl` object and use this to create a *ggplot* object we will call `volcano_plot`. Firstly, we will specify our axes. We want log2FoldChange on the x-axis, and -log10(adjusted p-value) on the y-axis. Make sure we use the correct column names from our `res_tbl` object.
+Let's set up a basic plot. We will use our `res_tbl` object and use this to create a *`ggplot`* object we will call `volcano_plot`. Firstly, we will specify our axes. We want `log2FoldChange` on the x-axis, and `-log10(adjusted p-value)` on the y-axis. Make sure we use the correct column names from our `res_tbl` object.
 
-```{r}
+```{r volcano_plot_data}
 volcano_plot <- res_tbl %>%
   ggplot(aes(x = log2FoldChange, y = -log10(padj)))
 
@@ -1207,6 +1297,10 @@ volcano_plot
 ```
 
 We now have our blank canvas. Next, we need our data points (i.e., our genes). We want to depict these as points. **What geom do we need for this?**
+
+```{r student-answer-9}
+
+```
 
 .
 
@@ -1238,9 +1332,15 @@ We now have our blank canvas. Next, we need our data points (i.e., our genes). W
 
 .
 
-The geom we need is `geom_point()`. Note that because `volcano_plot` is a *ggplot* object, we can just write in `volcano_plot` and add layers to it with `+`:
+.
 
-```{r}
+.
+
+.
+
+The geom we need is `geom_point()`. Note that because `volcano_plot` is a *`ggplot`* object, we can just write in `volcano_plot` and add layers to it with `+`:
+
+```{r model-answer-9}
 volcano_plot + geom_point()
 
 ```
@@ -1255,13 +1355,13 @@ One common visualisation techique which people like to add to volcano plots is t
 
 -   Colour all other genes grey
 
-The easiest way to do this is to add a new column to our original data (which we can call anything but let's call it "significance" as this makes the most sense). We will say that the values of this column can take one of three values—either "upregulated", "downregulated" or "not significant". We will then colour the points based on the value within this table.
+The easiest way to do this is to add a new column to our original data (which we can call anything but let's call it "significance" as this makes the most sense). We will say that the values of this column can take one of three values—either "`upregulated`", "`downregulated`" or "`not significant`". We will then colour the points based on the value within this table.
 
-I'm going to use something called a "[conditional statement](https://intro2r.com/conditional-statements.html)". We don't have the time to go into this in great detail, which is why I would recommend following the links in this paragraph for more information. But at a glance, conditional statements allow you to tell R to do one thing *if* something is TRUE, and do something *else* if that something is FALSE. The most common use of this is the [`ifelse`](https://r4ds.hadley.nz/logicals.html#if_else)`()` function. The [`case_when`](https://r4ds.hadley.nz/logicals.html#case_when)`()` function is an extension of this, allowing you to have more than the default of 2 different conditions.
+I'm going to use something called a "[conditional statement](https://intro2r.com/conditional-statements.html)". We don't have the time to go into this in great detail, which is why I would recommend following the links in this paragraph for more information. But at a glance, conditional statements allow you to tell R to do one thing *if* something is `TRUE`, and do something *else* if that something is `FALSE`. The most common use of this is the [`ifelse`](https://r4ds.hadley.nz/logicals.html#if_else)`()` function. The [`case_when`](https://r4ds.hadley.nz/logicals.html#case_when)`()` function is an extension of this, allowing you to have more than the default of 2 different conditions.
 
 Let's now use `case_when()` to add this new column to our `res_tbl` based on the criteria we set in our bullet points above:
 
-```{r}
+```{r case-when}
 res_tbl <- res_tbl %>%
   mutate(significance = case_when(
     padj < 0.05 & log2FoldChange > 0.5 ~ "Upregulated",
@@ -1272,7 +1372,7 @@ res_tbl <- res_tbl %>%
 
 We can now use this column to add colour to our points:
 
-```{r}
+```{r volcano-coloured}
 volcano_plot <- res_tbl %>%
   ggplot(aes(x = log2FoldChange, y = -log10(padj))) +
   geom_point(aes(color = significance))
@@ -1280,17 +1380,17 @@ volcano_plot <- res_tbl %>%
 volcano_plot
 ```
 
-This is almost what we were after (we have colour) but not quite. R has just given us some default colours, which are not the ones we were after. To change the colours, we need to provide a **scale**. Scales are a really useful tool in *ggplot*: they control *how* data values are mapped to visual properties (aesthetics) of the plot. In other words:
+This is almost what we were after (we have colour) but not quite. R has just given us some default colours, which are not the ones we were after. To change the colours, we need to provide a **scale**. Scales are a really useful tool in *`ggplot`*: they control *how* data values are mapped to visual properties (aesthetics) of the plot. In other words:
 
--   You tell ggplot *which variable* controls colour, shape, size, etc.
+-   You tell `ggplot` *which variable* controls colour, shape, size, etc.
 
--   The **scale** tells ggplot *how to translate the data values* into those visual properties.
+-   The **scale** tells `ggplot` *how to translate the data values* into those visual properties.
 
-As an analogy, imagine you have temperature readings and a set of paint colours. The *aesthetic mapping* tells ggplot which variable is “temperature.” The *scale* tells ggplot exactly which colours correspond to which temperatures.
+As an analogy, imagine you have temperature readings and a set of paint colours. The *aesthetic mapping* tells `ggplot` which variable is “temperature.” The *scale* tells `ggplot` exactly which colours correspond to which temperatures.
 
-We want to map colour to significance, and we have 3 different options (upregulated, downregulated and not significant)—this means we need 3 different colours. We will provide this using `scale_colour_manual()`:
+We want to map colour to significance, and we have 3 different options (`upregulated`, `downregulated` and `not significant`)—this means we need 3 different colours. We will provide this using `scale_colour_manual()`:
 
-```{r}
+```{r scale_colour_manual}
 volcano_plot <- volcano_plot + 
   scale_color_manual(values = c("blue", "grey", "red")) # Colours: grey for not significant, red for up-regulated, blue for down-regulated
 
@@ -1299,7 +1399,7 @@ volcano_plot
 
 Things are really starting to come together! Another common visualisation tactic on volcano plots is to put dashed vertical and horizontal lines at your p-value and log2 fold change cutoffs. This can be achieved using `geom_hline()` for horizontal lines, and `geom_vline()` for vertical lines:
 
-```{r}
+```{r lines}
 volcano_plot <- volcano_plot + 
   geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black") +  # Horizontal line at p-value threshold
   geom_vline(xintercept = c(-0.5, 0.5), linetype = "dashed", color = "black")  # Vertical lines at LFC = -1 and 1
@@ -1309,11 +1409,11 @@ volcano_plot
 
 This is a useful plot for visualising roughly how many significant differentially expressed genes we have in our experiment, and whether they are up- or down-regulated. However, from this, we can't actually tell what those genes are.
 
-One final addition to our plot would be to label a sensible number of the most significant genes using text labels. Let's say we want to label the top 20 most significant genes. This time we can use the `ifelse()` function because we only have 2 options: "label" or "no label". We can also deploy another technique from *Session 2*: the `%in%` operator.
+One final addition to our plot would be to label a sensible number of the most significant genes using text labels. Let's say we want to label the top 20 most significant genes. This time we can use the `ifelse()` function because we only have 2 options: "`label`" or "`no label`". We can also deploy another technique from *Session 2*: the `%in%` operator.
 
 *The following code will only work if we've already ordered our `res_tbl`* *object from most to least significant by p-value, so make sure you have done that first:*
 
-```{r}
+```{r labels}
 volcano_plot <- volcano_plot + 
   geom_text_repel(aes(label = ifelse(GeneID %in% GeneID[1:20], GeneID, NA)), size = 3, max.overlaps = 10) # labelling top 20 genes
 
@@ -1325,7 +1425,7 @@ volcano_plot
 
 Finally, we will tidy up the axes labels and remove the grey background from the plot using `theme_minimal()`. There are actually an enormous amount of adjustments you can make to the look of a plot using [`theme()`](https://ggplot2.tidyverse.org/reference/theme.html) which we don't have time to go into today, but worth checking out—all of the options available can be found at that link or by using `?theme`.
 
-```{r}
+```{r adding_theme}
 #| warning: false
 volcano_plot <- volcano_plot +
   theme_minimal() +
@@ -1336,6 +1436,10 @@ volcano_plot
 ```
 
 **Putting it together, what is the full code we would use to create this volcano plot from scratch rather than step-by-step?**
+
+```{r student-answer-10}
+
+```
 
 .
 
@@ -1369,7 +1473,9 @@ volcano_plot
 
 .
 
-```{r}
+.
+
+```{r model-answer-10}
 #| warning: false
 volcano_plot <- res_tbl %>%
   ggplot(aes(x = log2FoldChange, y = -log10(padj))) +
@@ -1391,7 +1497,7 @@ We now have something that looks like a publication quality volcano plot, which 
 
 There are other packages which allow you to go further with this and make volcano plots which are interactive. For example, wouldn't it be useful if you could mouse over any of those other points and find out what gene it corresponds to? It is possible to do this using the `plotly` package. This doesn't use the same syntax as `ggplot` so I won't go over exactly what is going on in the chunk below (although you may be able to figure it out yourselves)—but I wanted to at least give you a glimpse of what is possible:
 
-```{r}
+```{r plotly-volcano}
 library(plotly)
 
 plotly_volcano <- plot_ly(
@@ -1440,22 +1546,22 @@ One of the most common categorizations for over-representation analysis is **Gen
 
 Each GO term has a term name (e.g. **DNA repair**) and a unique term accession number (**GO:0005125**), and a single gene product may be associated with many GO terms (because it could be involved in many biological processes, be expressed in multiple compartments and have a multitude of functions).
 
-Over-representation analysis allows us to take our list of significant differentially expressed genes and ask the question: *are particular biological processes, molecular functions, or cellular components represented more often than we would expect by chance?*
+Over-representation analysis allows us to take our list of significant differentially expressed genes and ask the question: ***are particular biological processes, molecular functions, or cellular components represented more often than we would expect by chance?***
 
 ## `clusterProfiler`
 
-To answer this question, we will use the [`clusterProfiler`](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) package. As with testing for differential gene expression, there are a plethora of different packages and tools out there for over-representation analysis, but *clusterProfiler* provides an accessible and well-integrated framework that handles the statistical testing and annotation steps behind the scenes. It’s widely used, actively maintained, and works seamlessly with other Bioconductor objects such as *DESeq2* results.
+To answer this question, we will use the [`clusterProfiler`](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) package. As with testing for differential gene expression, there are a plethora of different packages and tools out there for over-representation analysis, but *`clusterProfiler`* provides an accessible and well-integrated framework that handles the statistical testing and annotation steps behind the scenes. It’s widely used, actively maintained, and works seamlessly with other Bioconductor objects such as *`DESeq2`* results.
 
 This tool requires a list of our significant genes and a list of all the genes tested for differential expression. It then performs statistical enrichment analysis using [hypergeometric testing](https://en.wikipedia.org/wiki/Hypergeometric_distribution). The basic arguments allow the user to select the appropriate organism and GO ontology (BP, CC, MF) to test.
 
-```{r}
+```{r clusterProfiler-org.Rn}
 library(clusterProfiler)
 library(org.Rn.eg.db)
 ```
 
 First, we will use our tidyverse functions to filter our `res_tbl` object for significant genes (p-adjusted below 0.05) and extract their GeneIDs:
 
-```{r}
+```{r sig-genes}
 sig_genes <- res_tbl %>%
   dplyr::filter(padj < 0.05 & !is.na(padj)) %>% # removing any with NA in the padj column
   pull(GeneID)
@@ -1467,7 +1573,7 @@ We can see from the summary we have 1365 significant genes.
 
 Next, we will extract all of the genes we performed differential analysis on, including our significant genes.
 
-```{r}
+```{r all-genes}
 all_genes <- res_tbl %>%
   dplyr::filter(!is.na(padj)) %>%
   pull(GeneID)
@@ -1475,7 +1581,7 @@ all_genes <- res_tbl %>%
 summary(all_genes)
 ```
 
-We have 17138 genes in total.
+We have 17138 genes in total which is what we expect based on the dimensions of our `dds` object we saw earlier.
 
 Now we can run the `enrichGO()` function which performs the GO enrichment analysis. Note we need to provide:
 
@@ -1491,7 +1597,7 @@ Now we can run the `enrichGO()` function which performs the GO enrichment analys
 
 **Note that this chunk might be slow to run depending on the speed of your device.**
 
-```{r}
+```{r enrichGO}
 ## Run GO enrichment analysis 
 ego <- enrichGO(gene = sig_genes, 
                 universe = all_genes,
@@ -1505,7 +1611,7 @@ ego <- enrichGO(gene = sig_genes,
 
 We can save our results as a CSV like we did for our differential gene expression results:
 
-```{r}
+```{r save_ego}
 ## Output results from GO analysis to a table
 cluster_summary <- as_tibble(ego)
 
@@ -1520,7 +1626,7 @@ There are 3 ways we can visualise the results from our `enrichGO()` function.
 
 The **dotplot** shows the number of genes associated with the first n terms (size) and the p-adjusted values for these terms (colour). The top n GO terms are displayed in order of *gene ratio* (# genes related to GO term / total number of sig genes), not adjusted p-value.
 
-```{r}
+```{r dotplot}
 dotplot(ego, showCategory = 20) # e.g., top 20 terms
 ```
 
@@ -1528,7 +1634,7 @@ dotplot(ego, showCategory = 20) # e.g., top 20 terms
 
 The next plot—**the enrichment map**—shows how the top enriched GO terms relate to one another by clustering similar terms. We first compute their similarities using `pairwise_termsim()`. In the plot, colour represents relative significance (brighter red = more significant) and node size indicates how many significant genes belong to each term.
 
-```{r}
+```{r enrich-map}
 #| warning: false
 ## Add similarity matrix to the termsim slot of enrichment result
 ego <- enrichplot::pairwise_termsim(ego)
@@ -1543,7 +1649,7 @@ Finally, the **category netplot** visualises how the genes linked to the five mo
 
 Because we want to colour by log2 fold change, we first need to extract this information from our `res_tbl` and use it to create a named vector.
 
-```{r}
+```{r fold-changes}
 all_genes_foldchanges <- res_tbl$log2FoldChange
 
 names(all_genes_foldchanges) <- res_tbl$GeneID
@@ -1551,7 +1657,7 @@ names(all_genes_foldchanges) <- res_tbl$GeneID
 
 We can then use this as the input for the `foldChange` argument in the `cnetplot()` function:
 
-```{r}
+```{r cnetplot}
 ## Cnetplot details the genes associated with one or more terms - by default gives the top 5 significant terms (by padj)
 cnetplot(
   ego,
@@ -1562,8 +1668,20 @@ cnetplot(
 )
 ```
 
+In summary, our results show a strong enrichment for immune-related genes, reflecting the intense inflammatory response that follows traumatic brain injury. After such an injury, microglia and astrocytes become activated and peripheral immune cells infiltrate the brain, leading to large-scale transcriptional changes in immune effector pathways. These processes dominate the differential expression profile, explaining why immune regulation emerges as the most significantly enriched biological theme.
+
+If we wanted to see these changes in cell type and how differences in gene expression are manifest across different cell types, we would need to perform a *single-cell* RNAseq experiment—perhaps a topic for another day!
+
 # Wrap-up
 
 With that, we have come to the end of our three part course on *Foundations of R for Bioinformatics*. We have covered an awful lot of ground in a short space of time (especially today) and I do not expect you all to now be experts in R programming (I certainly am not!). But hopefully you now feel a bit more confident about tackling your own RNAseq analysis if ever you need to—and maybe can apply your new found R skills to all sorts of other data analysis you will come across in your career.
 
 These Quarto notebooks are yours to keep and do whatever you like with! Hopefully, the code is sufficiently detailed that you could adapt it to your own experiment with very few changes required. If you would like more in depth information on anything I've covered, please follow the links which I have put throughout these notebooks—there are so many more manuals, worked examples and tutorials out there that I have barely scratched the surface of. It is also easy to find [communities](https://forum.posit.co/) of like-minded [researchers](https://support.bioconductor.org/), [coders](https://stackoverflow.com/questions), data-analysts, [bioinformaticians](https://www.biostars.org/)—the list goes on—who are passionate about open source data science and helping people with their code and data analyses. And if you're really stuck...well I guess there's always ChatGPT!
+
+**If there is time still left in this session, please let me know if there was any particular area you would like me to go over again, as I am scheduled to be here for the full 3 hours!**
+
+# Session Info
+
+```{r}
+sessionInfo()
+```

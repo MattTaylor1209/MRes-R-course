@@ -493,7 +493,7 @@ uk_flights %>%
 
 This is a really useful function particularly for calculating new metrics from your data. E.g., suppose you wanted to calculate the percentage of flights at an airport which are related to business aviation. You give the column a name first (`business_percentage`) and write a formula relating to other columns to calculate it:
 
-```{r mutate}
+```{r mutate-demo}
 uk_flights %>% 
   mutate(
     business_percentage = business_aviation / grand_total * 100
