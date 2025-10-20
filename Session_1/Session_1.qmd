@@ -20,21 +20,21 @@ Click the "Source" button in the top right ![](images/clipboard-3683134815.png){
 
 Now you can close that file.
 
-Also, before we start, click on the little gear above the document window and select "clear all output" from the dropdown menu (this prevents any *spoilers!*):
+Also, before we start, click on the little gear above the document window and select "clear all output" from the drop-down menu (this prevents any *spoilers!*):
 
 ![](images/clipboard-2730781017.png){width="590"}
 
 # Welcome
 
-Welcome to this three-part course on the *foundations of R for bioinformatics*. It is designed with beginners in mind, so if you already have coding experience, some sections may feel straightforward. The aim is to demystify R and show how it can be both approachable and powerful for making sense of biological data. Using real examples from bulk RNA-seq, we’ll learn how to load, explore, and visualise data, and then gradually build up to a full analysis pipeline — all within a reproducible framework using Quarto in RStudio. No prior coding experience is required. We’ll move step by step so that you finish the course confident in applying these skills to your own research.
+Welcome to this three-part course on the *Foundations of R for Bioinformatics*. It is designed with beginners in mind, so if you already have coding experience, some sections may feel straightforward. The aim is to demystify R and show how it can be both approachable and powerful for making sense of biological data. Using real examples from bulk RNA-seq, we’ll learn how to load, explore, and visualise data, and then gradually build up to a full analysis pipeline—all within a reproducible framework using Quarto in RStudio. No prior coding experience is required. We’ll move step by step so that you finish the course confident in applying these skills to your own research.
 
-We only have six hours together across three sessions, so the focus will be on practical foundations rather than comprehensive coverage. We’ll prioritise hands-on skills: importing data into R, working with tidy data frames, plotting with **ggplot2**, and running basic differential expression with **DESeq2**. More advanced areas — such as single-cell RNA-seq, batch correction, or complex statistical modelling — are beyond the scope of these sessions, but you’ll get resources and pointers for continuing your learning. By the end, you’ll not only have a practical toolkit for RNA-seq analysis, but also a set of plug-and-play templates you can adapt to your own data with minimal changes.
+We only have six hours together across three sessions, so the focus will be on practical foundations rather than comprehensive coverage. We’ll prioritise hands-on skills: importing data into R, working with tidy data frames, plotting with **ggplot2**, and running basic differential expression with **DESeq2**. More advanced areas—such as single-cell RNA-seq, batch correction, or complex statistical modelling—are beyond the scope of these sessions, but you’ll get resources and pointers for continuing your learning. By the end, you’ll not only have a practical toolkit for RNA-seq analysis, but also a set of plug-and-play templates you can adapt to your own data with minimal changes.
 
 ## A quick note about Quarto
 
-Throughout this course, we’ll be using **Quarto**, a modern, flexible system for creating dynamic documents with embedded R code. (If you’ve ever used R Markdown before, Quarto will feel familiar). Quarto lets us write code, text, and plots all in one place, making it easy to produce reproducible reports, figures, and even interactive documents.
+Throughout this course, we’ll be using **Quarto**, a modern, flexible system for creating dynamic documents with embedded R code. (If you’ve ever used R Markdown or Jupyter before, Quarto will feel familiar). Quarto lets us write code, text, and create plots all in one place, making it easy to produce reproducible reports, figures, and even interactive documents.
 
-You don’t need to know anything about Quarto to get started — we’ll walk through the basics together. For now, all you need to know is that your `.qmd` file acts as your lab notebook: you can write plain English alongside R code, and Quarto will render it into a nicely formatted document with just one click.
+You don’t need to know anything about Quarto to get started—we’ll walk through the basics together. For now, all you need to know is that your `.qmd` file acts as your lab notebook (and please use it as a notebook!): you can write plain English alongside R code, and Quarto will render it into a nicely formatted document with just one click.
 
 You can also see at the top left of the document a 'source' and 'visual' tab. The *source* tab shows you the raw text and code, while the *visual* tab gives a word-processor-style view of the same content. I’d recommend keeping it in *visual* for now, as it will feel more familiar if you’re used to working in word processors.
 
@@ -42,17 +42,19 @@ You can also see at the top left of the document a 'source' and 'visual' tab. Th
 
 ## Sources and Inspirations
 
-One of the main advantages of R — and all of the other tools we will be using — is that they are **open-source**. This means the code behind them is freely available for anyone to view, use, modify, and share.
+One of the main advantages of R—and all of the other tools we will be using—is that they are **open-source**. This means the code behind them is freely available for anyone to view, use, modify, and share.
 
-Open source software is developed by communities of researchers, developers, and users who contribute their time and expertise to improve it. This approach helps science stay transparent, reproducible, and accessible — values that are especially important in bioinformatics, where data and methods evolve rapidly.
+Open source software is developed by communities of researchers, developers, and users who contribute their time and expertise to improve it. This approach helps science stay transparent, reproducible, and accessible—values that are especially important in bioinformatics, where data and methods evolve rapidly.
 
 The other advantage is that there are *countless* tutorials, books, teaching resources etc explaining all aspects of the different tools we will be using. Rather than reinvent the wheel, I've drawn inspiration from a number these resources that are widely regarded for their clarity and accessibility:
 
--   ***R for Data Science(2nd Edition)*** **—** Hadley Wickham & Garrett Grolemund. A free and highly readable introduction to the tidyverse approach to R. This course is based on theirs but highly abbreviated due to time constraints, so it is worth checking out their original course for more in depth info. <https://r4ds.hadley.nz/intro.html>
+-   ***R for Data Science(2nd Edition)*** **—** Hadley Wickham & Garrett Grolemund. A free and highly readable introduction to the tidyverse approach to R (and everyone's go-to when they try to teach themselves R). This course is based on theirs but highly abbreviated due to time constraints, so it is worth checking out their original course for more in depth info. <https://r4ds.hadley.nz/intro.html>
 
 -   ***Analysis of RNAseq data in R*** — Sheffield Bioinformatics Core. Dedicated workshop for analysing RNAseq data in R but expects basic R knowledge beforehand. <https://sbc.shef.ac.uk/rnaseq-r-online/>
 
 -   ***Analyzing RNAseq data with DESeq2*** — Michael I. Love, Simon Anders, and Wolfgang Huber. A thorough walkthrough of bulk RNAseq analysis using the popular tool which we will use later in the course, *DESeq2*. <https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html>
+
+-   ***Harvard Chan Bioinformatics core training modules*** — Harvard. Numerous self-paced modules from basic introductions to R through to complex bioinformatics analyses. <https://hbctraining.github.io/main/>
 
 ## Goals for session 1:
 
@@ -72,7 +74,7 @@ By the end of this session, you will:
 
 ## Running code
 
-If you've never done it before, then the very idea of 'coding' might be enough to give you cold sweats! But it doesn't have to intimidating. In fact, if you've ever used a calculator (which I'm sure you all have), then *congratulations -* you are a coder! You give it numbers (**input**), it applies some maths (a **function**), and it shows you the result (**output**). That’s functional programming in its simplest form.
+If you've never done it before, then the very idea of 'coding' might be enough to give you cold sweats! But it doesn't have to intimidating. In fact, if you've ever used a calculator (which I'm sure you all have), then *congratulations—*you are a coder! You give it numbers (**input**), it applies some maths (a **function**), and it shows you the result (**output**). That’s functional programming in its simplest form.
 
 All that is meant by 'coding' is telling a computer to do a thing, and it will attempt to do that thing exactly as you have written. The frustrating thing with coding is that the computer will attempt to do the thing exactly as you have written! It doesn't know what you *mean;* it can only run the *exact* instructions provided. This can mean that even a single spelling mistake or misplaced character can cause an error. It's annoying, but it happens to everyone (even so-called experts). The only way to overcome it is to just keep trying (and also to keep your code as simple as possible).
 
@@ -90,7 +92,7 @@ The little `{r}` box shows that we are using the R programming language. We can 
 
 ```
 
-Code is run (executed) by clicking the ![](images/clipboard-472830089.png){width="26" height="22"} in the top-right corner of the chunk. You can try it now with the above chunk, but nothing happens — why?
+Code is run (executed) by clicking the ![](images/clipboard-472830089.png){width="26" height="22"} in the top-right corner of the chunk. You can try it now with the above chunk, but nothing happens—**why?**
 
 Clearly, an empty chunk is not very useful: we need to write some instructions in the chunk to tell R what we want it to do.
 
@@ -109,7 +111,7 @@ We don't have to put a single line of code within each chunk. Here is an example
 sin(pi / 2)
 ```
 
-When you run the chunk, notice that R executes the code line by line. This is a key idea: R reads your instructions from top to bottom and from left to right, just like you would read an English sentence. The order matters — e.g., if you try to use some function or variable before it has been defined, R won’t know what you mean.
+When you run the chunk, notice that R executes the code line by line. This is a key idea: R reads your instructions from top to bottom and from left to right, just like you would read an English sentence. The order matters—e.g., if you try to use some function or variable before it has been defined, R won’t know what you mean.
 
 In this example, you’ve also seen your first built-in function, `sin()`, and your first built-in variable, `pi`. R comes with many such tools ready to use. A function is always written as a name (like `sin`) followed by a pair of brackets `()`. Whatever you put inside the brackets is the *input*, and the function then returns an *output*. This input–function–output pattern is the backbone of coding in R.
 
@@ -123,7 +125,7 @@ If you’re ever unsure what a function does or what kind of input it expects, R
 pi
 ```
 
-*Quick note: later you might notice in some of the chunks "#\| error: TRUE"* *— don't worry about this, I am just telling Quarto that the code in a chunk willf give an error (e.g., in some of the exercises) which would break the render of the document if not acknowledged. The chunk will still run as normal if you press the green arrow in your Rstudio application.*
+*Quick note: later you might notice in some of the chunks "#\| error: TRUE"* *— don't worry about this, I am just telling Quarto that the code in a chunk will give an error (e.g., in some of the exercises) which would break the render of the document if not acknowledged. The chunk will still run as normal if you press the green arrow in your Rstudio application.*
 
 ## Creating objects
 
@@ -217,12 +219,14 @@ m * 2
 m + 10
 ```
 
-And you can access parts of a matrix using row and column indices:
+And you can access parts of a matrix using row and column indices using **square brackets**:
 
 ```{r matrix-indices}
 m[1, 2]   # row 1, column 2
 m[, 1]    # all rows, column 1
 ```
+
+**We will come to more powerful uses of square brackets to access parts of matrices in *Session 3.***
 
 All R statements where you create objects, **assignment** statements, have the same form:
 
@@ -240,7 +244,7 @@ m * 2
 m + 10
 ```
 
-**Question:** What did happen to `m`?
+**Question:** **What did happen to `m`?**
 
 .
 
@@ -293,9 +297,9 @@ primes * 2
 #> [1]  4  6 10 14 22 26
 ```
 
-For short bits of code, you don’t need to comment every single line. As your scripts get longer, though, comments can be a lifesaver — they’ll help you (and anyone else reading your code) quickly remember what you were trying to do.
+For short bits of code, you don’t need to comment every single line. As your scripts get longer, though, comments can be a lifesaver—they’ll help you (and anyone else reading your code) quickly remember what you were trying to do.
 
-The most useful habit is to focus on *why* you wrote the code, rather than *what* it does. The ‘what’ and ‘how’ are usually clear from the code itself, but your reasoning is much harder to recover later. In data analysis especially, comments are a great way to sketch out your overall plan and jot down insights as they come up. Don’t worry if your comments aren’t perfect — even a short note can make a big difference when you come back weeks later.
+The most useful habit is to focus on *why* you wrote the code, rather than *what* it does. The ‘what’ and ‘how’ are usually clear from the code itself, but your reasoning is much harder to recover later. In data analysis especially, comments are a great way to sketch out your overall plan and jot down insights as they come up. Don’t worry if your comments aren’t perfect—even a short note can make a big difference when you come back weeks later.
 
 Even if it feels like in the moment there's no way you can forget the point of your amazing new code, I promise you (first-hand experience right here) that code without comments can be an absolute nightmare to come back to if you've not been working on it for any stretch of time!
 
@@ -329,7 +333,7 @@ r_rock
 R_rocks
 ```
 
-**Question:** What has happened here? Why are we getting an error?
+**Question:** **What has happened here? Why are we getting an error?**
 
 .
 
@@ -413,17 +417,17 @@ getwd()
 
 ## Packages
 
-In order to run the code in this course, we need **4** things. If you've got this far, then you've already got 2 of them sorted: R and Rstudio. R is the actual programming language we're using, which doesn't come installed on your computer by default. R can be downloaded from [https://cloud.r-project.org](https://cloud.r-project.org/). A new major version of R comes out once a year, and there are 2-3 minor releases each year. It’s a good idea to update regularly. Upgrading can be a bit of a hassle, especially for major versions that require you to re-install all your packages, but putting it off only makes it worse.
+In order to run the code in this course, we need **3** things. If you've got this far, then you've already got 2 of them sorted: R and Rstudio. R is the actual programming language we're using, which doesn't come installed on your computer by default. R can be downloaded from [https://cloud.r-project.org](https://cloud.r-project.org/). A new major version of R comes out once a year, and there are 2-3 minor releases each year. It’s a good idea to update regularly. Upgrading can be a bit of a hassle, especially for major versions that require you to re-install all your packages, but putting it off only makes it worse.
 
 R comes with a basic integrated development environment, or **IDE**, for programming; however, Rstudio is generally preferred as it comes with more user-friendly built-in features (and looks more like a desktop application which you will be used to). Rstudio can be downloaded from <https://posit.co/download/rstudio-desktop/>. RStudio is updated a couple of times a year, and it will automatically let you know when a new version is out, so there’s no need to check back. It’s a good idea to upgrade regularly to take advantage of the latest and greatest features.
 
-The other **2** things we need are a collection of **packages** called the **tidyverse**, and some other additional packages. An R **package** is a collection of functions, data, and documentation that extends the capabilities of base R. Using packages is key to the successful use of R.
+The other thing we need is a collection of **packages** called the **tidyverse**, and some other additional packages. An R **package** is a collection of functions, data, and documentation that extends the capabilities of base R. Using packages is key to the successful use of R.
 
 ### The tidyverse
 
 The majority of the packages that you will learn in this course are part of the so-called tidyverse. All packages in the tidyverse share a common philosophy of data and R programming and are designed to work together.
 
-We have already installed the tidyverse in our setup code, but the code you would use to install this (or any other package) is a single line:
+We have already installed the tidyverse in our setup code, but the code you would use to install this (or any other package) is a single line: `install.packages("tidyverse")`
 
 ```{r install-tidyverse}
 #| eval: false
@@ -445,7 +449,7 @@ So, in order to use the tidyverse, we need to load it using `library()`. *Note t
 library(tidyverse)
 ```
 
-This tells you that tidyverse loads nine packages: dplyr, forcats, ggplot2, lubridate, purrr, readr, stringr, tibble, tidyr. These are considered the **core** of the tidyverse because you’ll use them in almost every analysis.
+This tells you that tidyverse loads nine packages: *dplyr, forcats, ggplot2, lubridate, purrr, readr, stringr, tibble, tidyr.* These are considered the **core** of the tidyverse because you’ll use them in almost every analysis.
 
 Packages in the tidyverse change fairly frequently. You can see if updates are available by running `tidyverse_update()`.
 
@@ -457,26 +461,22 @@ As you tackle more data science projects with R, you’ll learn new packages and
 
 We’ll use many packages from outside the tidyverse in this course. For example, we’ll use the following packages because they provide interesting datasets for us to work with in the process of learning R (also notice how you don't have to type out `install.packages()` line-by-line for each package, which would be really tedious! You can use our old friend `c()` to provide a vector of package names surrounded by "" and separated by commas):
 
-*Note: we have already installed these in our setup so there is no need to run the following code right now.*
+***Note: we have already installed these in our setup so there is no need to run the following code right now.***
 
 ```{r other-packages}
 #| eval: false
 install.packages(
-  c("tidyverse","arrow", "babynames", "curl","ggrepel", "ggridges", "ggthemes", "hexbin", 
-                       "janitor", "leaflet", "maps", "nycflights13", "openxlsx", "palmerpenguins",
-                       "repurrrsive", "tidymodels", "writexl")
-  )
+  c("tidyverse","arrow","babynames","curl","ggrepel","ggridges","ggthemes","hexbin","janitor","leaflet","nycflights13","openxlsx","palmerpenguins","plotly","repurrrsive","tidymodels","writexl","AnnotationDbi", "BiocManager","BiocVersion","DESeq2","lattice","Matrix","tidySummarizedExperiment","org.Rn.eg.db","GO.db","limma","edgeR","Rsubread","biomaRt","pheatmap","clusterProfiler"
+  ))
 ```
-
-## Exercises
 
 # Data visualisation
 
-R offers several systems for making graphs, but **ggplot2** is both the most versatile and the most elegant. It’s built on the *grammar of graphics* — a consistent way of describing and constructing plots. By learning this single system, you can quickly create a wide variety of visualisations without having to start from scratch each time.
+R offers several systems for making graphs, but **ggplot2** is both the most versatile and the most elegant. It’s built on the *grammar of graphics*—a consistent way of describing and constructing plots. By learning this single system, you can quickly create a wide variety of visualisations without having to start from scratch each time.
 
 In this section, you’ll learn how to use ggplot2 to bring your data to life. We’ll begin with a simple scatterplot, introducing the two core ideas that underpin every plot: aesthetic mappings and geometric objects. From there, we’ll explore how to show distributions of single variables and how to visualise relationships between two or more variables. We’ll wrap up with some practical advice on saving your plots and troubleshooting common problems.
 
-As we are short on time, it will not be possible to cover all the features of ggplot2 — in fact, I discover new features every time I use it. There are plenty of great resources out there including this very handy [cheat sheet](https://posit.co/wp-content/uploads/2022/10/data-visualization-1.pdf). Here are a few that I found helpful making this course:
+As we are short on time, it will not be possible to cover all the features of ggplot2—in fact, I discover new features every time I use it. There are plenty of great resources out there including this very handy [cheat sheet](https://posit.co/wp-content/uploads/2022/10/data-visualization-1.pdf). Here are a few that I found helpful making this course:
 
 -   [***A ggplot2 tutorial for beautiful plotting in R***](https://www.cedricscherer.com/2019/08/05/a-ggplot2-tutorial-for-beautiful-plotting-in-r/) ***-*** By Cedric Scherer.
 
@@ -484,11 +484,11 @@ As we are short on time, it will not be possible to cover all the features of gg
 
 -   [***ggplot2: Elegant Graphics for Data Analysis (3e)***](https://ggplot2-book.org/) ***-*** By Hadley Wickham, Danielle Navarro and Thomas Lin Pedersen
 
-The following section is an abbreviated walkthrough of the ***R for Data Science(2nd Edition)*** [Data Visualisation](https://r4ds.hadley.nz/data-visualize.html) section adapted for our needs.
+The following section is an abbreviated walkthrough of the ***R for Data Science (2nd Edition)*** [Data Visualisation](https://r4ds.hadley.nz/data-visualize.html) section adapted for our needs.
 
 ## Loading required packages
 
-In \[*The Basics*\], we installed the packages we need for this section. In order to access all of the functions and datasets we need, loading the packages using `library()` is required. We will load `tidyverse`, `palmerpenguins` which includes the `penguins` dataset containing body measurements for penguins on three islands in the Palmer Archipelago, and the `ggthemes` package, which offers a colourblind safe colour palette.
+In [The Basics], we installed the packages we need for this section. In order to access all of the functions and datasets we need, loading the packages using `library()` is required. We will load `tidyverse`, `palmerpenguins` which includes the `penguins` dataset containing body measurements for penguins on three islands in the Palmer Archipelago, and the `ggthemes` package, which offers a colourblind safe colour palette.
 
 ```{r loading-packages}
 library(tidyverse)
@@ -498,7 +498,7 @@ library(ggthemes)
 
 ## Overall aim
 
-Our overall aim in this section is to explore the question *do penguins with longer flippers weigh more or less than penguins with shorter flippers?*
+Our overall aim in this section is to explore the question ***do penguins with longer flippers weigh more or less than penguins with shorter flippers?***
 
 You might already have an inkling, but visualisation of the data will allow us to be more precise in our answers. For example, is the relationship linear/nonlinear? Does it vary by location or species?
 
@@ -518,13 +518,13 @@ You can type `penguins` into a chunk or the console to see a preview of what thi
 penguins
 ```
 
-In the top corner of that preview, you will notice this: ![](images/clipboard-3070758854.png){width="94"}. That is telling us that our data frame is a special kind of data frame which is tidyverse friendly, a **tibble.** It has 344 rows (observations) and 8 columns (variables). Tibbles are part of the tidyverse, so they work seamlessly with packages like dplyr and ggplot2.
+In the top corner of that preview, you will notice this: ![](images/clipboard-3070758854.png){width="94"}. That is telling us that our data frame is a special kind of data frame which is tidyverse friendly, a **tibble.** It has 344 rows (observations) and 8 columns (variables). Tibbles are part of the tidyverse, so they work seamlessly with packages like `dplyr` and `ggplot2`.
 
 Two key differences from base data frames are:
 
 -   Tibbles never change variable names or types unexpectedly.
 
--   When printed, they show just the first 10 rows and as many columns as fit on screen — making them easier to read.
+-   When printed, they show just the first 10 rows and as many columns as fit on screen—making them easier to read.
 
 The preview window is also useful for telling us the variable type as we learned earlier ([Variable types in R]). For example, we can see **species** is a factor ![](images/clipboard-1528439395.png){width="52"}while **bill_length_mm** is a double ![](images/clipboard-3998745827.png){width="83" height="22"}.
 
@@ -565,7 +565,7 @@ summary(penguins)
 
 ### A brief introduction to the "pipe"
 
-One of the most useful tools in the tidyverse is the **pipe**, which we will go into more detail on in session 2. Think of it as "take what is on the left and feed it into the function on the right." Its symbol looks like this `%>%` although you might also see it written elsewhere as `|>`. We will be using this *a lot* in future sessions, but a quick example now, suppose you wanted to count how many different animals of each species of penguin are in our dataset.
+One of the most useful tools in the tidyverse is the **pipe**, which we will go into more detail about in *Session 2*. Think of it as "take what is on the left and feed it into the function on the right." Its symbol looks like this `%>%` although you might also see it written elsewhere as `|>`. We will be using this *a lot* in future sessions, but a quick example now, suppose you wanted to count how many different animals of each species of penguin are in our dataset. You might need to open the resulting table by clicking ![](images/clipboard-2688435829.png){width="45" height="29"}
 
 ```{r first-pipe}
 # take the whole penguins dataset and 'pipe' it into the function count()
