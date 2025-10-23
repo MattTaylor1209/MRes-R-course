@@ -11,7 +11,13 @@ format:
   pdf:
     toc: true
     number-sections: true
-    geometry: margin=1in
+    include-in-header:
+      text: |
+        \usepackage{fvextra}
+        % Keep Pandoc's highlighting command chars AND wrap long lines
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
+        % Also wrap plain verbatim blocks
+        \RecustomVerbatimEnvironment{verbatim}{Verbatim}{breaklines,breakanywhere}
   docx:
     toc: true
 editor: visual
