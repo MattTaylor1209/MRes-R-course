@@ -541,6 +541,7 @@ glimpse(penguins)
 ```
 
 ```{r View}
+#| eval: false
 View(penguins) # This will take you to a new tab in Rstudio
 ```
 
