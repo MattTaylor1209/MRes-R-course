@@ -162,7 +162,7 @@ The most common types you’ll use are:
 -   **Numeric**: numbers you can do maths with. These are split into subtypes:
 
     -   **Double:** A double allows you to store numbers as decimals. This is the default treatment for numbers. *Examples*: `3.14`, `6.0`
-    -   **Integer:** whole numbers.*Examples*: `1L`, `100L` (the `L` tells R it’s an integer).
+    -   **Integer:** whole numbers. *Examples*: `1L`, `100L` (the `L` tells R it’s an integer).
 
 -   **Character**: text, always written inside quotes.
 
@@ -306,7 +306,6 @@ primes <- c(2, 3, 5, 7, 11, 13)
 
 # multiply primes by 2
 primes * 2
-#> [1]  4  6 10 14 22 26
 ```
 
 For short bits of code, you don’t need to comment every single line. As your scripts get longer, though, comments can be a lifesaver—they’ll help you (and anyone else reading your code) quickly remember what you were trying to do.
