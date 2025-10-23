@@ -1302,7 +1302,7 @@ penguins %>%
 ggsave(filename = "penguin-plot.png")
 ```
 
-If you don’t specify the `width` and `height` they will be taken from the dimensions of the current plotting device. For reproducible code, you’ll want to specify them. You can learn more about `ggsave()` in the Help section or by using `help(ggsave)`.
+If you don’t specify the `width` and `height` they will be taken from the dimensions of the current plotting device. For reproducible code, you’ll want to specify them by using `width=`, `height=` and specifying the units using `units=` (which can take the inputs `"in"`, `"cm"`, `"mm"` or `"px"`). You can learn more about `ggsave()` in the Help section or by using `help(ggsave)`.
 
 # Summary
 
