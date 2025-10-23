@@ -9,6 +9,12 @@ format:
   html:
     toc: true
     self-contained: true
+  pdf:
+    toc: true
+    number-sections: true
+    geometry: margin=1in
+  docx:
+    toc: true
 editor: visual
 ---
 
