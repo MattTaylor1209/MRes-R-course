@@ -696,7 +696,12 @@ When a categorical variable is mapped to an aesthetic, `ggplot2` will automatica
 Now let’s add one more layer: a smooth curve displaying the relationship between body mass and flipper length. **Pause point**: **refer back to the code above, and think about how we can add this to our existing plot. Is it an aesthetic, or a new geom? If you have a** [cheat sheet](https://posit.co/wp-content/uploads/2022/10/data-visualization-1.pdf) **open, can you find the right one?**
 
 ```{r student-answer-2}
-
+#| warning: FALSE # suppressing that warning message
+#| error: TRUE
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g, colour = species)) +
+  geom_point() +
+  YOUR_CODE_HERE
 ```
 
 .
@@ -777,7 +782,12 @@ It’s generally not a good idea to represent information using only colours on 
 **How can we add the `shape`** **aesthetic?**
 
 ```{r student-answer-3}
-
+#| warning: FALSE # suppressing that warning message
+#| error: true
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(mapping = aes(colour = species, YOUR_CODE_HERE)) + 
+  geom_smooth(method = "lm")
 ```
 
 .
@@ -888,7 +898,12 @@ penguins %>%
 You can see our x-axis label has changed to `fct_infreq(species)` matching what we had put in the aesthetic mapping for x `aes(x = fct_infreq(species))`. **How could we change this label back to `species`?**
 
 ```{r student-answer-4}
+#| error: true
 
+penguins %>%
+  ggplot(aes(x = fct_infreq(species))) +
+  geom_bar() + 
+  YOUR_CODE_HERE
 ```
 
 .
@@ -939,7 +954,11 @@ Numerical variables are quantitative, ordinal and can have maths operations perf
 One commonly used visualization for distributions of continuous variables is a histogram. **Any guesses what geom we use here?**
 
 ```{r student-answer-5}
+#| error: true
 
+penguins %>%
+  ggplot(aes(x = body_mass_g)) + 
+    YOUR_CODE_HERE
 ```
 
 .
@@ -1022,7 +1041,10 @@ For this, we can use a **boxplot**, which you may already be familiar with. A bo
 **Have a go at plotting body mass by species using a boxplot. You can scroll down for the answer if you get stuck.**
 
 ```{r student-answer-6}
-
+#| error: true
+penguins %>%
+  ggplot(aes(x = species, y = body_mass_g)) +
+  YOUR_CODE_HERE
 ```
 
 *.*
@@ -1065,7 +1087,10 @@ penguins %>%
 Alternatively, we can make density plots with `geom_density()`. **How might we need to change aes?**
 
 ```{r student-answer-7}
-
+#| error: true
+penguins %>%
+  ggplot(aes(x = body_mass_g, colour = species)) +
+  YOUR_CODE_HERE
 ```
 
 *.*
@@ -1201,7 +1226,12 @@ Our data suddenly looks a bit different. Can we figure out what is going on?
 **Try adding in a line of best fit and species information like we did before. What do you notice?**
 
 ```{r student-answer-10}
+#| error: true
 
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = bill_length_mm)) +
+  geom_point(mapping = aes(YOUR_CODE_HERE)) + 
+  YOUR_CODE_HERE
 ```
 
 .

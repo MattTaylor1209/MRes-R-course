@@ -61,7 +61,7 @@ We are going to be using `dplyr`, `readr` and `tidyr` which are all part of the 
 library(tidyverse)
 ```
 
-We've been ignoring the output of this till now, but let's just quickly look at what this is telling us.
+We've been ignoring the output of this till now, but let's just quickly look at what this is telling us. (You may not see this depending on when you installed R and ran the setup code).
 
 ![](images/clipboard-572882515.png)
 
@@ -71,7 +71,7 @@ This is a warning that the package in question was compiled in a different versi
 
 This part is telling us that the `dplyr` package overwrites some functions in base R. If you want to use the base version of these functions after loading `dplyr`, you’ll need to use their full names: `stats::filter()` and `stats::lag()`. So far, we’ve mostly ignored which package a function comes from because it doesn’t usually matter—but this is bad practice! Knowing the package can help you find help and find related functions, so when we need to be precise about which package a function comes from, we’ll use the same syntax as R: `packagename::functionname()`. (Really, the best practice is to do this all the time but I often forget!)
 
-# Data import
+# Data import (for information - won't cover this in the session)
 
 ## Introduction
 
@@ -123,7 +123,7 @@ Other issues with this data:
 
 -   Some silly person typed "five" in as the age, which means now `age` has become a character variable type too, when it should be numeric.
 
-We can fix both these problems in one go using a function called `mutate()` which we will learn more about in the *Data transformation* (\[mutate()\]) section:
+We can fix both these problems in one go using a function called `mutate()` which we will learn more about in the [mutate()] section:
 
 ```{r mutate}
 students <- students %>%
@@ -232,6 +232,12 @@ glimpse(uk_flights)
 
 The variable names are followed by abbreviations that tell you the **type** of each variable, which we talked a bit about in session 1: `<int>` is short for integer, `<dbl>` is short for double, `<chr>` for character, and `<dttm>` for date-time. The operations you can perform on a column depend heavily on its “type.”
 
+With a tibble, you can also just preview it in Quarto by writing the object name in a code box and running the box:
+
+```{r}
+uk_flights
+```
+
 ### dplyr basics
 
 The following sections will introduce you to the fundamental `dplyr` functions which will solve the majority of your data manipulation challenges. All of these functions have the following in common:
@@ -323,7 +329,7 @@ uk_flights %>%
 
 Note that when you want `filter()` to check if something is equal to something, you have to use the double equals `==` rather than single `=`. Basically, this is because R sometimes treats `=` like the assignment operator (as in other languages).
 
-Another mistakes is writing “or” statements like you would in English. We might read the following as "filter the airport names to only include them if they are Birmingham or Stansted." With some variables, this might not throw an error (but still won't give you what you meant). In our case it does:
+Another mistake is writing “or” statements like you would in English. We might read the following as "filter the airport names to only include them if they are Birmingham or Stansted." With some variables, this might not throw an error (but still won't give you what you meant). In our case it does:
 
 ```{r bad-or}
 #| error: true
@@ -336,7 +342,12 @@ uk_flights %>%
 **Have a practice at filtering the data by other variables of your choosing. If you can't remember what the variables are called, use `names(uk_flights)`**:
 
 ```{r student-practice-1}
+#| error: true
 
+names(uk_flights)
+
+uk_flights %>%
+  filter(YOUR_CODE_HERE)
 ```
 
 ### `arrange()`
@@ -360,6 +371,10 @@ Note that the number of rows has not changed – we’re only arranging the data
 **What if we wanted to arrange by number of military flights from lowest to highest, and in the event of ties, to arrange by total number of flights from highest to lowest?**
 
 ```{r student-answer-1}
+#| error: true
+
+uk_flights %>%
+  arrange(YOUR_CODE_HERE)
 
 ```
 
@@ -547,7 +562,13 @@ uk_flights %>%
 However, now we can't see what airport we're referring to! **How could we fix this? (hint: will need to use 2 functions (`mutate()` and `select()`) and pipes).**
 
 ```{r student-answer-2}
+#| error: true
 
+uk_flights %>% 
+  mutate(
+    YOUR_CODE_HERE
+  ) %>%
+  select(YOUR_CODE_HERE)
 ```
 
 .
@@ -695,7 +716,7 @@ There is no set rule about which you choose. You may decide that actually you pr
 
 So far you’ve learned about functions that work with rows and columns. `dplyr` gets even more powerful when you add in the ability to work with groups. In this section, we’ll focus on the most important functions: `group_by()`, `summarize()`, and the slice family of functions.
 
-### `.group_by()`
+### `group_by()`
 
 This function allows you to subdivide your dataset into groups which are useful for further analysis. E.g., we know we have multiple airports per *reporting_airport_group_name* so we could group by this variable:
 
@@ -749,6 +770,12 @@ uk_flights %>%
 ```
 
 ***Think about some of the other summaries we have done and how you could represent those visually. (If we have time, we will have a go.)***
+
+```{r student-practice-2}
+#| error: true
+
+YOUR_CODE_HERE
+```
 
 .
 
@@ -1005,11 +1032,11 @@ uk_flights_detailed
 
 One other thing you may have spotted is that even some of the airports that *are* included in our `cancelled` data frame have just a dash "-" instead of a number for `total_cancelled_atms`. This causes 2 problems, one of which is already present:
 
--   The presence of a single character element in a column causes the whole variable to become the type "character", meaning basically that numbers are not being treated as numbers.
+-   The presence of a single character element in a column causes the whole variable to become the type "character", meaning basically that numbers are not being treated as numbers. This is similar to what happened with our `students` data frame in the [Reading data from a file] section.
 
 -   The above, and the presence of "-", would therefore mess things up if we tried to do sums on this column, such as calculating the mean.
 
-To address this, we can use `mutate()` again, but this time rather than creating a whole new column, we can just edit the `total_cancelled_atms` column. We shall replace the "-" with NA (easier to omit when doing maths) and change the whole column type to numeric. We want to overwrite our old data frame, so we will also need to use the assignment operator `<-`:
+To address this, we can use `mutate()` again, but this time rather than creating a whole new column, we can just edit the `total_cancelled_atms` column. We shall replace the "-" with NA (easier to omit when doing maths) using the `na.if()` function, and change the whole column type to numeric using `as.numeric()`. We want to overwrite our old data frame, so we will also need to use the assignment operator `<-`:
 
 ```{r sorting-out-missing-values}
 uk_flights_detailed <- uk_flights_detailed %>%
@@ -1024,7 +1051,12 @@ uk_flights_detailed
 We are now ready to put together what we have learned to answer the question at the start of this section: **which airports in our dataset had the highest percentage of cancelled flights, per reporting region?** Have a go yourself first, and if you get stuck or want to check you are right, scroll down for a model answer.
 
 ```{r student-answer-3}
-
+#| error: true
+uk_flights_detailed %>%
+  mutate(YOUR_CODE_HERE) %>% # make a new column with percentage cancelled flights
+  group_by(YOUR_CODE_HERE) %>% # group by the area
+  slice_max(YOUR_CODE_HERE) %>% # take the highest number
+  select(YOUR_CODE_HERE) # select just the columns you want to display
 ```
 
 .
@@ -1281,6 +1313,14 @@ Hint: You will need to
 -   Plot these counts using `ggplot2` with appropriate aesthetics and geoms. (If you want a colourblind palette, remember the `ggthemes` package from *Session 1*).
 
 ```{r student-answer-4}
+#| error: true
+
+stat %>% 
+  pivot_longer(            
+  YOUR_CODE_HERE
+) %>% 
+  filter(YOUR_CODE_HERE) %>% 
+  ggplot(YOUR_CODE_HERE)
 
 ```
 
