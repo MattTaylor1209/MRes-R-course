@@ -799,7 +799,30 @@ This plot is telling us that about 82% of our variance is explained on the x axi
 **Try and plot the 3rd and 4th principle components of our data. What do you notice?**
 
 ```{r student-answer-4}
+#| error: true
+# Calculate the pca for PCs 3 and 4 - change pcsToUse
+pca_34 <- plotPCA(rld, intgroup = "Group", pcsToUse = YOUR_CODE_HERE, returnData = TRUE) 
+# Calculate the percentage variance explained
+percentVar34 <- round(100 * attr(pca_34, "percentVar"), 2) # round to 3 sig fig.
 
+# Plot using ggplot
+plot_pca34 <- pca_34 %>%
+  ggplot(aes(x = YOUR_CODE_HERE, y = YOUR_CODE_HERE, fill = Group, shape = Group)) + 
+  geom_point(size = 5) +
+  geom_text_repel(aes(label = SampleName), size = 4, # Add sample labels
+                  box.padding = 1,      # Increases space around labels
+                  point.padding = 1,    # Increases distance from points
+                  min.segment.length = 0) + # Minimum distance from label before it draws a line connector
+  scale_shape_manual(values = c(21, 24)) + # Change this depending on how many shapes you want (i.e., how many groups), shapes21-25 are decent
+  guides(fill = guide_legend(override.aes = list(shape = 22))) + # specify the shape I want the shape in the legend to be
+  theme_minimal() + # remove some of the plot background
+  labs( # set the labels i.e., title, x and y axes labels. 
+    title = "PCA Plot of RNA-seq Samples",
+    x = paste0("PC3 (", percentVar34[1], "% variance)"), # paste0 pastes text together
+    y = paste0("PC4 (", percentVar34[2], "% variance)")
+  )
+
+plot_pca34
 ```
 
 .
@@ -991,7 +1014,11 @@ summary(res)
 **How many adjusted p-values were less than 0.1 (i.e., significant as defined by the default settings)?**
 
 ```{r student-answer-5}
-
+#| error: true
+res %>%
+  as_tibble() %>%
+  dplyr::filter(YOUR_CODE_HERE) %>%
+  dplyr::count()
 ```
 
 .
@@ -1029,7 +1056,7 @@ Scroll down for answer
 ```{r model-answer-5}
 res %>%
   as_tibble() %>%
-  dplyr::filter(padj < 0.1, ) %>%
+  dplyr::filter(padj < 0.1) %>%
   dplyr::count()
 ```
 
@@ -1045,7 +1072,9 @@ res05
 **How do you predict this will affect the number of significant differentially-expressed genes we discover? How can you tell if you are right?**
 
 ```{r student-answer-6}
+#| error: true
 
+summary(YOUR_CODE_HERE)
 ```
 
 .
@@ -1129,7 +1158,11 @@ DESeq2::plotMA(resL, ylim=ylim); drawLines()
 Putting this together, say you wanted to test for DEGs along the following parameters of \|log2FC\| \> 0.5 and FDR \< 0.05 comparing the TBI group vs the sham group: **what is the code you need to write?**
 
 ```{r student-answer-7}
+#| error: true
 
+res <- results(dds, lfcThreshold=YOUR_CODE_HERE, alpha = YOUR_CODE_HERE, contrast=c("Group","TBI","sham"))
+
+res
 ```
 
 .
@@ -1244,6 +1277,12 @@ This is now saved in our current working directory, and can be opened in Excel o
 You might just want to save only the genes which show significant differential gene expression, i.e., those with a FDR (adjusted p-value) of less than your accepted alpha value. Say we only want to consider genes with adjusted p-value of less than 0.05. **How could we do this using a tidyverse function we learned about last session?**
 
 ```{r student-answer-8}
+#| error: true
+
+res_sig <- res_tbl %>%
+  dplyr::filter(YOUR_CODE_HERE)
+
+res_sig
 
 ```
 
@@ -1311,6 +1350,9 @@ volcano_plot
 We now have our blank canvas. Next, we need our data points (i.e., our genes). We want to depict these as points. **What geom do we need for this?**
 
 ```{r student-answer-9}
+#| error: true
+
+volcano_plot + YOUR_CODE_HERE
 
 ```
 
@@ -1450,6 +1492,19 @@ volcano_plot
 **Putting it together, what is the full code we would use to create this volcano plot from scratch rather than step-by-step?**
 
 ```{r student-answer-10}
+#| error: true
+volcano_plot <- res_tbl %>%
+  ggplot(aes(YOUR_CODE_HERE)) +
+  geom_point(aes(YOUR_CODE_HERE)) +
+scale_color_manual(YOUR_CODE_HERE) + 
+  geom_hline(YOUR_CODE_HERE) +  
+  geom_vline(YOUR_CODE_HERE) +  
+  geom_text_repel(YOUR_CODE_HERE) + # labelling top 20 genes
+  theme_minimal() +
+  labs(title = "Volcano Plot", x = "Log2 Fold Change", y = "-Log10 Adjusted P-value", 
+       color = "Gene Expression Change") # setting our theme and labels
+  
+volcano_plot
 
 ```
 
