@@ -254,7 +254,7 @@ Each function typically does just one thing. Therefore, complex problems typical
 uk_flights %>%
   group_by(reporting_airport_group_name) %>%
   summarise(
-    mean_total_flights = round(mean(grand_total, na.rm = TRUE))
+    mean_total_flights = mean(grand_total, na.rm = TRUE)
   )
 
 ```
@@ -735,7 +735,7 @@ The most important grouped operation is a summary, which, if being used to calcu
 uk_flights %>%
   group_by(reporting_airport_group_name) %>%
   summarise(
-    avg_total_flights = round(mean(grand_total, na.rm = TRUE))
+    avg_total_flights = mean(grand_total, na.rm = TRUE)
   )
 ```
 
@@ -747,7 +747,7 @@ You can create any number of summaries in a single call to `summarise()`; one ve
 uk_flights %>%
   group_by(reporting_airport_group_name) %>%
   summarise(
-    avg_total_flights = round(mean(grand_total, na.rm = TRUE)),
+    avg_total_flights = mean(grand_total, na.rm = TRUE),
     number_of_airports = n()
   )
 ```
@@ -758,7 +758,7 @@ And with any good summary, it's always nice to visualise the data afterwards. Le
 uk_flights %>%
   group_by(reporting_airport_group_name) %>%
   summarise(
-    avg_total_flights = round(mean(grand_total, na.rm = TRUE)),
+    avg_total_flights = mean(grand_total, na.rm = TRUE),
     n = n()
   ) %>%
   ggplot(aes(
@@ -881,7 +881,7 @@ If you’re happy with this behavior, you can explicitly request it in order to 
 ```{r specify-groups}
 busy_n <- busy_areas %>%
   summarise(number_of_airports = n(),
-            avg_flights = round(mean(grand_total, na.rm = TRUE)),
+            avg_flights = mean(grand_total, na.rm = TRUE),
             .groups = "drop_last")
 
 busy_n
@@ -904,7 +904,7 @@ Now let’s see what happens when you summarise an ungrouped data frame:
 busy_areas %>%
   ungroup() %>%
   summarise(
-    avg_flights = round(mean(grand_total, na.rm = TRUE)),
+    avg_flights = mean(grand_total, na.rm = TRUE),
     number_of_airports = n()
   )
 
@@ -919,7 +919,7 @@ If you want to combine some of the above steps (grouping and then summarising) i
 ```{r by}
 uk_flights %>%
   summarise(
-    avg_flights = round(mean(grand_total, na.rm = TRUE)),
+    avg_flights = mean(grand_total, na.rm = TRUE),
     number_of_airports = n(), 
     .by = c(reporting_airport_group_name, busy)
   )
