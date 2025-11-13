@@ -8,18 +8,6 @@ format:
   html:
     toc: true
     self-contained: true
-  pdf:
-    toc: true
-    number-sections: true
-    include-in-header:
-      text: |
-        \usepackage{fvextra}
-        % Keep Pandoc's highlighting command chars AND wrap long lines
-        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
-        % Also wrap plain verbatim blocks
-        \RecustomVerbatimEnvironment{verbatim}{Verbatim}{breaklines,breakanywhere}
-  docx:
-    toc: true
 editor: visual
 ---
 
@@ -123,7 +111,7 @@ Other issues with this data:
 
 -   Some silly person typed "five" in as the age, which means now `age` has become a character variable type too, when it should be numeric.
 
-We can fix both these problems in one go using a function called `mutate()` which we will learn more about in the [mutate()] section:
+We can fix both these problems in one go using a function called `mutate()` which we will learn more about in the \[mutate()\] section:
 
 ```{r mutate}
 students <- students %>%
