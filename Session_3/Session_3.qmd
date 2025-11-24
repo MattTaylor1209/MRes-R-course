@@ -381,7 +381,7 @@ What are the names of our samples? Rather than using the `names()` function, we 
 colnames(fc$counts)
 ```
 
-These names seem a bit long and unwieldy, but they come from an iterative naming process: the files initially downloaded from NIH Bioproject were called *SRR* files and each had a unique number—I downloaded them and labelled them with which group they corresponded to (e.g., "sham" or "TBI"); the next step was to convert them to *fastq* files (hence the .fastq); those *fastq* files were then aligned (using `Rsubread`) to produce the *BAM* files you see here. As `featureCounts()` takes *BAM* files as input, it has assigned each one to be the name of each sample. But don't worry! We will be renaming those samples soon to much more concise, informative names.
+These names reflect the 2 treatment groups in our rat TBI experiment (sham and TBI), with 4 samples in each group.
 
 There is another way we could have seen the names of our samples: they are contained in the `targets` subdivision of `fc`.
 
@@ -502,46 +502,36 @@ countdata <- fc$counts
 glimpse(countdata)
 ```
 
-### Tidying up the `countdata` object
+### Assigning group information (factors) to our `countdata`
 
-If we look at the column names of `countdata`, we can see that it corresponds to the *BAM* file names we saw earlier:
+If we look at the column names of `countdata`, we can see that it corresponds to the names we saw earlier in `fc`:
 
 ```{r colnames-countdata}
 colnames(countdata)
 ```
 
-We could leave things as they are. However, things would be much cleaner if we could rename this to be less wordy! We are also lacking information about how these samples should be grouped together. You can see a hint of that in the names (sham and TBI) but we haven't made the grouping explicit.
+Although we can clearly see which group each sample belongs to, R currently doesn't—we need to make this explicit.
 
-It is generally recommended to include information (**metadata**) about your experiment in a separate file, which you can refer to yourself and also use in R to help provide information to *`DESeq2`* about the experimental design. In your working directory, I have provided a file called `SampleInfo.txt`, containing the sample information in a table: the original `file name`; a simplified `sample name`; and the `Group` each sample belongs to (i.e., sham or TBI). This is a text file which is in a tab-separated format, which is easy to edit if you are using different samples/group names. (There's also no reason you couldn't make this a CSV file in Excel if you prefer).
+It is generally recommended to include information (**metadata**) about your experiment in a separate object, which you can refer to yourself and also use in R to help provide information to *`DESeq2`* about the experimental design. Because we only have 8 samples, it is very straightforward to just make this object directly in R, as a tibble. (There's also no reason you couldn't make this a CSV file in Excel if you prefer, especially if you have more samples and more groups).
 
-Let's load this file into R now:
+We will use the `tibble()` function to make a 8x2 table, with a `SampleName` column containing the column names of `countdata` and a `Group` column assigning each of those samples to a specific group. We also want this variable to be a **factor** as we are treating it as a categorical variable:
 
 ```{r sampleinfo}
-sampleinfo <- read_delim("SampleInfo.txt", col_types = "ccf") # read_delim allows reading of files with any of the common separators e.g., TAB in this case
-sampleinfo <- as_tibble(sampleinfo) # convert to tibble for ease of use
+sampleinfo <- tibble(
+  SampleName = c("TBI2" , "TBI1" , "sham4" ,"sham3", "sham2", "sham1", "TBI4" , "TBI3"),
+  Group = factor(c("TBI", "TBI", "sham", "sham", "sham", "sham", "TBI", "TBI"))
+)
+
 sampleinfo
 ```
-
-*Quick note: in `read_delim()`* *I am using the argument `col_types = "ccf"`* —*this means I am specifying the **data type** of each column, from 1st to 3rd (character, character, factor) because I want Group to be a factor—see `?read_delim()`* *for more details. This is just a quicker way than having to reassign the column types afterwards.*
-
-You may notice that the column names of `countdata` are the same as `FileName` in the `sampleinfo` file - **this is deliberate: I made the file such that this would be true**. If you make your own metadata file for your experiment, I would recommend you check the order of the columns in your `countdata` first and make your metadata with this order in mind, as it will save you time.
 
 This means our sample information in `sampleinfo` is in the same order as the columns in `countdata`, as we can check below using the `table()` function's equality test:
 
 ```{r table-colnames}
-table(colnames(countdata)==sampleinfo$FileName)
+table(colnames(countdata)==sampleinfo$SampleName)
 
-# If this is at all FALSE, you will need to remake the SampleInfo.txt file to ensure that it is listing the samples in the same order as in countdata
+# If this is at all FALSE, you will need to remake sampleinfo to ensure that it is listing the samples in the same order as in countdata
 ```
-
-We can take advantage of this fact to rename our `countdata` columns (which represent the samples) to the simplified `SampleName` in `sampleinfo`:
-
-```{r reassign-sample-names}
-colnames(countdata) <- sampleinfo$SampleName
-colnames(countdata)
-```
-
-That looks much better—it's now easy to see which sample is being referred to and which group it belongs to.
 
 ### The DESeqDataSet object
 
