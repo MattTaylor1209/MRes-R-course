@@ -15,7 +15,25 @@ Before we start, click on the little gear above the document window and select "
 
 ![](images/clipboard-2475862271.png)
 
-# Welcome
+# 0 - Setup for today's session
+
+To make sure everything works as planned, we are going make sure that all of the packages we need are installed for this session. Remember from the first session the function we need for this is `install.packages()` and then we need the name of the package in quotation marks (e.g., `"tidyverse"`). We could do this one by one for each package we need, but a quicker way is to use the `c()` function (combine) to make a list of package names, separated by commas. This can be put inside of the `install.packages()` function as seen below:
+
+```{r package-installation}
+#| eval: false
+
+install.packages(
+  c("tidyverse","ggthemes","janitor","palmerpenguins")
+  )
+```
+
+**If you get a popup asking to restart R, click "No" as it means the package is already installed.**
+
+::: callout-note
+If you ever need to update packages, the function you need for this is `update.packages()`. Using `update.packages(ask = FALSE)` prevents R from asking you if you want to update each individual package. Otherwise you will have to type in the console "Yes", "No", or "cancel" for each package. Note that some packages require extra tools to be installed (e.g., [Rtools](https://cran.r-project.org/bin/windows/Rtools/) for Windows, or [MacOS command line tools](https://mac.r-project.org/tools/)).
+:::
+
+# 1 - Welcome
 
 Welcome to part 2 of the *Foundations of R for Bioinformatics* course. Today, we are going to hone our tidyverse skills as we learn how to import, tidy and transform data. You may already wondering what is meant by "tidying" data—can data even be *un*tidy? The answer, from the perspective of R, is yes! But more on that later...
 
@@ -23,13 +41,13 @@ We will also take a closer look at an important tidyverse tool that you have alr
 
 Instead of writing long, nested commands that are difficult to read, we can use the pipe to build analyses step by step in a way that mirrors how we think about the task: *take this dataset, then filter it, then summarise it, then plot it.* Using the pipe makes your code more readable, more reproducible, and easier to debug.
 
-As before, this session is heavily inspired by [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/) by Hadley Wickham & Garrett Grolemund. Later on in this session, I will also include some published RNAseq data to make the course more applicable to our needs—namely to introduce you to how R can be used for big data/bioinformatics, such an an RNAseq experiment.
+As before, this session is heavily inspired by [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/) by Hadley Wickham & Garrett Grolemund. Later on in this session, I will also include some published RNAseq data to make the course more applicable to our needs—namely to introduce you to how R can be used for big data/bioinformatics, such an an RNAseq experiment. This data will also be used in the RNAseq analyses we perform in our final session next week.
 
-## Goals for session 2
+## 1.1 - Goals for session 2
 
 By the end of this session, you will be able to:
 
--   **Import** data into R from different file types.
+-   **Import** data into R from common file types.
 
 -   Explain what “**tidy data**” means and why tidying is important for analysis.
 
@@ -37,41 +55,1289 @@ By the end of this session, you will be able to:
 
 -   Apply common **tidyverse functions** such as `mutate()`, `select()`, `filter()`, `arrange()`, and `summarise()` to **explore** and **transform** data.
 
--   Identify and correct issues such as missing values and incorrect variable types.
-
 -   Understand the **pipe** (`%>%`) and how to use it to build clear, readable, reproducible code.
 
-## Packages required
+## 1.2 - Packages required
 
-We are going to be using `dplyr`, `readr` and `tidyr` which are all part of the `tidyverse` package, so loading that will be sufficient. We're going to use some of our own data for this session (which we will load later), and `ggplot2` for plotting (also part of `tidyverse`). Note: these were all installed in our setup chunk, so we just need to load them using the `library` function now:
+We are going to be using `dplyr`, `readr` and `tidyr` which are all part of the `tidyverse` package, so loading that will be sufficient. We're going to use some of our own data for this session (which we will load later), and `ggplot2` for plotting (also part of `tidyverse`). Finally, we have a couple of other packages which aren't part of the `tidyverse`: `ggthemes` which adds our colourblind-friendly colour palette, `janitor` which has some useful functions for sorting out awkward column names, and `palmerpenguins` which contains our `penguins` dataset from last week.
+
+Note: these were all installed in our setup chunk, so we just need to load them using the `library` function now:
 
 ```{r tidyverse}
 library(tidyverse)
+library(ggthemes)
+library(palmerpenguins)
+library(janitor) # for the extension section
 ```
 
-We've been ignoring the output of this till now, but let's just quickly look at what this is telling us. (You may not see this depending on when you installed R and ran the setup code).
+We've been ignoring the output of this till now, but let's just quickly look at what this is telling us. (You may not see this depending on when you installed the packages, or you might have slightly different messages).
 
 ![](images/clipboard-572882515.png)
 
-This is a warning that the package in question was compiled in a different version of R to the one we are running. Don’t panic — warnings are not errors. If your code runs and plots appear, you’re fine. (The way you would address this would be to update your R installation and re-install the packages; there is no need for us to do this now).
+This is a warning that the package in question was compiled in a different version of R to the one we are running. Don’t panic — warnings are not errors. If your code runs and plots appear, you’re fine. (The way you would address this would be to update your R installation and update the packages; there is no need for us to do this now).
 
 ![](images/clipboard-77745967.png)
 
-This part is telling us that the `dplyr` package overwrites some functions in base R. If you want to use the base version of these functions after loading `dplyr`, you’ll need to use their full names: `stats::filter()` and `stats::lag()`. So far, we’ve mostly ignored which package a function comes from because it doesn’t usually matter—but this is bad practice! Knowing the package can help you find help and find related functions, so when we need to be precise about which package a function comes from, we’ll use the same syntax as R: `packagename::functionname()`. (Really, the best practice is to do this all the time but I often forget!)
+This part is telling us that the `dplyr` package overwrites some functions in base R. If you want to use the base version of these functions after loading `dplyr`, you’ll need to use their full names: `stats::filter()` and `stats::lag()`. So far, we’ve mostly ignored which package a function comes from because it doesn’t usually matter—but this is bad practice! Knowing the package can help you find help and find related functions, so when we need to be precise about which package a function comes from, we’ll use the same syntax as R: `packagename::functionname()`. This will become especially true next week. (Really, the best practice is to do this all the time but I often forget!)
 
-# Data import (for information - won't cover this in the session)
+# 2 - Session 1 recap
+
+First, we will recap some of the concepts we covered in Session 1:
+
+## 2.1 - Writing and running code
+
+All of our work in this course will be performed in a Quarto document which we have loaded into RStudio. Quarto documents allow you to write normal text (as you would in Microsoft Word for example) alongside actual code which can be run separately.
+
+When writing and running code in a Quarto document, you can do so inside a chunk, which is inserted by clicking the green C box at the top of the window ![](images/clipboard-2370621836.png):
+
+```{r}
+
+```
+
+This creates an empty chunk which you can see above. Code can be entered into the chunk, e.g., the simple maths equation below. And the code is run when you click the little green arrow to the right of the chunk:
+
+```{r}
+1+1
+```
+
+You'll notice the output of the code occurs not only below the chunk itself but also in the console below. Code can also be run by directly typing in the console, although this is not usually recommended as it makes it harder to keep track of all the code you have typed.
+
+## 2.2 - Objects and variables
+
+Data is stored in R in **objects** which will have some kind of **value** (this could be a single digit, or the result of some function, or it could even be an entire dataset).
+
+You create an object using the **assignment operator** `<-`:
+
+```{r x}
+x <- 12
+```
+
+This means “take the value on the right and store it in the name on the left.”
+
+When you do this, the object appears in your Environment pane (top right).
+
+Some objects are built into R (e.g., `pi`); most of the time, **you** create them.
+
+You can print an object by typing its name:
+
+```{r}
+x
+```
+
+Every object in R has a **type**, which tells R how it can be used. The most common types are:
+
+-   **Numeric**: numbers you can do maths with. These are split into subtypes:
+
+    -   **Double:** A double allows you to store numbers as decimals. This is the default treatment for numbers. *Examples*: `3.14`, `6.0`
+    -   **Integer:** whole numbers. *Examples*: `1L`, `100L` (the `L` tells R it’s an integer).
+
+-   **Character**: text, always written inside quotes.
+
+    -   *Examples*: `"geneA"`, `"hello world"`
+
+-   **Logical**: true/false values (also written as `TRUE` or `FALSE`).
+
+    -   *Examples*: `TRUE`, `FALSE`
+
+-   **Factor**: categories (useful for groups or experimental conditions)
+
+    -   *Example*: `factor(c("control", "treated", "treated"))`
+
+You can check the type of any variable with the `class()` function. For example:
+
+```{r classes}
+x <- 12
+class(x)     # numeric
+
+y <- "geneA"
+class(y)     # character
+
+z <- TRUE
+class(z)     # logical
+```
+
+## 2.3 - Looking at real data
+
+Some objects exist even if they don't appear in the Environment tab. This is often the case with built-in tutorial datasets, such as the `penguins` dataset we encountered last session. To view this dataset, we can type `penguins` into the console and press ENTER, or type it into a new chunk and run that chunk:
+
+```{r penguins}
+library(palmerpenguins) # loading the library containing this dataset
+penguins # viewing the data
+```
+
+Each column has a type — for example, `species` is a **factor**, and `bill_length_mm` is **numeric (double)**.\
+These types affect what R can do with each column (e.g., you can calculate a mean for numeric data, but not for character or factor data).
+
+## 2.4 - Functions
+
+Last session, we used some basic functions and learned their overall structure. Every function takes the format `function_name()` and within those brackets you will specify **inputs** (otherwise known as **arguments**) which the function will use to produce an **output**:
+
+```{r functions}
+#| eval: false
+function_name(argument1 = value1, argument2 = value2, ...)
+```
+
+For example, we used the `ggplot()` function to produce plots from the `penguins` dataset. Here is one of the basic plots we made where we plotted flipper length against body mass as a scatterplot and coloured the points by the species of the penguin:
+
+```{r basic-scatterplot}
+penguins %>% 
+  ggplot(mapping = aes(x = flipper_length_mm, y = body_mass_g, colour = species)) +
+  geom_point()
+```
+
+We are going to be using many more functions in this session, the majority of which come from the `tidyverse` **package**, which is why we have installed and loaded that package at the beginning of this session. Remember, packages are essentially just a collection of functions (and sometimes datasets) written and are maintained by other data scientists which **extend the functionality** of R. Without packages, we would be limited to just the functions found in **base R** and would be unable to do more complex analyses, such as those required for bioinformatics and RNAseq.
+
+Notice also above the use of the **pipe** operator, written as `%>%` (or sometimes `|>`) which we introduced last session, and I will go into more detail on now.
+
+## 2.5 - The pipe
+
+The **pipe** is one of the most powerful tools in the tidyverse. It takes the result of one step and passes it as the first argument to the next function. You’ve already seen simple examples, but its *real power* appears when we want to combine multiple steps.
+
+Suppose we wanted to take our `penguins` dataset, remove any missing values from the `bill_length_mm` column, select just the columns `species` and `bill_length_mm`, group by the `species` and calculate the mean bill length per species. Essentially, the logical flow is this:
+
+**data → filter → select → group_by → summarise**
+
+**I** **don't expect you to know any of the functions** required to do this yet (hopefully by the end of the session you will!), but consider the 3 options we have below (**You do not need to master all three** — I’m showing them so you can see why the pipe is nicer).
+
+Option 1 - **Nesting functions:**
+
+```{r nesting-penguins}
+summarise(
+  group_by(
+    select(
+      filter(
+        penguins, # here is our data - look how tucked away it is!!
+        !is.na(bill_length_mm)
+      ),
+      species, bill_length_mm
+    ),
+    species
+  ),
+  mean_bill_length = mean(bill_length_mm)
+)
+
+```
+
+Option 2 - **Creating intermediate objects:**
+
+```{r intermediate-object-penguins}
+penguins_filtered <- filter(penguins, !is.na(bill_length_mm))
+
+penguins_selected <- select(penguins_filtered, species, bill_length_mm)
+
+penguins_grouped <- group_by(penguins_selected, species)
+
+penguins_summary <- summarise(penguins_grouped, mean_bill_length = mean(bill_length_mm))
+
+penguins_summary
+```
+
+Option 3 - **Using the pipe:**
+
+```{r pipe-penguins}
+penguins %>% # data is right at the front of the code
+  filter(!is.na(bill_length_mm)) %>%
+  select(species, bill_length_mm) %>%
+  group_by(species) %>%
+  summarise(mean_bill_length = mean(bill_length_mm))
+```
+
+**Pause point: Run those chunks for yourself**. **What do you notice about the output?**
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+Hopefully, you will have noticed that the **output looks identical**. But in my opinion, the pipe method is the cleanest, easiest to understand, and works best with built-in R features such as autocompleting variable names.
+
+The pipe method reads more like a sentence we would expect in natural language. If you read the code in option 3, the code reads like this line-by-line (even if you don't understand all of those functions yet):
+
+1.  Take the `penguins` data
+2.  Filter it (to remove the `NA` values i.e., missing values)
+3.  Select just the `species` and `bill_length_mm` columns
+4.  Group by the `species` column
+5.  Create a summary of the mean bill length
+
+There is no set rule about which you choose. You may decide that actually you prefer intermediate objects or nesting functions—that is completely up to you. But for me, the pipe makes so much more sense and makes code easier to type, so that is the style used throughout this course.
+
+Again, **at this point, I don't expect you to know all those functions**—we will cover them in the following sections. But if you can read code top-to-bottom and understand the general flow—that’s the real goal. Syntax comes with practice.
+
+## 2.6 - Exercises
+
+1.  **Without running the code below, what do you think will be the output? Will it result in fewer rows/observations as the input, or the same number? What columns will remain?**
+
+```{r exercise-2.6.1}
+penguins %>% 
+  filter(species == "Adelie") %>% 
+  select(species, flipper_length_mm)
+```
+
+**Run it. Is the output what you expected?**
+
+2.  [**Fix the broken pipe**]{.underline}**. The following code is intentionally scrambled. Rearrange the order so that the code follows this logical format: first remove NAs, then group by species, then calculate mean flipper length.**
+
+    Hint: you will need the pipe symbol `%>%` at the end of every line except for the last one.
+
+```{r exercise-2.6.2}
+#| error: true
+
+penguins %>% 
+  summarise(mean_flipper = mean(flipper_length_mm, na.rm = TRUE)) %>% 
+  filter(!is.na(flipper_length_mm)) %>% 
+  group_by(species)
+```
+
+# 3 - Data import and transformation
+
+## 3.1 - Introduction
+
+In the previous session, we used the built-in `penguins` dataset to make graphs and explore relationships between variables. Real data rarely arrives in such a convenient format. It may have missing values, inconsistent naming, or be organised in a way that makes analysis awkward.
+
+In this section, we’ll take a step back and look at how to get data **into** R, and then how to **transform** it using tidyverse tools from the `readr` and `dplyr` packages.
+
+Rather than treating “import” and “transformation” as separate skills, we’ll blend them together:
+
+> **import a real dataset → explore its structure → tidy it → transform it**
+
+This keeps the workflow natural and mirrors what you’ll actually do in your research.
+
+## 3.2 - Our data
+
+In the [Hadley course,](https://r4ds.hadley.nz/data-transform.html) they use some built-in data from another package: this time, a dataset on flights which departed New York City in 2013. I've decide to adapt this to instead use data from the UK's own [Civil Aviation Authority (CAA)](https://www.caa.co.uk/data-and-analysis/)—specifically statistics on UK airports from February 2025. This also demonstrates the power of R in the real-world, as you can import any data you want like this directly into R, rather than just relying on built-in, pre-packaged data.
+
+The CAA dataset we’re using is stored in **CSV format**, which stands for *comma-separated values*. A CSV file is just a plain text file where:
+
+-   each **row** is one record, and
+
+-   each **column** is separated by a **comma**.
+
+For example, a tiny CSV file looks like this:
+
+![](images/clipboard-3509564784.png){width="317"}
+
+Programs like **Excel** can open CSVs, but R can read them directly using the `read_csv()` function from the **`readr`** package (part of the tidyverse).
+
+This function:
+
+-   Reads the text
+
+-   Splits the values at each comma
+
+-   Guesses the correct data type for each column (based on the data itself)
+
+-   Returns a tidy, rectangular table (a **tibble**)
+
+So when we write:
+
+`uk_flights <- read_csv("Table_03_Aircraft_Movements.csv")`
+
+we’re telling R:
+
+::: {.callout-note appearance="simple"}
+“Open this CSV file, interpret the commas as column separators, and turn the result into a dataset I can analyse.”
+:::
+
+CSV files are extremely common in scientific data — sequencing results, metadata sheets, behavioural data, imaging quantifications, qPCR results — so knowing how to load and work with them is an essential skill.
+
+::: {.callout-note appearance="simple"}
+(For help with other file types you might need to load into R, typing `help(read_csv)` into the console will bring up the generic help page for reading files into R using the `readr` package)
+:::
+
+## 3.3 - Importing the data
+
+To get the dataset, we can import it directly from the CAA website using the function `read_csv()`. This function will accept a URL as the file name, which can be great if you want to take the latest version of some data from a website directly. Alternatively, if this doesn't work, you can download the CSV file and put it in the current working directory, then use the file name exactly as is written within `read_csv()`. I have provided the code for both approaches below.
+
+Remember: using `<-` assigns the code on the right to an object name on the left. There's nothing special about calling it `uk_flights` — we could call it `bananas` if we really wanted — but `uk_flights` is a more useful name for what the data actually is.
+
+```{r import_from_URL}
+uk_flights <- read_csv("https://www.caa.co.uk/Documents/Download/23996/6890c139-9322-4a92-9e12-b6c70d505aa7/17059")
+```
+
+In case the chunk above doesn't work, here is how we would load a file directly from our working directory which we have already downloaded (this should work for you as I provided this data in the same folder as this document).
+
+```{r import-directly}
+uk_flights <- read_csv("Table_03_Aircraft_Movements.csv")
+```
+
+The original file includes two columns we don’t need, so we’ll remove them. This code will hopefully make more sense later on in the session:
+
+```{r remove-columns}
+uk_flights <- uk_flights %>%
+  select(-rundate, -reporting_period)
+```
+
+Note if you try to run the above chunk twice, you will get an error—because the second time around, those columns no longer exist!
+
+By default, `read_csv()` will convert the data into the tidyverse-friendly data table format: a **tibble**. You can see this by looking at the data by just running a chunk which contains the name of our data object.
+
+```{r}
+uk_flights
+```
+
+The variable names are followed by abbreviations that tell you the **type** of each variable, which we talked a bit about in session 1: `<int>` is short for integer, `<dbl>` is short for double, `<chr>` for character, and `<dttm>` for date-time. The operations you can perform on a column depend heavily on its “type.”
+
+## 3.4 - Exercises
+
+1.  Look through the columns in `uk_flights`.
+
+    -   Which ones are numeric (`<dbl>` or `<int>`)?
+    -   Which are characters (`<chr>`)?
+
+    *Answer:*
+
+2.  A quick way to select a single column in R is with `$`. For example:
+
+    ```{r}
+    uk_flights$air_taxi
+    ```
+
+    Shows the values in the *air_taxi* column. Using this idea, how could you calculate the **mean number of air taxi flights across all airports?** *Hint: is there a function called `mean()`?*
+
+    *Answer:*
+
+    ```{r exercise-3.4.2}
+
+    ```
+
+## 3.5 - **`dplyr`** basics
+
+The following sections will introduce you to the fundamental `dplyr` **functions** which will solve the majority of your data manipulation challenges. All of these functions share a common structure:
+
+-   They take a **data frame (or tibble)** as their first input
+
+-   Then they take instructions about **what to do to the data**
+
+-   The output is always a new data frame.
+
+-   And they’re designed to work especially well with the **pipe** (`%>%`), which lets us *send the data into the function* without writing it as the first argument
+
+So even though the first argument is the data frame, we usually *pipe* the data into the function instead of typing it:
+
+```{r}
+uk_flights %>%
+  filter(reporting_airport_group_name == "London Area Airports")
+```
+
+This is equivalent to:
+
+```{r}
+filter(uk_flights, reporting_airport_group_name == "London Area Airports")
+```
+
+—but the piped version is easier to read and allows you to build multi-step analyses step by step.
+
+Each function typically does just one thing. Therefore, complex problems typically involve combining these functions one after another.
+
+Here’s a quick example:
+
+> *Take the flights data, then group it by airport region, then calculate the average number of flights.*
+
+```{r initial_pipe_demo}
+uk_flights %>%
+  group_by(reporting_airport_group_name) %>%
+  summarise(
+    mean_total_flights = mean(grand_total, na.rm = TRUE)
+  )
+```
+
+`dplyr`’s functions are organized into four groups based on what they operate on: **rows**, **columns**, **groups**, or **tables**. So as not to overload this session, I will only be covering functions relating to rows, columns and groups in this session. *I will include some basic information on table functions at the end of the document in the* Extension *section for information only.*
+
+## 3.6 - Rows
+
+The 2 most important functions here are:
+
+-   `filter()` - changes which rows are present without changing their order
+
+-   `arrange()` - changes the order of the rows without changing which are present
+
+The columns are left unchanged. Another function is `distinct()` which finds rows with unique values (and can optionally modify the columns, unlike the other two).
+
+### 3.6.1 - `filter()`
+
+`filter()` allows you to keep rows based on the values of the columns. The first argument is the data frame/tibble (empty in our case because we pipe our data into the function). The second and subsequent arguments are the **conditions that must be true to keep the row**.
+
+For example, we could find all airports which reported more than 1000 flights in our dataset. The total flights are recorded in the `grand_total` column. So we can specify that we only want to keep rows where the `grand_total > 1000`
+
+```{r filter_1000}
+uk_flights %>%
+  filter(grand_total > 1000)
+```
+
+Run that chunk. Notice how we now have a preview of a new tibble that satisfies the requirements of our filter—all of the values in the `grand_total` column are greater than 1000. Note that this **hasn't changed our original data** (we haven't overwritten it) and we also **haven't saved it to a new object**, so it literally only exists as a preview below that chunk.
+
+As proof of this, look at `uk_flights` in your Environment tab—see where it says "57 obs. of 14 variables"? This means it still has 57 rows and 14 columns, whereas if you look at the output of the above chunk, it says we have 42 rows. This is because within that chunk, we have filtered out those rows, but not saved the output or overwritten our original tibble.
+
+If we wanted to overwrite our original (not recommended usually), we would put `uk_flights <-` before that code; or, more likely, **to save to a new object**, we would put a new variable name there e.g., `busy_airports <-`:
+
+```{r busy-airports}
+busy_airports <- uk_flights %>%
+  filter(grand_total > 1000)
+
+# look at this new table
+busy_airports
+```
+
+This just reiterates the key difference between the *assignment operator `<-`* and the *pipe* `%>%`.
+
+-   `<-` means assign what's on the right to the thing on the left.
+
+-   `%>%` means take what's on the left and do the thing on the right to it.
+
+Any code where we don't *assign* the result to a new object—think of this as your **working memory**. It's for testing code and quickly visualising the output, and everything is just contained within that chunk.
+
+If we are happy with the code and want to store the output in a new R object, that's where the assignment operator `<-` comes in—this is more like your **long term memory.**
+
+Back to `filter()`...
+
+As well as `>` (greater than), you can use `>=` (greater than or equal to), `<` (less than), `<=` (less than or equal to), `==` (equal to), and `!=` (not equal to). You can also combine conditions with `&` or `,` to indicate “and” (check for both conditions) or with `|` to indicate “or” (check for either condition):
+
+```{r more-1000-less-2000}
+# Airports with more than 1000 flights but less than 2000:
+uk_flights %>%
+  filter(grand_total > 1000 & grand_total < 2000)
+```
+
+```{r in-london-or-more-1000}
+# Airports which are in London or have more flights than 1000
+uk_flights %>%
+  filter(
+    grand_total > 1000 | reporting_airport_group_name == "London Area Airports")
+```
+
+```{r not-london}
+# All airports not in London area
+uk_flights %>%
+  filter(
+    reporting_airport_group_name != "London Area Airports")
+```
+
+There’s a useful shortcut when you’re combining `|` and `==`, which is `%in%`. It keeps rows where the variable equals one of the values on the right:
+
+```{r in}
+# Data for Birmingham and Stansted airports
+uk_flights %>%
+  filter(
+    reporting_airport_name %in% c("BIRMINGHAM", "STANSTED")
+  )
+```
+
+Note that when you want `filter()` to check if something is equal to something, you have to use the double equals `==` rather than single `=`. Basically, this is because R sometimes treats `=` like the assignment operator (as in other languages).
+
+Another mistake is writing “or” statements like you would in English. We might read the following as "filter the airport names to only include them if they are Birmingham or Stansted." With some variables, this might not cause an error (but still won't give you what you meant). In our case it does:
+
+```{r bad-or}
+#| error: true
+uk_flights %>%
+  filter(
+    reporting_airport_name == "BIRMINGHAM" | "STANSTED"
+  )
+```
+
+### 3.6.2 - `arrange()`
+
+`arrange()` lets us **reorder the rows** of a data frame based on the values in one or more columns.
+
+By default, it sorts **from smallest to largest**. If you sort by more than one column, the second column is only used when the first column has ties.
+
+A useful helper function is `desc()`, which tells `arrange()` to sort in **descending order** (largest to smallest).
+
+For example, to sort airports by the number of military flights, from **most** to **fewest**:
+
+```{r arrange-descending}
+uk_flights %>%
+  arrange(desc(military))
+```
+
+To sort the same column from **fewest** to **most**, we just remove `desc()`, because ascending order is the default:
+
+```{r arrange-ascending}
+uk_flights %>%
+  arrange(military)
+```
+
+Notice that the **number of rows never changes** – `arrange()` only changes the *order* of the rows, not which rows are included.
+
+### 3.6.3 - **`distinct()`**
+
+`distinct()` is used to find the **unique** rows in a dataset. In other words, it removes duplicates. Our `uk_flights` dataset doesn’t actually contain duplicated rows, so running `distinct()` on the whole tibble won’t change the number of rows:
+
+```{r distinct}
+# Remove duplicate rows, if any
+uk_flights %>%
+  distinct()
+```
+
+Since no rows are duplicates, the output is the same size as the input.
+
+#### **Finding unique values in specific columns:**
+
+Often, what you really want is the list of **unique values** for a single column. For example, if we want to see all the different reporting airport groups:
+
+```{r distinct-reporting}
+uk_flights %>%
+  distinct(reporting_airport_group_name)
+```
+
+This returns one row per group — a quick way to check what categories exist in your dataset.
+
+#### **Unique combinations of multiple columns**
+
+Most of the time, however, you’ll want the distinct combination of some variables, so you can supply additional column names. Suppose now we want to find all the unique combinations of `reporting_area_group_name` and `reporting_airport_name`:
+
+```{r distinct-combination}
+uk_flights %>%
+  distinct(reporting_airport_group_name, reporting_airport_name)
+```
+
+I.e,. This gives us a compact summary of which airports belong to which group.
+
+#### **Counting how many of each group there are**
+
+If instead of listing the groups you want to **count** how many rows fall into each one, `count()` is the better tool. It also has a built-in option to sort the results (`sort = TRUE`):
+
+```{r count}
+uk_flights %>%
+  count(reporting_airport_group_name, sort = TRUE)
+```
+
+## 3.7 - Exercises
+
+1.  Use `filter()` to keep only airports with `official` flights \> 10. How many rows remain?
+
+    *Answer:*
+
+    ```{r exercise-3.7.1}
+
+    ```
+
+2.  Fix the code chunk from earlier where we were trying to filter for just Birmingham and Stansted airports (there are 2 possible ways to do this. Hint: one way uses `%in%`)
+
+    *Answer:*
+
+    ```{r exercise-3.7.2}
+    #| error: true
+    uk_flights %>%
+      filter(
+        reporting_airport_name == "BIRMINGHAM" | "STANSTED" # FIX THIS LINE
+      )
+    ```
+
+<!-- -->
+
+3.  Use `arrange()` to sort the dataset by **grand_total** (ascending). Do the same for descending.
+
+    *Answer:*
+
+    ```{r exercise-3.7.3}
+
+    ```
+
+4.  The following code uses a combination of the functions in this section to display the **top 5** busiest airports **outside of London**, but some of the code is missing. Fill in the missing code. (Note the `head(5)` part is fine as it is—it uses the `head()` function which we briefly encountered in Session 1).
+
+    *Answer:*
+
+    ```{r exercise-3.7.4}
+    #| error: true
+    uk_flights %>%
+      filter(reporting_airport_group_name != "YOUR_CODE_HERE") %>%
+      arrange(desc(YOUR_CODE_HERE)) %>%
+      head(5) 
+    ```
+
+## 3.8 - Columns
+
+These functions let you change **which columns** you see, **what they’re called**, **where they appear**, or **create new ones**. They never change the number of rows.
+
+The key functions are:
+
+-   `select()` – keep or remove columns
+
+-   `mutate()` – make new columns
+
+-   `rename()` – change column names
+
+-   `relocate()` – move columns around
+
+### 3.8.1 - `select()`
+
+`select()` is sort of like the columns version of `filter()` — rather than filtering for rows which fit a certain criteria, we are selecting specific columns. `select()` chooses which columns you want to keep.
+
+You can select by name and can specify more than one at a time:
+
+```{r select}
+uk_flights %>%
+  select(reporting_airport_name, grand_total)
+```
+
+Select a **range** of columns:
+
+```{r select-range}
+uk_flights %>%
+  select(reporting_airport_group_name:air_transport)
+```
+
+Select everything **except** a range:
+
+```{r select-except}
+uk_flights %>%
+  select(!reporting_airport_group_name:air_transport)
+```
+
+`!` reads like "NOT".
+
+Remove specific columns (like we did in *Section 3.3*):
+
+```{r remove-certain-columns}
+uk_flights %>%
+  select(-reporting_airport_group_name, -air_transport)
+```
+
+Select columns based on their **type**:
+
+```{r select-specific-variables}
+uk_flights %>%
+  select(where(is.character))
+```
+
+Useful helper functions inside `select()`:
+
+-   `starts_with("abc")`: matches names that begin with “abc”.
+
+-   `ends_with("xyz")`: matches names that end with “xyz”.
+
+-   `contains("ijk")`: matches names that contain “ijk”.
+
+-   `num_range("x", 1:3)`: matches `x1`, `x2` and `x3`.
+
+For example:
+
+```{r}
+uk_flights %>%
+  select(starts_with("reporting"))
+```
+
+You can also **rename columns** as you select them. The new name should go on the left-hand side of the `=`, and the old name should go on the right-hand side.
+
+```{r select-rename}
+uk_flights %>%
+  select(airport_name = reporting_airport_name)
+```
+
+### 3.8.2 - `mutate()`
+
+`mutate()` creates new columns based on existing ones.
+
+For example, suppose you want to calculate the percentage of flights that are business-related. You give the column a name first (e.g., `business_percentage`) and write a formula relating to other columns to calculate it:
+
+```{r mutate-demo}
+uk_flights %>% 
+  mutate(business_percentage = business_aviation / grand_total * 100)
+```
+
+By default, new columns appear all the way on the right hand side (so you might have to scroll).
+
+You can choose where to place them using `.before` or `.after` within `mutate()`:
+
+```{r mutate-before}
+uk_flights %>% 
+  mutate(business_percentage = business_aviation / grand_total * 100,
+    .after = grand_total) # means put it after the grand_total column
+```
+
+A common pattern is **mutate → select**, especially when you want to focus on a few key columns.
+
+For example, what if we wanted to create our new `business_percentage` column, and then only show that column, the columns used to create it, and the airport name?
+
+```{r mutate-then-select}
+uk_flights %>% 
+  mutate(
+    business_percentage = business_aviation / grand_total * 100) %>% 
+  select(
+    reporting_airport_name, business_aviation, grand_total, business_percentage)
+```
+
+### 3.8.3 - `rename()`
+
+`select()` removes all of the other columns you haven't selected.
+
+Use `rename()` when you want to **keep all** columns but change a few names:
+
+```{r rename}
+uk_flights %>%
+  rename(
+    airport_name = reporting_airport_name, 
+    reporting_group = reporting_airport_group_name)
+```
+
+If you have a bunch of inconsistently named columns and it would be painful to fix them all by hand, there is a function in the `janitor` package called `clean_names()` which provides some useful automated cleaning (see *Extension* section at the end of the document).
+
+### 3.8.4 - `relocate()`
+
+`relocate()` moves columns around.
+
+By default, it brings columns to the **front**:
+
+```{r relocate}
+uk_flights %>%
+  relocate(grand_total, business_aviation)
+```
+
+You can also use `.before` or `.after` for finer control, just like with `mutate()`:
+
+```{r relocate-after}
+uk_flights %>%
+  relocate(official:business_aviation, .after = reporting_airport_name)
+```
+
+## 3.9 - Exercises
+
+1.  Use `select()` to keep only the columns `reporting_airport_name` and `business_aviation`.
+
+    *Answer:*
+
+    ```{r exercise-3.9.1}
+
+    ```
+
+2.  Select all columns that contain the word `"total"`.
+
+    *Answer:*
+
+    ```{r exercise-3.9.2}
+
+    ```
+
+3.  Create a new column called `official_percentage` using `(official / grand_total) * 100`.
+
+    *Answer:*
+
+    ```{r exercise-3.9.3}
+
+    ```
+
+4.  The code below uses a series of row and column functions connected by pipes to show the **top 5 airports outside of London** with the **highest percentage of official flights**. However, some of the code is missing. Fill in the missing code.
+
+    *Answer:*
+
+    ```{r exercise-3.9.4}
+    #| error: true
+
+    uk_flights %>%
+      filter(reporting_airport_group_name != "YOUR_CODE_HERE") %>%
+      mutate(official_percentage = (YOUR_CODE_HERE) * 100) %>%
+      YOUR_CODE_HERE(reporting_airport_name, official_percentage) %>%
+      arrange(desc(YOUR_CODE_HERE)) %>%
+      head(5)
+    ```
+
+## 3.10 - Groups
+
+So far you’ve learned functions that work with **rows** and **columns**. dplyr becomes even more powerful when you add the ability to work with **groups**. Grouped operations let you:
+
+-   split your data into meaningful categories
+
+-   compute summaries inside each category
+
+-   optionally visualise or transform those results
+
+The two core group functions are:
+
+-   `group_by()` – define the groups
+
+-   `summarise()` – creates one summary row per group
+
+### 3.10.1 - `group_by()`
+
+`group_by()` doesn’t change your data immediately. Instead, it adds information about how the data should be treated in later steps.
+
+For example, we can group airports by their reporting group:
+
+```{r group_by}
+uk_flights %>%
+  group_by(reporting_airport_group_name)
+```
+
+The data *looks* almost the same, but if you look at the output, you’ll see a note telling you the data is now grouped ![](images/clipboard-727697052.png){width="289"}. This means that **any work you do next (e.g., summarising) will be done separately for each group.**
+
+### 3.10.2 - `summarise()`
+
+`summarise()` creates one summary row per group.\
+A simple and very common pattern is:
+
+```{r}
+#| eval: false
+data %>%
+  group_by(...) %>%
+  summarise(...)
+```
+
+Here’s the average number of flights per reporting group:
+
+```{r summarise_group}
+uk_flights %>%
+  group_by(reporting_airport_group_name) %>%
+  summarise(
+    avg_total_flights = mean(grand_total, na.rm = TRUE)
+  )
+```
+
+*Note that I have included `na.rm = TRUE`* *within the `mean()`* *function—this was just in case we had missing data, which would have resulted in NA being the output of `mean()`*. *In our dataset, we didn't have to worry about this; you may need to worry about NAs in data you get elsewhere. We don't have time to go into detail about handling missing values in this course, so for more information, see [Chapter 18](https://r4ds.hadley.nz/missing-values.html) of the Hadley course.*
+
+You can compute multiple summaries at once. One very useful summary is `n()`, which returns the number of rows in each group:
+
+```{r multiple_summaries}
+uk_flights %>%
+  group_by(reporting_airport_group_name) %>%
+  summarise(
+    avg_total_flights = mean(grand_total, na.rm = TRUE),
+    number_of_airports = n()
+  )
+```
+
+`summarise()` is **the** core tool for grouped data analysis.
+
+### 3.10.3 - Visualising grouped summaries
+
+Your summaries become even more useful when visualised.
+
+We can continue the pipe directly into `ggplot()` (like how we did in *Session 1* with our`penguins` data):
+
+```{r plotting-summary}
+uk_flights %>%
+  group_by(reporting_airport_group_name) %>%
+  summarise(
+    avg_total_flights = mean(grand_total, na.rm = TRUE),
+    n = n()
+  ) %>%
+  ggplot(aes(
+    x = reorder(reporting_airport_group_name, avg_total_flights), # reordering lowest to highest
+    y = avg_total_flights
+  )) +
+  geom_bar(stat = "identity") + # telling geom_bar to use the x value as identity
+  labs(x = "Airport group", y = "Average total flights")
+```
+
+This produces a simple bar plot ranked from lowest to highest.
+
+### 3.10.4 - Grouping by multiple variables
+
+You can group by more than one variable.
+
+Let’s create a new variable called `busy`, which we will define as airports with more than 5000 total flights. Because we actually want to add this as a column to our data, we need to use the assignment operator `<-`:
+
+```{r}
+uk_flights <- uk_flights %>%
+  mutate(busy = ifelse(grand_total > 5000, "busy", "not_busy"))
+
+
+# View our modified data
+uk_flights
+```
+
+::: callout-note
+Note that we have use `ifelse()` in the above chunk.
+
+You can use `ifelse()` to create a new column based on a condition. It works like this: `ifelse(test, value_if_true, value_if_false)`
+
+-   **test** — something that is either TRUE or FALSE for each row
+
+-   **value_if_true** — what to put in the new column when the test is TRUE
+
+-   **value_if_false** — what to put when the test is FALSE
+
+The above chunk therefore reads like this:
+
+> *If* `grand_total` is greater than 5000, label the airport “busy”, otherwise label it “not_busy”.
+:::
+
+Now we can group by both airport group *and* busy status:
+
+```{r}
+uk_flights %>%
+  group_by(reporting_airport_group_name, busy) %>%
+  summarise(number_of_airports = n())
+```
+
+When summarising grouped data, dplyr “peels off” the last grouping variable. This is normal behaviour and helps keep summaries predictable.
+
+## **3.11 - Exercises**
+
+1.  Group by `reporting_airport_group_name` and count how many airports are in each group. (Hint: the `n()` function can be used to count rows)
+
+    *Answer:*
+
+    ```{r exercise-3.11.1}
+    #| error: true
+
+    uk_flights %>%
+      group_by(INSERT_CODE_HERE) %>%
+      summarise(n = INSERT_CODE_HERE)
+    ```
+
+    2.  For each reporting group, calculate:
+        -   the *average* number of flights (`avg_total`)
+        -   the *minimum* number of flights (`min_total`)
+
+    *Answer:*
+
+    ```{r exercise-3.11.2}
+    #| error: true
+
+    uk_flights %>%
+      group_by(INSERT_CODE_HERE) %>%
+      summarise(
+        avg_total = INSERT_CODE_HERE,
+        min_total = INSERT_CODE_HERE)
+    ```
+
+    3.  Find all airport groups whose average number of flights is above **1500**.
+
+    *Answer:*
+
+    ```{r exercise-3.11.3}
+    #| error: true
+
+    uk_flights %>%
+      group_by(INSERT_CODE_HERE) %>%
+      summarise(INSERT_CODE_HERE) %>%
+      filter(INSERT_CODE_HERE)
+    ```
+
+    4.  Create a `region_busy` tibble showing, for each combination of `reporting_airport_group_name` and `busy`, the number of airports.
+
+    *Answer:*
+
+    ```{r}
+    #| error: true
+
+    region_busy <- INSERT_CODE_HERE
+
+
+    # And then after you have made the tibble, show it:
+    region_busy
+    ```
+
+## 3.12 - Data transformation challenge
+
+**Your task:**\
+Find the **top 3 airports in each reporting group**, based on total flights.
+
+Steps:
+
+1.  **group by** reporting group
+2.  **arrange** within each group (think: will you need to use `desc()`?)
+3.  use `slice_head(n = 3)` to select the top 3 (see extra reading below for more on the slice functions)
+4.  select reporting group name, airport name + total flights
+
+Write this as one pipeline.
+
+*Answer:*
+
+```{r}
+
+```
+
+### The `slice_` functions (more advanced — optional extra reading)
+
+In the final challenge for the data transformation section above, I instructed you to use the `slice_head()` function as one of your steps. The `slice_*` functions are helpful when you want to extract specific rows *within each group*
+
+There are five different slice functions:
+
+-   `slice_head(n = 1)` takes the first row from each group.
+
+-   `slice_tail(n = 1)` takes the last row in each group.
+
+-   `slice_min(x, n = 1)` takes the row with the smallest value of column `x`.
+
+-   `slice_max(x, n = 1)` takes the row with the largest value of column `x`.
+
+-   `slice_sample(n = 1)` takes one random row.
+
+You can vary `n` to select more than one row, or instead of `n =`, you can use `prop = 0.1` to select (e.g.) 10% of the rows in each group.
+
+Example: finding the busiest airports for each reporting group.
+
+```{r slice_max}
+uk_flights %>%
+  group_by(reporting_airport_group_name) %>%
+  slice_max(grand_total, n = 1) %>%
+  relocate(grand_total)
+```
+
+This is similar to computing the busiest airport with `summarise()`, but you get the whole corresponding row (or rows if there’s a tie) instead of the single summary statistic.
+
+# 4 - Data tidying
+
+In the real world, data arrives in all sorts of different formats. Biologists might get spreadsheets with samples as columns and measurements as rows; statisticians might get multiple values crammed into a single cell; social scientists might have variables spread over multiple sheets.
+
+These formats usually make sense to humans, but they can make analysis harder.
+
+In this section, we will cover a consistent way of organising data in R using a system called **tidy data**. We’ll focus on **tidyr**, a package that provides a bunch of tools to help tidy up your messy datasets. `tidyr` is also part of the larger `tidyverse` package.
+
+Tidy data is not just about neatness. Once a dataset is tidy:
+
+-   The useful `tidyverse` functions (`filter()`, `mutate()`, `summarise()`, `ggplot()`) work consistently.
+
+-   Code becomes shorter, clearer, and easier to share.
+
+-   Complex workflows (RNA-seq counts, clinical metadata, survey responses) become easier to visualise and analyse.
+
+-   Variables are placed into columns, which allows R's vectorised nature (it's main advantage over other programming languages) to shine.
+
+## 4.1 - Tidy data
+
+A dataset is *tidy* when it follows three simple rules:
+
+1.  Each **variable** has its own **column**
+2.  Each **observation** has its own **row**
+3.  Each **value** lives in its own **cell**
+
+The 3 tables below show the exact same information. Each shows the same values of four variables: *country*, *year*, *population*, and number of documented *cases* of TB (tuberculosis). The only difference between them is *how* they organise the data, and each are likely equally intelligible to us, but vastly different in the eyes of R!
+
+```{r table1}
+table1
+```
+
+```{r table2}
+table2
+```
+
+```{r table3}
+table3
+```
+
+-   `table1` follows all three rules → **tidy**
+
+-   `table2` only satisfies rule 3. Each column isn't a different variable, as "type" and "count" relate to 2 separate things (total population and total TB cases): violating rule 1. Each row isn't a different observation as it looks like there are 2 separate observations per year, when in reality there is only 1: violating rule 2.
+
+-   `table3` satisfies rule 2 as each row is seemingly a separate observation. However, rule 1 and 3 are violated as there are no separate columns for total population and TB cases, and the cells in the "rate" column do not contain single values.
+
+Because the tidyverse expects tidy data, functions behave much more reliably when your data follows these rules.
+
+## 4.2 - Wide vs long data
+
+Unfortunately, most real data is **untidy** because researchers often organise data with its *collection* in mind, rather than its *analysis*. (Perhaps a good lesson for you to take forward with your own research is instead to think how your data could be organised with an analysis-centric mindset).
+
+Many real datasets come in what is known as **wide** format:
+
+-   each sample is a separate column
+
+-   each measurement is spread across columns
+
+-   humans like this layout, but computers do not.
+
+Example (typical RNA-seq counts):
+
+![](images/clipboard-1903654721.png)
+
+**Long** data is tidy and easier for R to read. It follows the 3 rules we outlined above, where each measurement gets its *own row*. We add extra columns to say *which* sample or condition it belongs to. E.g., if the RNAseq counts above were rearranged into long format:
+
+![](images/clipboard-2062496887.png)
+
+Here, each measurement gets its own row, and you add extra columns describing *what* that value belongs to.
+
+Rearranging data from wide to long format is a process known as **pivoting.** `tidyr` provides two functions for pivoting data: `pivot_longer()` and `pivot_wider()`. We are only going to cover `pivot_longer()` here because it is far more common.
+
+## 4.3 - Worked example: tidying `featurecounts` read statistics
+
+To demonstrate the utility of `pivot_longer()` and bring together many of the things we have learned this session, we are going to look at some read statistics from an RNAseq experiment which has been conducted using the `featurecounts` function of the `Rsubread` package—much more on this next session!
+
+**Our goal is to make a plot comparing the number of assigned reads across all 8 samples.**
+
+This is a very common Quality Control step in any RNAseq workflow. If there are large differences between the numbers of assigned reads between samples, or if there is overall a very low number of assigned reads, this points to an issue which needs further investigation: maybe the cDNA quality was poor; maybe one or more samples were contaminated; or maybe it was something as simple as aligning the cDNA to the wrong organism. We can use our tidyverse functions to dig into and make a clean visualisation of the quality of our RNAseq data.
+
+In your working directory, there should be a file called `fc.RDS`. This file was generated after running `featurecounts()` on aligned BAM files from an RNAseq experiment looking at the global transcriptional effects on brains from rats post traumatic brain injury (TBI). The data was uploaded to the NIH Bioproject repository under the accession name PRJNA902029, and the original paper is *Zhu, Xiaolu, Jin Cheng, Jiangtao Yu, Ruining Liu, Haoli Ma, and Yan Zhao. ‘Nicotinamide Mononucleotides Alleviated Neurological Impairment via Anti-Neuroinflammation in Traumatic Brain Injury’. International Journal of Medical Sciences 20, no. 3 (2023): 307–17. <https://doi.org/10.7150/ijms.80942>.*
+
+We will dig in deeper to how this file was made and what it contains in our final session next week. For now, we will read it into R using the function `read_rds()`. (See *Extension* section for more information on `read_rds()` and RDS files).
+
+```{r fc}
+fc <- read_rds("fc.rds")
+```
+
+We can have a look at this file using `glimpse()` or by clicking on `fc` in our Environment tab.
+
+```{r glimpse-fc}
+glimpse(fc)
+```
+
+The output from `glimpse()` is a bit confusing at first, but hopefully you will notice that this object contains a few subdivisions, named `counts`, `annotation`, `targets` and `stat`. We will come on to what these are in the next session.
+
+For this exercise, we only need the `stat` table. We can use the `$` operator to select the `stat` component of `fc` and assign it to a new object, which we will just call `stat`. We will then convert it into a tibble using `tibble()`.
+
+```{r stat}
+stat <- fc$stat
+stat <- tibble(stat)
+stat
+```
+
+In addition, all of those column names are unnecessarily long, so before we go any further, I am going to rename them using the `set_names()` function from `purrr` (also part of the tidyverse).
+
+```{r set_names}
+stat <- stat %>%
+  set_names(c("Status", "TBI2", "TBI1", "sham4", "sham3", 
+              "sham2", "sham1", "TBI4", "TBI3"))
+
+stat
+```
+
+**Pause moment: is this data** ***tidy*****?**
+
+.
+
+.
+
+.
+
+*Scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+This data frame contains separate samples in columns, and is therefore **wide** data. It would be very difficult to filter the data for just assigned reads and summarise the number of assigned reads across all samples.
+
+Therefore, we need to transform this untidy wide table into tidy long format.
+
+### 4.3.1 - Using `pivot_longer()`
+
+To tidy this data so that we can apply tidyverse functions and plot in `ggplot2`, we are going to use `pivot_longer()` to convert the data from wide format to long format.
+
+After the data in question, there are three key inputs for `pivot_longer()`:
+
+-   `cols` specifies which columns need to be pivoted, i.e. which columns aren’t variables. This argument uses the same syntax as `select()`. Here we have said `!Status` (i.e., all columns except Status) as this contains our variables (e.g., Assigned, Unassigned_Unmapped etc). The other columns are our samples, and need to be pivoted.
+
+-   `names_to` names the variable stored in the column names; we named that variable `Sample`.
+
+-   `values_to` names the variable stored in the cell values; we named that variable `Count`.
+
+```{r pivot_longer}
+stat_long <- stat %>%
+  pivot_longer(
+    cols = !Status,        # all columns except Status
+    names_to = "Sample",   # name of the new “sample” column
+    values_to = "Count"    # name of the new values column
+  )
+
+stat_long
+```
+
+After pivoting:
+
+-   we go from **9 columns → 3 columns**
+
+-   we go from **14 rows → 112 rows** (so our data is definitely *longer*)
+
+-   each measurement now has its own row
+
+-   the dataset follows the tidy rules
+
+Note also that the new columns inherit the type of the previous columns or cells.
+
+### 4.3.2 - Final challenge
+
+Pivoting our table in this way means it is much easier to now apply the tidyverse functions we have learned in this session. We are ready now to achieve our aim and **make a plot comparing the number of assigned reads across all 8 samples. Using all you have learned this session and the previous, have a go at writing the code to achieve this.**
+
+Hint: You will need to
+
+-   Pivot `stat` to make it longer using `pivot_longer()`
+
+-   Filter for rows where `Status == "Assigned"`
+
+-   Plot these counts using `ggplot2` with appropriate aesthetics and geoms. (If you want a colourblind palette, remember the `ggthemes` package from *Session 1*).
+
+```{r 4.3.2-challenge}
+#| error: true
+
+stat %>% 
+  pivot_longer(            
+  YOUR_CODE_HERE
+) %>% 
+  filter(YOUR_CODE_HERE) %>% 
+  ggplot(YOUR_CODE_HERE)
+
+```
+
+# Summary
+
+By the end of this session, you should now be able to:
+
+-   Import data into R using `read_csv()`
+
+-   Apply `mutate()`, `select()`, `filter()`, `arrange()`, and `summarise()` to explore and transform data.
+
+-   Use the pipe (`%>%`) to chain steps together in a clear, readable workflow.
+
+-   Understand the concept of ***tidy data*** and why it matters for analysis.
+
+-   Reshape data from **wide** to **long** using `pivot_longer()`.
+
+In our final session, we will apply all that we have learned in sessions 1 and 2 to an R-based bioinformatics workflow using real world data from a published bulk RNAseq experiment.
+
+# Extension - for further information only
+
+# More on data import
 
 ## Introduction
 
-This section is adapted from [*Chapter 7*](https://r4ds.hadley.nz/data-import.html) of the [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/) course by Hadley Wickham & Garrett Grolemund. For the sake of time, we will only cover the sections which are most relevant for our needs today, but I would encourage you to take a look at that Chapter for further details—particularly the section on controlling column types as we will not have time for that today.
+This section is adapted from [*Chapter 7*](https://r4ds.hadley.nz/data-import.html) of the [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/) course by Hadley Wickham & Garrett Grolemund. I would encourage you to take a look at that Chapter for further details—particularly the section on controlling column types.
 
-Up to now, we have been using datasets that come pre-built into R packages. This is a great way for learning basic visualisations etc, but not reflective of your real-world use of R. In the following section, we are going to be working with some real-world data from the UK's Civil Aviation Authority, published online. Therefore, we need to equip ourselves with the tools necessary for reading this data into R. For this, we are going to use the **readr** package, which is part of the tidyverse.
+Up to this point, we’ve been working with datasets that come bundled inside R packages. These are perfect for learning how to plot, summarise, and transform data, but they don’t reflect how you’ll use R in real research. To analyse your own experiments, you need to know how to bring real files into R. For that, we’ll use the `readr` package from the tidyverse.
 
 ## Reading data from a file
 
-In R, you’ll most often work with data that comes in the form of tables—rows and columns of values, much like a spreadsheet. These tables are usually stored in plain text files, where special characters (called *delimiters*, such as commas, tabs, or spaces) separate the values in each row. The most common examples you’ll encounter are CSV (comma-separated values) files, TSV (tab-separated values) files, and sometimes Excel spreadsheets.
+Most of the data you’ll handle in R will arrive as tables—rows and columns arranged much like a spreadsheet. These tables are usually saved as plain text, with special characters (called delimiters) marking the boundaries between values. Common formats include CSV files (comma-separated), TSV files (tab-separated), and, on occasion, Excel spreadsheets.
 
-We will take the most common format as an example: the CSV. To read a file like this into R, we use the function`read_csv()` from `readr`. The first argument this function needs is a file name, which can be the full name of a file in your working directory (or sub-directory) in quotation marks, e.g. `read_csv("some_file.csv")`. Note that we have to include the ".csv" part. Alternatively, if the data is hosted online somewhere, you can provide the URL (which is true in our example case here):
+Modern biological experiments generate these tables on a scale that can be surprisingly large. High-throughput approaches—bulk or single-cell RNA-seq, proteomics, metabolomics, lipidomics, and many others—produce tens of thousands or even millions of measurements. This volume makes tools like Excel unsuitable; even opening such files can be slow or impossible.
+
+R, by contrast, is designed for work at this scale. It loads large datasets efficiently, keeps your analyses as reproducible code rather than a series of mouse clicks, and gives you access to powerful ecosystems such as the tidyverse and Bioconductor. These environments provide specialised tools for importing, cleaning, transforming, visualising, and modelling biological data in a transparent and reusable way. In short, R turns large, complex datasets into something you can work with confidently.
+
+The format you’ll encounter most often is the CSV. To read one into R, you’ll use `read_csv()` from `read`r. Its first argument is simply the name of the file, written in quotes—for example, `read_csv("my_data.csv")`. Make sure to include the .csv extension. If the file lives online instead of on your computer, you can pass the web address directly, which is what we’ll do in the example below.
 
 ```{r students}
 students <- read_csv("https://pos.it/r4ds-students-csv")
@@ -79,19 +1345,19 @@ students <- read_csv("https://pos.it/r4ds-students-csv")
 
 When you use `read_csv()`, R prints a message that summarises the imported data. It tells you how many rows and columns were read, which delimiter was used, and the data types assigned to each column. It also explains how to see the full column specification and how to suppress the message if you prefer. This output is a built-in feature of the `readr` package.
 
-After reading data into R, you will normally have to transform it in some way to make it easier to work with. We will come onto more advanced transformation tips later. For now, let's look at what we have just imported:
+After reading data into R, you will normally have to transform it in some way to make it easier to work with (see the Transformation section of this session). For now, let's look at what we have just imported:
 
 ```{r students-tibble}
 students
 ```
 
-In the `favourite.food` column, there are a bunch of food items, and then the character string `N/A`, which should have been a real `NA` that R will recognize as “not available”. This is something we can address using the `na` argument. By default, `read_csv()` only recognizes empty strings (`""`) in this dataset as `NA`s, and we want it to also recognize the character string `"N/A"`. We can do this by specifying the `na` argument in `read_csv()`:
+In the `favourite.food` column, you may notice several food items alongside the character string `"N/A"`. This `"N/A"` isn’t a true `NA` value, so R currently treats it as regular text rather than missing data. We can fix this by telling `read_csv()` which character strings should be interpreted as missing. By default, `read_csv()` only treats empty strings (`""`) as `NA` in this file; we want it to recognise `"N/A"` as well. We can do that with the `na` argument:
 
 ```{r students-na}
 students <- read_csv("https://pos.it/r4ds-students-csv", na = c("N/A", ""))
 ```
 
-There's another issue with this dataset which is unfortunately hidden by Quarto - the columns "Student ID" and "Full Name" contain spaces, breaking R’s usual rules for variable names; they’re **non-syntactic** names. If you type `students` into the console, you will see how R deals with them.
+There is another small quirk in this dataset, although Quarto hides it in the printed output. Two column names—`Student ID` and `Full Name`—contain spaces. Column names like these are called **non-syntactic names**, because they don’t follow R’s usual rules for valid variable names. If you type `students` directly in the console, you’ll see how R handles them automatically.
 
 ![](images/clipboard-3325204219.png){width="293"}
 
@@ -188,738 +1454,11 @@ write_rds(students, "students.rds")
 read_rds("students.rds")
 ```
 
-# Data transformation
-
-## Introduction
-
-In the previous session, we used the `penguins` dataset to create some useful visualisations of different relationships within the data. Often, however, the data you have is not exactly in the correct format to give the insight you want. Maybe the variables are named incorrectly (which we encountered briefly in the previous section), or you need to summarise the data in a particular way. Here, we will learn how to **transform** data using the **dplyr** package.
-
-### Our dataset
-
-In the Hadley course section on data transformation, they use some built-in data: this time, a dataset on flights which departed New York City in 2013. I've decide to adapt this to instead use data from the UK's own [Civil Aviation Authority (CAA)](https://www.caa.co.uk/data-and-analysis/)—specifically statistics on UK airports from February 2025. This also demonstrates the power of R in the real-world, as you can import any data you want like this directly into R—so long as you know the URL.
-
-To get the dataset, we can import it directly from their website using the function `read_csv()` from the `tidyverse` package. Remember: using `<-` assigns the code on the right to an object name on the left. There's nothing special about calling it `uk_flights` — we could call it `bananas` if we really wanted — but `uk_flights` is a more useful name for what the data actually is.
-
-```{r import_uk_flights}
-uk_flights <- read_csv("https://www.caa.co.uk/Documents/Download/23996/6890c139-9322-4a92-9e12-b6c70d505aa7/17059")
-
-# Fallback in case the URL doesn't work - you can download the data into your current working directory and read it in like this:
-# uk_flights <- read_csv("Table_03_Aircraft_Movements.csv")
-
-# I'm also going to remove the first 2 columns, which aren't useful for us:
-uk_flights <- uk_flights[, -(1:2)] # this says "subset uk_flights without columns 1 to 2
-```
-
-We're also going to convert it quickly into a **tibble.** A tibble is a special type of data frame used by the tidyverse to avoid some common problems. The most important difference between tibbles and data frames is the way tibbles print; they are designed for large datasets, so they only show the first few rows and only the columns that fit on one screen. There are a few options to see everything: `View(uk_flights)` opens an interactive, scroll-able, and filterable view. Otherwise you can use `print(uk_flights, width = Inf)` to show all columns, or use `glimpse()`:
-
-```{r convert_and_view}
-
-uk_flights <- tibble(uk_flights)
-glimpse(uk_flights)
-```
-
-The variable names are followed by abbreviations that tell you the **type** of each variable, which we talked a bit about in session 1: `<int>` is short for integer, `<dbl>` is short for double, `<chr>` for character, and `<dttm>` for date-time. The operations you can perform on a column depend heavily on its “type.”
-
-With a tibble, you can also just preview it in Quarto by writing the object name in a code box and running the box:
-
-```{r}
-uk_flights
-```
-
-### dplyr basics
-
-The following sections will introduce you to the fundamental `dplyr` functions which will solve the majority of your data manipulation challenges. All of these functions have the following in common:
-
--   The first *argument* of the function (input) is always a data frame
-
--   The subsequent arguments typically describe which column you want the function to operate on, using the variable name without quotes, e.g., `reporting_airport_name`
-
--   The output is always a new data frame.
-
-Each function typically does just one thing. Therefore, complex problems typically involve combining these functions one after another, which we do using the **pipe**. I know I keep mentioning this thing without fully explaining it—I'm sorry!—but I promise we will cover this in more detail soon. In brief, the pipe takes the thing on the left and passes it into the function on the right. Think of it as the word "then". That makes it possible to get a sense of the following code even though you haven’t yet learned the details: **Pause: what do you think the output of the following chunk will be? Read it as if reading a sentence "take the uk_flights data frame, then..."**
-
-```{r initial_pipe_demo}
-uk_flights %>%
-  group_by(reporting_airport_group_name) %>%
-  summarise(
-    mean_total_flights = mean(grand_total, na.rm = TRUE)
-  )
-
-```
-
-`dplyr`’s functions are organized into four groups based on what they operate on: **rows**, **columns**, **groups**, or **tables**. We will cover these one by one!
-
-## Rows
-
-The 2 most important functions here are:
-
--   `filter()` - changes which rows are present without changing their order
-
--   `arrange()` - changes the order of the rows without changing which are present
-
-The columns are left unchanged. Another function is `distinct()` which finds rows with unique values (and can optionally modify the columns, unlike the other two).
-
-### `filter()`
-
-`filter()` allows you to keep rows based on the values of the columns. The first argument is the data frame. The second and subsequent arguments are the conditions that must be true to keep the row. For example, we could find all airports which reported more than 1000 flights in our dataset.
-
-```{r filter_1000}
-uk_flights %>%
-  filter(grand_total > 1000)
-```
-
-Notice how we now have a preview of a new data table that satisfies the requirements of our filter—all of the values in the `grand_total` column are greater than 1000. Note that this hasn't changed our original data (we haven't overwritten it) and we also haven't saved it to a new object, so it literally only exists as a preview below that chunk. If we wanted to overwrite our original (not recommended usually), we would put `uk_flights <-` before that code; or, more likely, to save to a new object, we would put a new variable name there e.g., `busy_airports <-`:
-
-```{r busy-airports}
-busy_airports <- uk_flights %>%
-  filter(grand_total > 1000)
-```
-
-This is the key difference between the *assignment operator `<-`* and the pipe `%>%`.
-
--   `<-` means assign what's on the right to the thing on the left.
-
--   `%>%` means take what's on the left and do the thing on the right to it.
-
-Back to `filter()`...
-
-As well as `>` (greater than), you can use `>=` (greater than or equal to), `<` (less than), `<=` (less than or equal to), `==` (equal to), and `!=` (not equal to). You can also combine conditions with `&` or `,` to indicate “and” (check for both conditions) or with `|` to indicate “or” (check for either condition):
-
-```{r more-1000-less-2000}
-# Airports with more than 1000 flights but less than 2000:
-uk_flights %>%
-  filter(grand_total > 1000 & grand_total < 2000)
-```
-
-```{r in-london-or-more-1000}
-# Airports which are in London or have more flights than 1000
-uk_flights %>%
-  filter(
-    grand_total > 1000 | reporting_airport_group_name == "London Area Airports")
-```
-
-```{r not-london}
-# All airports not in London area
-uk_flights %>%
-  filter(
-    reporting_airport_group_name != "London Area Airports")
-```
-
-There’s a useful shortcut when you’re combining `|` and `==`, which is `%in%`. It keeps rows where the variable equals one of the values on the right:
-
-```{r in}
-# Data for Birmingham and Stansted airports
-uk_flights %>%
-  filter(
-    reporting_airport_name %in% c("BIRMINGHAM", "STANSTED")
-  )
-```
-
-Note that when you want `filter()` to check if something is equal to something, you have to use the double equals `==` rather than single `=`. Basically, this is because R sometimes treats `=` like the assignment operator (as in other languages).
-
-Another mistake is writing “or” statements like you would in English. We might read the following as "filter the airport names to only include them if they are Birmingham or Stansted." With some variables, this might not throw an error (but still won't give you what you meant). In our case it does:
-
-```{r bad-or}
-#| error: true
-uk_flights %>%
-  filter(
-    reporting_airport_name == "BIRMINGHAM" | "STANSTED"
-  )
-```
-
-**Have a practice at filtering the data by other variables of your choosing. If you can't remember what the variables are called, use `names(uk_flights)`**:
-
-```{r student-practice-1}
-#| error: true
-
-names(uk_flights)
-
-uk_flights %>%
-  filter(YOUR_CODE_HERE)
-```
-
-### `arrange()`
-
-`arrange()` changes the order of the rows based on the value of the columns. It takes a data frame and a set of column names (or more complicated expressions) to order by. If you provide more than one column name, each additional column will be used to break ties in the values of the preceding columns. In addition, you can use the `desc()` function on a column inside of `arrange()` to re-order the data frame based on that column from largest number to smallest. Say we wanted to sort our airports by the number of military flights:
-
-```{r arrange-descending}
-uk_flights %>%
-  arrange(desc(military))
-```
-
-How would we go from smallest to largest? It turns out, that is the default for `arrange()`. So if we remove `desc()` from the previous example:
-
-```{r arrange-ascending}
-uk_flights %>%
-  arrange(military)
-```
-
-Note that the number of rows has not changed – we’re only arranging the data, we’re not filtering it.
-
-**What if we wanted to arrange by number of military flights from lowest to highest, and in the event of ties, to arrange by total number of flights from highest to lowest?**
-
-```{r student-answer-1}
-#| error: true
-
-uk_flights %>%
-  arrange(YOUR_CODE_HERE)
-
-```
-
-.
-
-.
-
-.
-
-*Scroll down for answer*
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-```{r model-answer-1}
-uk_flights %>%
-  arrange(military, desc(grand_total))
-```
-
-### **`distinct()`**
-
-`distinct()` finds all the unique rows in a dataset, however our dataset is not the best for demonstrating this function as the rows are mostly all unique. If there are any duplicate rows in the data, you can use `distinct()` with no arguments to remove them:
-
-```{r distinct}
-# Remove duplicate rows, if any
-uk_flights %>%
-  distinct()
-```
-
-We have no duplicates, so the number of rows isn't changed.
-
-What if we just want to know what all of the different reporting airport groups are?
-
-```{r distinct-reporting}
-uk_flights %>%
-  distinct(reporting_airport_group_name)
-```
-
-Notice how we've lost the other columns? This is fine in our case because we just wanted to know the unique values of the reporting_airport_group_name variable. But it is possible to keep the other columns in place using `.keep_all = TRUE`
-
-```{r keep_all}
-uk_flights %>%
-  distinct(reporting_airport_group_name, .keep_all = TRUE)
-```
-
-Most of the time, however, you’ll want the distinct combination of some variables, so you can also optionally supply column names. Say now we want to find all the unique combinations of reporting_area_group_name and reporting_airport_name:
-
-```{r distinct-combination}
-uk_flights %>%
-  distinct(reporting_airport_group_name, reporting_airport_name)
-```
-
-I.e,. we now have a quick overview of all of the airports in our dataset and their reporting area group name.
-
-What if we want to know how many of each group there are? In this case, we're betting off using `count()` and we can sort from highest to lowest using `sort = TRUE`.
-
-```{r count}
-uk_flights %>%
-  count(reporting_airport_group_name, sort = TRUE)
-```
-
-## Columns
-
-There are 4 important functions which affect the columns without changing the rows:
-
--   `select()` changes which columns are present
-
--   `mutate()` creates new columns derived from existing columns
-
--   `rename()` changes the names of columns
-
--   `relocate()` changes the positions of columns
-
-### `select()`
-
-`select()` is sort of like the columns version of `filter()` — rather than filtering for rows which fit a certain criteria, we are selecting specific columns.
-
-Select columns by name:
-
-```{r select}
-uk_flights %>%
-  select(reporting_airport_name, grand_total)
-```
-
-Select all columns within a range (inclusive):
-
-```{r select-range}
-uk_flights %>%
-  select(reporting_airport_group_name:air_transport)
-```
-
-Select all columns *except* for those within a range:
-
-```{r select-except}
-uk_flights %>%
-  select(!reporting_airport_group_name:air_transport)
-```
-
-`!` reads like "NOT".
-
-Select columns of a specific variable type, e.g., characters
-
-```{r select-specific-variables}
-uk_flights %>%
-  select(where(is.character))
-```
-
-There are a number of helper functions you can use within `select()`:
-
--   `starts_with("abc")`: matches names that begin with “abc”.
-
--   `ends_with("xyz")`: matches names that end with “xyz”.
-
--   `contains("ijk")`: matches names that contain “ijk”.
-
--   `num_range("x", 1:3)`: matches `x1`, `x2` and `x3`.
-
-You can rename variables as you `select()` them by using `=`. The new name appears on the left-hand side of the `=`, and the old variable appears on the right-hand side.
-
-```{r select-rename}
-uk_flights %>%
-  select(airport_name = reporting_airport_name)
-```
-
-### `mutate()`
-
-This is a really useful function particularly for calculating new metrics from your data. E.g., suppose you wanted to calculate the percentage of flights at an airport which are related to business aviation. You give the column a name first (`business_percentage`) and write a formula relating to other columns to calculate it:
-
-```{r mutate-demo}
-uk_flights %>% 
-  mutate(
-    business_percentage = business_aviation / grand_total * 100
-  )
-```
-
-Now we can see that column at the end of the preview. (Note we still haven't changed `uk_flights` itself as we didn't overwrite it using the assignment operator `<-`).
-
-By default, `mutate()` adds new columns on the right-hand side of your dataset, which makes it difficult to see what’s happening here. We can use the `.before` argument to instead add the variables to the left-hand side:
-
-```{r mutate-before}
-uk_flights %>% 
-  mutate(
-    business_percentage = business_aviation / grand_total * 100,
-    .before = 3 # means put it before the third column
-  )
-```
-
-As you may have guessed, to do the opposite, we use `.after`. You also can specify a particular column rather than just a column number, e.g., if we want to put the new `business_percentage` column after `grand_total`:
-
-```{r mutate-after}
-uk_flights %>% 
-  mutate(
-    business_percentage = business_aviation / grand_total * 100,
-    .after = grand_total 
-  )
-```
-
-Another useful argument for `mutate()` is `.keep` which allows you to keep certain variables in the final data frame — a great use for this is to specify `"used"` which will only keep the variables used to make the new column:
-
-```{r mutate-keep}
-uk_flights %>% 
-  mutate(
-    business_percentage = business_aviation / grand_total * 100,
-    .keep = "used" 
-  )
-```
-
-However, now we can't see what airport we're referring to! **How could we fix this? (hint: will need to use 2 functions (`mutate()` and `select()`) and pipes).**
-
-```{r student-answer-2}
-#| error: true
-
-uk_flights %>% 
-  mutate(
-    YOUR_CODE_HERE
-  ) %>%
-  select(YOUR_CODE_HERE)
-```
-
-.
-
-.
-
-.
-
-*Scroll down for answer*
-
-.
-
-.
-
-.
-
-*.*
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-`.keep` *only accepts one of these fixed keywords:*
-
--   `"all"` *(keep all existing columns, the default)*
-
--   `"used"` *(keep only columns used to make the new variables)*
-
--   `"unused"` *(drop those used, keep the rest)*
-
--   `"none"` *(drop all original columns, keep only the new ones)*
-
-*So you would have to do this sequentially using `mutate()` then `select()`:*
-
-```{r model-answer-2}
-uk_flights %>% 
-  mutate(
-    business_percentage = business_aviation / grand_total * 100) %>% 
-  select(
-    reporting_airport_name, business_aviation, grand_total, business_percentage)
-```
-
-### `rename()`
-
-`select()` removes all of the other columns you haven't selected. If you want to keep them all but just rename a few, use `rename()`:
-
-```{r rename}
-uk_flights %>%
-  rename(
-    airport_name = reporting_airport_name, 
-    reporting_group = reporting_airport_group_name)
-```
-
-If you have a bunch of inconsistently named columns and it would be painful to fix them all by hand, remember `janitor::clean_names()` provides some useful automated cleaning ([Reading data from a file]).
-
-### `relocate()`
-
-`relocate()` moves columns around. You might want to collect related variables together or move important variables to the front. By default `relocate()` moves variables to the front:
-
-```{r relocate}
-uk_flights %>%
-  relocate(grand_total, business_aviation)
-```
-
-You can also specify where to put them using the `.before` and `.after` arguments, just like in `mutate()`:
-
-```{r relocate-after}
-uk_flights %>%
-  relocate(official:business_aviation, .after = reporting_airport_name)
-```
-
-## The pipe
-
-The **pipe** is one of the most powerful tools in the tidyverse. It takes the result of one step and passes it as the first argument to the next function. You’ve already seen simple examples, but its *real power* appears when we want to combine multiple steps.
-
-**Suppose we want to find the airport, outside of the London area, with the highest percentage of official flights**. To do this, we need to:
-
--   `filter()` for airports not in the *London Area Airports* category
-
--   Create a new column (`mutate()`) giving us the percentage of official flights
-
--   `select()` just the columns we want to show, and
-
--   `arrange()` by the percentage of official flights from high to low.
-
-Without the pipe, we have two options:
-
-1.  **Nesting functions** (ugly, hard to read, and a pain to type):
-
-```{r nesting}
-arrange(
-  select(
-    mutate(
-      filter(
-        uk_flights, # here is our data frame - look how tucked away it is!!
-        reporting_airport_group_name != "London Area Airports"
-      ),
-      official_percentage = official / grand_total * 100
-    ),
-    reporting_airport_name, official_percentage
-  ),
-  desc(official_percentage)
-)
-```
-
-2.  **Creating lots of intermediate objects** (clearer, but verbose):
-
-```{r intermediate-objects}
-uk_flights_1 <- filter(uk_flights, reporting_airport_group_name != "London Area Airports")
-uk_flights_2 <- mutate(uk_flights_1, official_percentage = official / grand_total * 100)
-uk_flights_3 <- select(uk_flights_2, reporting_airport_name, official_percentage)
-arrange(uk_flights_3, desc(official_percentage))
-```
-
-3.  The **pipe**
-
-If we use the pipe instead, we get this:
-
-```{r pipe}
-uk_flights %>% # take our data frame uk_flights
-  filter(reporting_airport_group_name != "London Area Airports") %>% # filter it
-  mutate(official_percentage = official / grand_total * 100) %>% # add new column
-  select(reporting_airport_name, official_percentage) %>% # select columns we want
-  arrange(desc(official_percentage)) # sort by official percentage descending
-  
-```
-
-This version reads like a sentence: *“Take the flights data, then filter, then mutate, then select, then arrange.”* It’s easier to type, avoids awkward brackets and commas, and because the data is piped in from the start, RStudio’s autocomplete works smoothly with column names.
-
-There is no set rule about which you choose. You may decide that actually you prefer intermediate objects or nesting functions—that is completely up to you. But for me, the pipe makes so much more sense, so that is the style used throughout this course.
-
-## Groups
-
-So far you’ve learned about functions that work with rows and columns. `dplyr` gets even more powerful when you add in the ability to work with groups. In this section, we’ll focus on the most important functions: `group_by()`, `summarize()`, and the slice family of functions.
-
-### `group_by()`
-
-This function allows you to subdivide your dataset into groups which are useful for further analysis. E.g., we know we have multiple airports per *reporting_airport_group_name* so we could group by this variable:
-
-```{r group_by}
-uk_flights %>%
-  group_by(reporting_airport_group_name)
-```
-
-Nothing major has happened there, except we now see that all of the London Area Airports are together, all of the Non UK Reporting Airports are together etc. You may also notice the output indicates what we are grouped by: ![](images/clipboard-727697052.png){width="289"} This means that subsequent operations (if we piped further) are applied per Group. We will see this in action in the next section.
-
-### `summarise()`
-
-The most important grouped operation is a summary, which, if being used to calculate a single summary statistic, reduces the data frame to have a single row for each group. In `dplyr`, this operation is performed by `summarise()`.
-
-```{r summarise_group}
-uk_flights %>%
-  group_by(reporting_airport_group_name) %>%
-  summarise(
-    avg_total_flights = mean(grand_total, na.rm = TRUE)
-  )
-```
-
-*Note that I have included `na.rm = TRUE`* *within the `mean()`* *function—this was just in case we had missing data, which would have resulted in NA being the output of `mean()`*. *In our dataset, we didn't have to worry about this; you may need to worry about NAs in data you get elsewhere. We don't have time to go into detail about handling missing values in this course, so for more information, see [Chapter 18](https://r4ds.hadley.nz/missing-values.html) of the Hadley course.*
-
-You can create any number of summaries in a single call to `summarise()`; one very useful summary is `n()`, which returns the number of rows in each group:
-
-```{r multiple_summaries}
-uk_flights %>%
-  group_by(reporting_airport_group_name) %>%
-  summarise(
-    avg_total_flights = mean(grand_total, na.rm = TRUE),
-    number_of_airports = n()
-  )
-```
-
-And with any good summary, it's always nice to visualise the data afterwards. Let's use some of the skills we learned in lesson 1 to more clearly visualise this data. **Note how we can just continue the pipe into the ggplot function—this is similar to how in *Session 1* we were piping `penguins`** **into ggplot by `penguins %>% ggplot()`**
-
-```{r plotting-summary}
-uk_flights %>%
-  group_by(reporting_airport_group_name) %>%
-  summarise(
-    avg_total_flights = mean(grand_total, na.rm = TRUE),
-    n = n()
-  ) %>%
-  ggplot(aes(
-    x = reorder(reporting_airport_group_name, avg_total_flights), # reordering lowest to highest
-    y = avg_total_flights
-  )) +
-  geom_bar(stat = "identity") + # telling geom_bar to use the x value as identity
-  labs(x = "Airport group", y = "Average total flights")
-```
-
-***Think about some of the other summaries we have done and how you could represent those visually. (If we have time, we will have a go.)***
-
-```{r student-practice-2}
-#| error: true
-
-YOUR_CODE_HERE
-```
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-Example:
-
-```{r plot-london-official}
-# Example - ranking and plotting London Area Airports by percentage of flights which were classed as Official
-uk_flights %>% 
-  filter(reporting_airport_group_name == "London Area Airports") %>% 
-  mutate(official_percentage = official / grand_total * 100) %>% 
-  select(reporting_airport_name, official_percentage) %>% 
-  ggplot(aes(
-    x = reorder(reporting_airport_name, official_percentage), # reordering lowest to highest
-    y = official_percentage
-  )) +
-  geom_bar(stat = "identity") + # telling geom_bar to use the x value as identity
-  labs(x = "Airport name", y = "Percentage of flights which were Official")
-```
-
-------------------------------------------------------------------------
-
-### The `slice_` functions
-
-There are five handy functions that allow you to extract specific rows within each group:
-
--   `slice_head(n = 1)` takes the first row from each group.
-
--   `slice_tail(n = 1)` takes the last row in each group.
-
--   `slice_min(x, n = 1)` takes the row with the smallest value of column `x`.
-
--   `slice_max(x, n = 1)` takes the row with the largest value of column `x`.
-
--   `slice_sample(n = 1)` takes one random row.
-
-You can vary `n` to select more than one row, or instead of `n =`, you can use `prop = 0.1` to select (e.g.) 10% of the rows in each group.
-
-Example: finding the busiest airports for each reporting group.
-
-```{r slice_max}
-uk_flights %>%
-  group_by(reporting_airport_group_name) %>%
-  slice_max(grand_total, n = 1) %>%
-  relocate(grand_total)
-```
-
-This is similar to computing the busiest airport with `summarise()`, but you get the whole corresponding row (or rows if there’s a tie) instead of the single summary statistic.
-
-### Grouping by multiple variables
-
-You can create groups using more than one variable. Our data doesn't work particularly well in this example, so let's make a new variable first. We'll call an airport "busy" if it saw more than 5000 flights in this reporting period. Because we actually want to add this as a column to our data, we need to use the assignment operator:
-
-```{r adding-busy}
-uk_flights <- uk_flights %>% # we want to actually add this column to our data
-  mutate(busy = ifelse(grand_total > 5000, "busy", "not_busy"))
-```
-
-Now let's say we want to group by the reporting airport group name and our new busy variable:
-
-```{r busy-areas}
-busy_areas <- uk_flights %>%
-  group_by(reporting_airport_group_name, busy) %>%
-  relocate(busy, .after = reporting_airport_name)
-
-busy_areas
-```
-
-When you summarize a tibble grouped by more than one variable, each summary peels off the last group. To make it obvious what’s happening, `dplyr` displays a message that tells you how you can change this behavior:
-
-```{r message-summarising-multiple-grouped-variables}
-busy_n <- busy_areas %>%
-  summarise(number_of_airports = n())
-
-busy_n
-```
-
-If you’re happy with this behavior, you can explicitly request it in order to suppress the message:
-
-```{r specify-groups}
-busy_n <- busy_areas %>%
-  summarise(number_of_airports = n(),
-            avg_flights = mean(grand_total, na.rm = TRUE),
-            .groups = "drop_last")
-
-busy_n
-```
-
-Alternatively, change the default behavior by setting a different value, e.g., `"drop"` to drop all grouping or `"keep"` to preserve the same groups.
-
-### Ungrouping
-
-You might also want to remove grouping from a data frame without using `summarise()`. You can do this with `ungroup()`.
-
-```{r ungroup}
-busy_areas %>% 
-  ungroup()
-```
-
-Now let’s see what happens when you summarise an ungrouped data frame:
-
-```{r summarise-ungrouped}
-busy_areas %>%
-  ungroup() %>%
-  summarise(
-    avg_flights = mean(grand_total, na.rm = TRUE),
-    number_of_airports = n()
-  )
-
-```
-
-Now we just have a single row because `dplyr` is treating them all as belonging to one group.
-
-### `.by`
-
-If you want to combine some of the above steps (grouping and then summarising) into one, `dplyr` also includes an experimental feature called `.by`. Say you want to summarise the mean number of flights, grouping both by the area of the airport and the "busy-ness":
-
-```{r by}
-uk_flights %>%
-  summarise(
-    avg_flights = mean(grand_total, na.rm = TRUE),
-    number_of_airports = n(), 
-    .by = c(reporting_airport_group_name, busy)
-  )
-```
-
-`.by` works with all of these functions and has the advantage that you don’t need to use the `.groups` argument to suppress the grouping message or `ungroup()` when you’re done.
-
 ## Tables - using joins
 
-Due to time constraints, I am only going to be able to briefly go over some of the `dplyr` functions which work on tables. For a more detailed overview, see [*Chapter 19*](https://r4ds.hadley.nz/joins.html) of the Hadley course. Their worked example, using the `nycflights13` package, is also much more involved than our one!
+For a more detailed overview, see [*Chapter 19*](https://r4ds.hadley.nz/joins.html) of the Hadley course. Their worked example, using the `nycflights13` package, is also much more involved than our one!
 
-We shall close off this *Data transformation* section by bringing together what we have learned so far, add in the ability to use **joins**, and ask the question: **which airports in our dataset had the highest percentage of cancelled flights, per reporting region?**
+We shall close off our *Data transformation* exploration by bringing together what we have learned so far, add in the ability to use **joins**, and ask the question: **which airports in our dataset had the highest percentage of cancelled flights, per reporting region?**
 
 ------------------------------------------------------------------------
 
@@ -1020,7 +1559,7 @@ uk_flights_detailed
 
 One other thing you may have spotted is that even some of the airports that *are* included in our `cancelled` data frame have just a dash "-" instead of a number for `total_cancelled_atms`. This causes 2 problems, one of which is already present:
 
--   The presence of a single character element in a column causes the whole variable to become the type "character", meaning basically that numbers are not being treated as numbers. This is similar to what happened with our `students` data frame in the [Reading data from a file] section.
+-   The presence of a single character element in a column causes the whole variable to become the type "character", meaning basically that numbers are not being treated as numbers. This is similar to what happened with our `students` data frame in the \[Reading data from a file\] section.
 
 -   The above, and the presence of "-", would therefore mess things up if we tried to do sums on this column, such as calculating the mean.
 
@@ -1090,300 +1629,6 @@ uk_flights_detailed %>%
 ```
 
 *For reasons why Barra might have the highest percentage of cancelled flights, see this!* <https://www.visitouterhebrides.co.uk/see-and-do/traigh-mhor-beach-barra-airport-p561201>
-
-# Data tidying
-
-In the real world, data arrives in all sorts of different formats. Biologists might get spreadsheets with samples as columns and measurements as rows, statisticians might get multiple values crammed into a single cell, and social scientists might get separate sheets for different groups. These formats often make sense to humans, but they are awkward for computers to work with.
-
-In this section, we will cover a consistent way of organising data in R using a system called **tidy data**. We’ll focus on **tidyr**, a package that provides a bunch of tools to help tidy up your messy datasets. `tidyr` is also part of the larger `tidyverse` package.
-
-Tidy data is not just about neatness. Once a dataset is tidy:
-
--   The useful `tidyverse` functions (`filter()`, `mutate()`, `summarise()`, `ggplot()`) work consistently.
-
--   Code becomes shorter, clearer, and easier to share.
-
--   Complex workflows (RNA-seq counts, clinical metadata, survey responses) become easier to visualise and analyse.
-
--   Variables are placed into columns, which allows R's vectorised nature (it's main advantage over other programming languages) to shine.
-
-## Tidy data
-
-The 3 tables below show the exact same information. Each shows the same values of four variables: *country*, *year*, *population*, and number of documented *cases* of TB (tuberculosis). The only difference between them is *how* they organise the data, and each are likely equally intelligible to us, but vastly different in the eyes of R!
-
-```{r table1}
-table1
-```
-
-```{r table2}
-table2
-```
-
-```{r table3}
-table3
-```
-
-Only the first, `table1`, will be easy to work with using the `tidyverse`, because it is in fact **tidy.** What do we mean by this?
-
-There are 3 interrelated rules which make a dataset tidy:
-
-1.  Each **variable** is a **column**; each **column** is a **variable**.
-
-2.  Each **observation** is a **row**; each **row** is an **observation**.
-
-3.  Each **value** is a **cell**; each **cell** is a single **value**.
-
-With this in mind, **can you see how `table2` and `table3` violate the tidiness rules?**
-
-.
-
-.
-
-.
-
-.
-
-*Scroll down for answer*
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
--   *`table2` only satisfies rule 3. Each column isn't a different variable, as "type" and "count" relate to 2 separate things (total population and total TB cases): violating rule 1. Each row isn't a different observation as it looks like there are 2 separate observations per year, when in reality there is only 1: violating rule 2.*
-
--   *`table3`* *satisfies rule 2 as each row is seemingly a separate observation. However, rule 1 and 3 are violated as there are no separate columns for total population and TB cases, and the cells in the "rate" column do not contain single values.*
-
-`dplyr`, `ggplot2`, and all the other packages in the tidyverse are designed to work with tidy data.
-
-## Wide vs long data
-
-Unfortunately, most real data is untidy because researchers often organise data with its *collection* in mind, rather than its *analysis*. (Perhaps a good lesson for you to take forward with your own research is instead to think how your data could be organised with an analysis-centric mindset).
-
-This means that most real analysis will require tidying, which in turn, requires **pivoting**. Pivoting is the process of converting between **wide** and **long** format.
-
-**Wide** data is untidy but easier for humans to read. In wide data, each subject (or gene, airport, penguin...) is a row, while the measurements go into columns. An example we will come across in the next session is RNAseq count data, which may be structured similar to this:
-
-![](images/clipboard-1903654721.png)
-
-**Long** data is tidy and easier for R to read. It follows the 3 rules we outlined above, where each measurement gets its *own row*. We add extra columns to say *which* sample or condition it belongs to. E.g., if the RNAseq counts were above were **pivoted** into long format:
-
-![](images/clipboard-2062496887.png)
-
-`tidyr` provides two functions for pivoting data: `pivot_longer()` and `pivot_wider()`. We are only going to cover `pivot_longer()` here because it is far more common.
-
-### `featurecounts` read statistics
-
-To demonstrate the utility of `pivot_longer()` and bring together many of the things we have learned this session, we are going to look at some read statistics from an RNAseq experiment which has been conducted using the `featurecounts` function of the `Rsubread` package—much more on this next session! **Our goal is to make a plot comparing the number of assigned reads across all 8 samples.**
-
-In your working directory, there should be a file called `fc.RDS`. This file was generated after running `featurecounts()` on aligned BAM files from an RNAseq experiment looking at the global transcriptional effects on brains from rats post traumatic brain injury (TBI). The data was uploaded to the NIH Bioproject repository under the accession name PRJNA902029, and the original paper is *Zhu, Xiaolu, Jin Cheng, Jiangtao Yu, Ruining Liu, Haoli Ma, and Yan Zhao. ‘Nicotinamide Mononucleotides Alleviated Neurological Impairment via Anti-Neuroinflammation in Traumatic Brain Injury’. International Journal of Medical Sciences 20, no. 3 (2023): 307–17. <https://doi.org/10.7150/ijms.80942>.*
-
-We will dig in deeper to how this file was made and what it contains in our final session next week. For now, we will read it into R using the function we learned about earlier, `read_rds()`.
-
-```{r fc}
-fc <- read_rds("fc.rds")
-```
-
-We can have a look at this file using `View()` or `glimpse()`.
-
-```{r}
-#| eval: false
-View(fc)
-```
-
-```{r glimpse-fc}
-glimpse(fc)
-```
-
-You will notice that this object contains a few subdivisions, named `counts`, `annotation`, `targets` and `stat`. We will come on to what these are in the next session.
-
-For now, the information we require is contained within the `stat` component. One highly useful operator in R is the `$` sign, as this allows you to select different components within objects. Note: you can also use `$` to select specific columns in data frames as we did earlier—I have not covered this in much detail as we are following a tidyverse-centric approach to working with data frames, but this is still a very useful feature in the right context.
-
-We can use this to select the `stat` component of `fc` and assign it to a new object, which we will just call `stat`:
-
-```{r stat}
-stat <- fc$stat
-stat
-```
-
-You can see from this that `stat` is another data frame. Is this **tidy?**
-
-.
-
-.
-
-.
-
-*Scroll down for answer*
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-This data frame contains separate samples in columns, and is therefore **wide** data. It would be very difficult to filter the data for just assigned reads and summarise the number of assigned reads across all samples.
-
-In addition, all of those column names are unnecessarily long, so before we go any further, I am going to rename them using the `set_names()` function from `purrr` (also part of the tidyverse).
-
-```{r set_names}
-stat <- stat %>%
-  set_names(c("Status", "TBI2", "TBI1", "sham4", "sham3", 
-              "sham2", "sham1", "TBI4", "TBI3"))
-
-stat
-```
-
-To tidy this data so that we can apply the tidyverse functions and plot in `ggplot2`, we are going to use `pivot_longer()` to turn the data from wide format to long format.
-
-```{r pivot_longer}
-stat %>% 
-  pivot_longer(
-  cols = !Status,
-  names_to = "Sample",
-  values_to = "Count"
-)
-```
-
-After the data, there are three key arguments:
-
--   `cols` specifies which columns need to be pivoted, i.e. which columns aren’t variables. This argument uses the same syntax as `select()`. Here we have said `!Status` as this contains our variables. The other columns are our samples, and need to be pivoted.
-
--   `names_to` names the variable stored in the column names; we named that variable `Sample`.
-
--   `values_to` names the variable stored in the cell values; we named that variable `Count`.
-
-Note that our data is definitely *longer —* we have gone from a 14x9 table to a 112x3 table!
-
-Note also that the new columns inherit the type of the previous columns or cells.
-
-Pivoting our table in this way means it is much easier to now apply the tidyverse functions we have learned in this session. We are ready now to achieve our aim and **make a plot comparing the number of assigned reads across all 8 samples. Using all you have learned this session and the previous, have a go at writing the code to achieve this.**
-
-Hint: You will need to
-
--   Pivot `stat` to make it longer with the appropriate arguments
-
--   Filter for only the `Assigned` read counts
-
--   Plot these counts using `ggplot2` with appropriate aesthetics and geoms. (If you want a colourblind palette, remember the `ggthemes` package from *Session 1*).
-
-```{r student-answer-4}
-#| error: true
-
-stat %>% 
-  pivot_longer(            
-  YOUR_CODE_HERE
-) %>% 
-  filter(YOUR_CODE_HERE) %>% 
-  ggplot(YOUR_CODE_HERE)
-
-```
-
-.
-
-.
-
-.
-
-*Scroll down for answer if you get stuck!*
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-```{r model-answer-4}
-library(ggthemes) # loading ggthemes so we can use its colourblind-safe colour palette
-
-stat %>% 
-  pivot_longer(            # <- This section of the code converts stat to long format
-  cols = !Status,
-  names_to = "Sample",
-  values_to = "Count"
-) %>% 
-  filter(Status == "Assigned") %>% # This function filters for Assigned reads
-  ggplot(aes(x = Status, y = Count, fill = Sample)) + # ggplot code for plotting
-  geom_col(position = "dodge") + 
-  theme_minimal()+
-  theme(
-    axis.text.x = element_text(angle = 45, vjust = 0.6, face = "bold")
-  ) +
-  scale_fill_colorblind()
-
-# I have chosen geom_col to show each sample, but there may be other appropriate geoms too!
-```
-
-# Summary
-
-By the end of this session, you should now be able to:
-
--   Import data into R from different file types (`read_csv()`, `readRDS()`).
-
--   Understand the concept of *tidy data* and why it matters for analysis.
-
--   Reshape data from **wide** to **long** using `pivot_longer()`.
-
--   Use `left_join()` to combine data tables.
-
--   Apply `mutate()`, `select()`, `filter()`, `arrange()`, and `summarise()` to explore and transform data.
-
--   Handle NAs and inappropriate variable types.
-
--   Use the pipe (`%>%`) to chain steps together in a clear, readable workflow.
-
-In our final bumper session, we will apply all that we have learned in sessions 1 and 2 to an R-based bioinformatics workflow using real world data from a published bulk RNAseq experiment.
 
 # Session Info
 

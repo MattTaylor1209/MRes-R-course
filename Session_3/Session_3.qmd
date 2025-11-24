@@ -34,7 +34,7 @@ We are finally moving away from the Hadley Wickham [*R for Data Science(2nd Edit
 
 -   ***Analysis of RNAseq data in R*** — Sheffield Bioinformatics Core. <https://sbc.shef.ac.uk/rnaseq-r-online/>
 
-As we are severly time limited, I will only be able to teach you the essentials which will help get you going through a standard bulk RNAseq workflow. For a highly-detailed, self-paced walkthrough of RNAseq analysis in R, I can also recommend the various courses from Harvard Bioinformatics Core—the one most relevant to our workshop today can be found [here](https://hbctraining.github.io/Intro-to-DGE/schedule/links-to-lessons.html), and it goes way beyond the scope of this course. You can also find links to other bioinformatics workflows there, such as for single-cell RNAseq.
+As we are severely time limited, I will only be able to teach you the essentials which will help get you going through a standard bulk RNAseq workflow. For a highly-detailed, self-paced walkthrough of RNAseq analysis in R, I can also recommend the various courses from Harvard Bioinformatics Core—the one most relevant to our workshop today can be found [here](https://hbctraining.github.io/Intro-to-DGE/schedule/links-to-lessons.html), and it goes way beyond the scope of this course. You can also find links to other bioinformatics workflows there, such as for single-cell RNAseq.
 
 ## Goals for session 3:
 
@@ -48,11 +48,26 @@ By the end of this session, you will be able to:
 
 -   Use the **tidyverse** to visualise the different outputs from our RNAseq data analysis, including **MA plots**, **volcano plots**, **heatmaps** etc.
 
--   Perform basic pathway **over-representation analysis** using **clusterProfiler**
+-   *Perform basic pathway **over-representation analysis** using **clusterProfiler** (extension section)*
 
 ## Packages required
 
-As before, we will be using the `tidyverse` and its associated packages.
+As before, we will be using the `tidyverse` and its associated packages. We also need some other packages which will aid us in the analysis and visualisation of our RNAseq data. We can install them now and load them as we go—I will explain what they are when we come to use them.
+
+#### Installing packages if not already installed:
+
+Run the following chunk. Click "No" for any popup which appears. (You can safely ignore the error message if you get one).
+
+```{r}
+#| eval: false
+
+
+packages_required <- c("tidyverse", "ggrepel", "ggthemes", "plotly", "pheatmap")
+
+install.packages(packages_required)
+```
+
+#### Loading the `tidyverse` package
 
 ```{r}
 library(tidyverse)
@@ -64,19 +79,26 @@ For today, however, we’ll also need packages that aren’t on CRAN. These come
 
 ### Bioconductor and BiocManager
 
-Today, we are narrowing our focus to more specific, biological applications. The packages we will use today (e.g., `Rsubread`, `DESeq2`...) are therefore much more suited to biological data science, such as RNAseq. These packages are collected on the website [Bioconductor.org](https://www.bioconductor.org/), which has major releases twice a year, and their installation is slightly different. For example, below is how you would install `DESeq2` for the first time. **Note we do not need to run this chunk right now as the installation of `DESeq2` is included in our setup steps.**
+Today, we are narrowing our focus to more specific, bioinformatics applications. The packages we will use today (e.g., `Rsubread`, `DESeq2`...) are therefore much more suited to biological data science, such as RNAseq. These packages are collected on the website [Bioconductor.org](https://www.bioconductor.org/), which has major releases twice a year, and their installation is slightly different.
 
-```{r install_deseq2_example}
+**The chunk below installs all of the different Bioconductor packages we need for this session. You will get a popup asking "Do you want to install from sources the packages which need compilation?" Click "Yes". This code will take 10-15 minutes to complete and you will see lots of things happening in the console - don't worry about all this!**
+
+*After a while, you will get the message in the console "Update all/some/none? \[a/s/n\]:". Type "n" and hit Enter. You're done!*
+
+```{r install_bioconductor_packages}
 #| eval: false
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install("DESeq2")
+bioc_packages <- c("tidySummarizedExperiment", "DESeq2", "edgeR", "limma", "Rsubread"
+                   )
+
+BiocManager::install(bioc_packages)
 ```
 
-The top part of the chunk checks whether `BiocManager` is installed (required for the installation of packages from Bioconductor.org) and if it isn't, it installs it. The second part uses the `install()` function inside of `BiocManager` to install the package named `DESeq2`.
+The top part of the chunk checks whether `BiocManager` is installed (required for the installation of packages from Bioconductor.org) and if it isn't, it installs it. The middle part creates a new object containing a list of the names of the bioconductor packages we need for this session. The final part uses the `install()` function inside of `BiocManager` to install all of these packages.
 
-All of the packages we need for this session were installed when you ran the setup code, so we will just use the `library()` function to load them into memory just before we need to use them.
+Once installed, these packages are loaded in the same way as any other: using the `library()` function. We will do this later on when we need them.
 
 # Alignment and counting
 
@@ -127,17 +149,17 @@ The ingredients we need for successful **alignment** are:
 
 Unfortunately, alignment of reads to a genome is a *computationally-intensive process*. It's possible that the code will run on your grandma's dusty old Dell from 2009, but you might be waiting 7-10 business days for the result.
 
-Some of you may be fortunate enough to have a powerful machine at home to do the alignment steps. However, I imagine many of you will be like me and do not have personal access to high performance computing. Fortunately, there are ways around this: here at Birmingham, research projects can be assigned access to the [BlueBEAR High Performance Clusters](https://www.birmingham.ac.uk/research/arc/bear/bluebear). Through their web portal, you can open Rstudio in an interactive environment and run your scripts on there instead of your local PC, enabling you to take advantage of the processing power offered from BlueBEAR.
+Some of you may be fortunate enough to have a powerful machine at home to do the alignment steps. However, I imagine many of you will be like me and do not have personal access to high performance computing. Fortunately, there are ways around this: here at Birmingham, research projects can be assigned access to the [BlueBEAR High Performance Clusters](https://www.birmingham.ac.uk/research/arc/bear/bluebear). Through their web portal, you can open RStudio in an interactive environment and run your scripts on there instead of your local PC, enabling you to take advantage of the processing power offered from BlueBEAR.
 
 We won't be doing this today—instead, we will use the tutorial data directly contained within `Rsubread` as it is tiny and the code runs quickly on any device. But I thought I would point this out to you anyway.
 
-TLDR: **alignment (and counting) are computationally intensive; I do not recommend you run those functions locally unless you are using a high-performance computer (e.g., a CPU with at least 8 cores) or have plenty of time on your hands. All other steps in this session are far less intensive and can be run on any low-mid range laptop from the last few years.**
+TLDR: **alignment (and counting, although less so) are computationally intensive; I do not recommend you run those functions locally unless you are using a high-performance computer (e.g., a CPU with at least 8 cores) or have plenty of time on your hands. All other steps in this session are far less intensive and can be run on any low-mid range laptop from the last few years.**
 
 ### the `buildindex()` function
 
 The first step of alignment is to build an index from a reference genome. To do this, we need to use the `buildindex()` function, which is part of the `Rsubread` package. `buildindex()` has 2 required arguments: *`basename`,* which is the name you want to call the created index files, and *`reference`*, which is the name of a FASTA file containing the reference genome. Therefore, you need to download and provide a reference genome of whichever organism you are working on and extract it to your current working directory. These can be found on the [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/) website from the NIH National Library of Medicine.
 
-For example, later we are going to be looking at some data from an RNAseq experiment using rats (*Rattus norvegicus*) which required alignment using the latest published rat genome, **GRCr8**. To find this genome, I searched for "Rattus norvegicus" on the NCBI Datasets webpage: (**you do not need to do these steps yourself right now**)
+For example, later we are going to be looking at some data from an RNAseq experiment using rats (*Rattus norvegicus*) which required alignment using the latest published rat genome, **GRCr8**. To find this genome, I searched for "Rattus norvegicus" on the NCBI Datasets webpage: (**you [do not need]{.underline} to do these steps yourself right now**)
 
 ![](images/clipboard-1176517231.png)
 
@@ -151,7 +173,13 @@ Scrolling down, we have the option to download the reference genome:
 
 You then get the following popup. Note that only "Genome sequences (FASTA)" is selected by default. I also selected "Annotation features (GTF)" as we will need that later.
 
-![I then extracted the resulting files to the working directory. Building the index for alignment was then as simple as running the following code (no need to do this now):](images/clipboard-4066372499.png)
+![](images/clipboard-4066372499.png)
+
+![](images/clipboard-4066372499.png){alt="I then extracted the resulting files to the working directory. Building the index for alignment was then as simple as running the following code (no need to do this now):"}
+
+I then extracted the downloaded files to my working directory.
+
+Building the index for alignment was then as simple as running the following code (**don't run this chunk now as it will give an error—it is just here as an example for how you can build an index from genomic DNA of any particular species)**
 
 ```{r}
 #| eval: false
@@ -176,7 +204,7 @@ buildindex(basename="reference_index",reference=ref)
 
 All of the functions within *`Rsubread`* contain lengthy and useful output code, which prints to the console (and to your Quarto document) allowing you to see for yourself what is actually happening. Notice on my dodgy and slow Macbook Air, I get the message "WARNING: available memory is lower than 3.0 GB. The program may run very slow." This is why I am only using this very small tutorial reference to demonstrate the `buildindex()` function, as we would be here all day otherwise!
 
-In our working directory, we now have some new files, all of which contain the prefix "reference_index" which came from our *`basename`* argument above. You can see these files by clicking the "Files" pane on the right hand side of Rstudio, or using the `list.files()` function:
+In our working directory, we now have some new files, all of which contain the prefix "reference_index" which came from our *`basename`* argument above. You can see these files by clicking the "Files" pane on the right hand side of RStudio, or using the `list.files()` function:
 
 ```{r}
 list.files()
@@ -188,7 +216,7 @@ All of those files make up our **reference index** which we will use next in the
 
 Alignment in `Rsubread` is generally performed using the `align()` function, which uses a paradigm called the "seed-and-vote" mapping paradigm. More information on this can be found in their published [paper](https://academic.oup.com/nar/article/47/8/e47/5345150) and the Users Guide.
 
-Required arguments for the `align()` function are *`index`*, which points the aligner to the index we just built (specifically the *`basename`* we gave it) and *`readfile1` —* this will be a single *fastq* file or a list of such files. Note also there are many other arguments we can give to `align()` (see ?align for details) including *`readfile2`* which is NULL by default. This is because sequencing data can be single-end or paired-end, and `align()` will assume single-ended sequencing data by default. If we had paired end data, we might make a folder containing our forward-read *fastq* files to use for *`readfile1`*, and another containing our reverse-read *fastq* files to use for *`readfile2`*. We can then call these files into the `align()` function as in the following example:
+Required arguments for the `align()` function are *`index`*, which points the aligner to the index we just built (specifically the *`basename`* we gave it) and *`readfile1` —* this will be a single *fastq* file or a list of such files. Note also there are many other arguments we can give to `align()` (see ?align for details) including *`readfile2`* which is NULL by default. This is because sequencing data can be single-end or paired-end, and `align()` will assume single-ended sequencing data by default. If we had paired end data, we might make a folder containing our forward-read *fastq* files to use for *`readfile1`*, and another containing our reverse-read *fastq* files to use for *`readfile2`*. We can then call these files into the `align()` function as in the following example (**again, do not actually run this chunk; it is just here as an example)**:
 
 ```{r example_align_paired_end}
 #| eval: false
@@ -1585,7 +1613,15 @@ plotly_volcano
 
 If you mouse over the points above, you should now see some information about the gene it corresponds to. That's pretty cool, right?!
 
-# Over-representation analysis
+# Wrap-up
+
+With that, we have come to the end of our three part course on *Foundations of R for Bioinformatics*. We have covered an awful lot of ground in a short space of time (especially today) and I do not expect you all to now be experts in R programming (I certainly am not!). But hopefully you now feel a bit more confident about tackling your own RNAseq analysis if ever you need to—and maybe can apply your new found R skills to all sorts of other data analysis you will come across in your career.
+
+These Quarto notebooks are yours to keep and do whatever you like with! Hopefully, the code is sufficiently detailed that you could adapt it to your own experiment with very few changes required. If you would like more in depth information on anything I've covered, please follow the links which I have put throughout these notebooks—there are so many more manuals, worked examples and tutorials out there that I have barely scratched the surface of. It is also easy to find [communities](https://forum.posit.co/) of like-minded [researchers](https://support.bioconductor.org/), [coders](https://stackoverflow.com/questions), data-analysts, [bioinformaticians](https://www.biostars.org/)—the list goes on—who are passionate about open source data science and helping people with their code and data analyses. And if you're really stuck...well I guess there's always ChatGPT!
+
+**If there is time still left in this session, please let me know if there was any particular area you would like me to go over again, as I am scheduled to be here for the full 3 hours!**
+
+# Over-representation analysis (extension)
 
 Volcano plots are great for showing the general spread of differential gene expression and, if you label the top genes, providing at-a-glance information about the most highly differentially expressed genes. However, unless you happen to get a list of genes where you know immediately what functions and signalling pathways they are involved in, a simple list of genes may not be the most useful for *interpreting* the biological relevance of your RNAseq results. More useful would be to determine whether there is enrichment of known biological functions, interactions, or pathways; a process known as [**over-representation analysis.**](https://hbctraining.github.io/Intro-to-DGE/lessons/10_FA_over-representation_analysis.html)
 
@@ -1726,14 +1762,6 @@ cnetplot(
 In summary, our results show a strong enrichment for immune-related genes, reflecting the intense inflammatory response that follows traumatic brain injury. After such an injury, microglia and astrocytes become activated and peripheral immune cells infiltrate the brain, leading to large-scale transcriptional changes in immune effector pathways. These processes dominate the differential expression profile, explaining why immune regulation emerges as the most significantly enriched biological theme.
 
 If we wanted to see these changes in cell type and how differences in gene expression are manifest across different cell types, we would need to perform a *single-cell* RNAseq experiment—perhaps a topic for another day!
-
-# Wrap-up
-
-With that, we have come to the end of our three part course on *Foundations of R for Bioinformatics*. We have covered an awful lot of ground in a short space of time (especially today) and I do not expect you all to now be experts in R programming (I certainly am not!). But hopefully you now feel a bit more confident about tackling your own RNAseq analysis if ever you need to—and maybe can apply your new found R skills to all sorts of other data analysis you will come across in your career.
-
-These Quarto notebooks are yours to keep and do whatever you like with! Hopefully, the code is sufficiently detailed that you could adapt it to your own experiment with very few changes required. If you would like more in depth information on anything I've covered, please follow the links which I have put throughout these notebooks—there are so many more manuals, worked examples and tutorials out there that I have barely scratched the surface of. It is also easy to find [communities](https://forum.posit.co/) of like-minded [researchers](https://support.bioconductor.org/), [coders](https://stackoverflow.com/questions), data-analysts, [bioinformaticians](https://www.biostars.org/)—the list goes on—who are passionate about open source data science and helping people with their code and data analyses. And if you're really stuck...well I guess there's always ChatGPT!
-
-**If there is time still left in this session, please let me know if there was any particular area you would like me to go over again, as I am scheduled to be here for the full 3 hours!**
 
 # Session Info
 
