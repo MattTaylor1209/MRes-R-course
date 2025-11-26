@@ -594,7 +594,7 @@ We have already seen that `fc$counts` contains a matrix where the rows are the g
 glimpse(fc$counts)
 ```
 
-We can therefore use this as the counts input for *DESeq2*—we will make a new object called `countdata` which will contain this count matrix:
+We can therefore use this as the counts input for *DESeq2*—**we will make a new object called `countdata` which will contain this count matrix:**
 
 ```{r countdata}
 countdata <- fc$counts
@@ -759,6 +759,8 @@ You can see we now have what is known as a *named vector*—every element of the
 dds <- dds[keep,] # select only the ROWS where the gene ID is TRUE in our keep vector
 ```
 
+Only run that chunk once. If you run it more than once, you will get an error (but don't worry - this won't have broken anything).
+
 ### 3.1.6 - Factor levels
 
 The `Group` variable in our *`DESeqDataSet`* tells *`DESeq2`* which samples belong to which experimental group. Because R orders factor levels alphabetically by default, it’s good practice to explicitly set the reference level so that *`DESeq2`* compares other groups against it. In *Session 1,* we briefly encountered the need to change the levels of a factor when we wanted to switch the order that our different penguin species were plotted on the graph. We can do a similar thing here to set our reference level, the `relevel` (our "sham" group):
@@ -860,7 +862,7 @@ paste0("PC1 (", percentVar[1], "% variance)")
 If we wanted to manually say how much variance was explained:
 
 ```{r paste0-2}
-paste0("PC1 (", 81.53, "% variance)")
+paste0("PC1 (", 82, "% variance)")
 ```
 
 Let's look at our PCA plot again:
