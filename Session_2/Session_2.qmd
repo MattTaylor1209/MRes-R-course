@@ -1196,16 +1196,6 @@ stat <- tibble(stat)
 stat
 ```
 
-In addition, all of those column names are unnecessarily long, so before we go any further, I am going to rename them using the `set_names()` function from `purrr` (also part of the tidyverse).
-
-```{r set_names}
-stat <- stat %>%
-  set_names(c("Status", "TBI2", "TBI1", "sham4", "sham3", 
-              "sham2", "sham1", "TBI4", "TBI3"))
-
-stat
-```
-
 **Pause moment: is this data** ***tidy*****?**
 
 .

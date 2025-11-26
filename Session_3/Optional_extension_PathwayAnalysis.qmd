@@ -1,0 +1,176 @@
+---
+title: "Optional_extension_PathwayAnalysis"
+author: "Matthew Taylor"
+execute:
+  dpi: 300
+  cache: false
+  working-directory: project
+format: 
+  html:
+    toc: true
+    self-contained: true
+editor: visual
+---
+
+This document assumes that you have run all of the code in *Session_3.qmd* and are working in the same R session.
+
+# Over-representation analysis (extension)
+
+Volcano plots are great for showing the general spread of differential gene expression and, if you label the top genes, providing at-a-glance information about the most highly differentially expressed genes. However, unless you happen to get a list of genes where you know immediately what functions and signalling pathways they are involved in, a simple list of genes may not be the most useful for *interpreting* the biological relevance of your RNAseq results. More useful would be to determine whether there is enrichment of known biological functions, interactions, or pathways; a process known as [**over-representation analysis.**](https://hbctraining.github.io/Intro-to-DGE/lessons/10_FA_over-representation_analysis.html)
+
+## Gene Ontology (GO)
+
+One of the most common categorizations for over-representation analysis is **Gene Ontology (GO)** **terms.** GO Terms are organised into 3 divisions:
+
+-   **Biological process:** the broad *biological role* involving the gene or gene product e.g., “transcription”, “signal transduction”, and “apoptosis”.
+
+-   **Molecular function:** the *biochemical activity* of the gene product e.g., “ligand”, “GTPase”, and “transporter”.
+
+-   **Cellular component:** the *location* in the cell of the gene product e.g., “nucleus”, “lysosome”, and “plasma membrane”.
+
+Each GO term has a term name (e.g. **DNA repair**) and a unique term accession number (**GO:0005125**), and a single gene product may be associated with many GO terms (because it could be involved in many biological processes, be expressed in multiple compartments and have a multitude of functions).
+
+Over-representation analysis allows us to take our list of significant differentially expressed genes and ask the question: ***are particular biological processes, molecular functions, or cellular components represented more often than we would expect by chance?***
+
+## `clusterProfiler`
+
+To answer this question, we will use the [`clusterProfiler`](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) package. As with testing for differential gene expression, there are a plethora of different packages and tools out there for over-representation analysis, but *`clusterProfiler`* provides an accessible and well-integrated framework that handles the statistical testing and annotation steps behind the scenes. It’s widely used, actively maintained, and works seamlessly with other Bioconductor objects such as *`DESeq2`* results.
+
+This tool requires a list of our significant genes and a list of all the genes tested for differential expression. It then performs statistical enrichment analysis using [hypergeometric testing](https://en.wikipedia.org/wiki/Hypergeometric_distribution). The basic arguments allow the user to select the appropriate organism and GO ontology (BP, CC, MF) to test.
+
+We also need to provide an organism database for some of the functions in `clusterProfiler` to work properly. As our example uses rat data, we need the database for rat, which is `org.Rn.eg.db`.
+
+### Warning:
+
+::: callout-note
+There is a very good chance that these packages require *compilation* as they are not updated frequently and therefore have to be compiled from their source code. This is one of the reasons I have moved this section to an optional extension instead of being in the main session content. To install these packages on your machine, you will need [Rtools](https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html) (if running on Windows) or [2 mandatory compiler tools](https://mac.r-project.org/tools/) (if running on MacOS). The installation of these is relatively straightforward (if you can navigate the slightly archaic looking websites found at those links.
+:::
+
+```{r installation-bioconductor}
+#| eval: false
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+extension_packages <- c("clusterProfiler",  "org.Rn.eg.db")
+
+BiocManager::install(extension_packages)
+
+```
+
+```{r clusterProfiler-org.Rn}
+library(clusterProfiler)
+library(org.Rn.eg.db)
+```
+
+First, we will use our tidyverse functions to filter our `res_tbl` object for significant genes (p-adjusted below 0.05) and extract their GeneIDs:
+
+```{r sig-genes}
+sig_genes <- res_tbl %>%
+  dplyr::filter(padj < 0.05 & !is.na(padj)) %>% # removing any with NA in the padj column
+  pull(GeneID)
+
+summary(sig_genes)
+```
+
+We can see from the summary we have 1365 significant genes.
+
+Next, we will extract all of the genes we performed differential analysis on, including our significant genes.
+
+```{r all-genes}
+all_genes <- res_tbl %>%
+  dplyr::filter(!is.na(padj)) %>%
+  pull(GeneID)
+
+summary(all_genes)
+```
+
+We have 17138 genes in total which is what we expect based on the dimensions of our `dds` object we saw earlier.
+
+Now we can run the `enrichGO()` function which performs the GO enrichment analysis. Note we need to provide:
+
+-   `gene`: our list of significant genes
+
+-   `universe`: all of the genes we tested for differential expression
+
+-   `keyType`: what format our gene IDs are in (e.g., could be symbol, entrez ID, ensembl ID...0
+
+-   `OrgDb`: depends on the organism in question. Here we are using Rat so we use the `org.Rn.eg.db` database. Human would be `org.Hs.eg.db`.
+
+-   `ont`: the ontology we care about, i.e., biological process, molecular function, cellular compartment or all 3.
+
+**Note that this chunk might be slow to run depending on the speed of your device.**
+
+```{r enrichGO}
+## Run GO enrichment analysis 
+ego <- enrichGO(gene = sig_genes, 
+                universe = all_genes,
+                keyType = "SYMBOL", # we are using gene symbols
+                OrgDb = org.Rn.eg.db, # the rat database
+                ont = "BP", # biological process, or CC, MF, or ALL for all 3
+                pAdjustMethod = "BH", 
+                qvalueCutoff = 0.05, 
+                readable = TRUE)
+```
+
+We can save our results as a CSV like we did for our differential gene expression results:
+
+```{r save_ego}
+## Output results from GO analysis to a table
+cluster_summary <- as_tibble(ego)
+
+write_csv(cluster_summary, "gene_ontology_results_BP.csv")
+```
+
+### Visualisation of GO results
+
+There are 3 ways we can visualise the results from our `enrichGO()` function.
+
+#### Dotplots
+
+The **dotplot** shows the number of genes associated with the first n terms (size) and the p-adjusted values for these terms (colour). The top n GO terms are displayed in order of *gene ratio* (# genes related to GO term / total number of sig genes), not adjusted p-value.
+
+```{r dotplot}
+dotplot(ego, showCategory = 20) # e.g., top 20 terms
+```
+
+#### Enrichment map
+
+The next plot—**the enrichment map**—shows how the top enriched GO terms relate to one another by clustering similar terms. We first compute their similarities using `pairwise_termsim()`. In the plot, colour represents relative significance (brighter red = more significant) and node size indicates how many significant genes belong to each term.
+
+```{r enrich-map}
+#| warning: false
+## Add similarity matrix to the termsim slot of enrichment result
+ego <- enrichplot::pairwise_termsim(ego)
+
+## Enrichmap clusters the 20 most significant (by padj) GO terms to visualize relationships between terms
+emapplot(ego, showCategory = 20)
+```
+
+#### Category netplot
+
+Finally, the **category netplot** visualises how the genes linked to the five most significant GO terms relate to one another, with node colour indicating each gene’s log₂ fold change. The size of each GO term node reflects the number of genes it contains, so larger nodes represent broader terms. This plot is especially useful for generating new hypotheses, as it highlights genes shared across several of the most strongly affected biological processes.
+
+Because we want to colour by log2 fold change, we first need to extract this information from our `res_tbl` and use it to create a named vector.
+
+```{r fold-changes}
+all_genes_foldchanges <- res_tbl$log2FoldChange
+
+names(all_genes_foldchanges) <- res_tbl$GeneID
+```
+
+We can then use this as the input for the `foldChange` argument in the `cnetplot()` function:
+
+```{r cnetplot}
+## Cnetplot details the genes associated with one or more terms - by default gives the top 5 significant terms (by padj)
+cnetplot(
+  ego,
+  showCategory = 5,
+  foldChange = all_genes_foldchanges,
+  circular = FALSE,
+  colorEdge = TRUE
+)
+```
+
+In summary, our results show a strong enrichment for immune-related genes, reflecting the intense inflammatory response that follows traumatic brain injury. After such an injury, microglia and astrocytes become activated and peripheral immune cells infiltrate the brain, leading to large-scale transcriptional changes in immune effector pathways. These processes dominate the differential expression profile, explaining why immune regulation emerges as the most significantly enriched biological theme.
+
+If we wanted to see these changes in cell type and how differences in gene expression are manifest across different cell types, we would need to perform a *single-cell* RNAseq experiment—perhaps a topic for another day!
