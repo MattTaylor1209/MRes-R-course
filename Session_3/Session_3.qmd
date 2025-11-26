@@ -75,17 +75,17 @@ library(ggrepel)
 library(ggthemes)
 ```
 
+### 1.4.3 - Bioconductor and BiocManager
+
 Up to this point, the data wrangling we have been doing can be broadly applied to many different fields of study—the first 2 sessions of this course would look very similar if I was teaching a group of Psychologists, for example. Thus we have been using packages which are hosted on [**CRAN**](https://cran.r-project.org/) (The Comprehensive R Archive Network). CRAN is where you first downloaded R itself, and it’s also the source that `install.packages()` searches when you supply a package name.
 
-For today, however, we’ll also need packages that aren’t on CRAN. These come from a different, more specialised source. We will load these as we go.
-
-### 1.4.3 - Bioconductor and BiocManager
+For today, however, we’ll also need packages that aren’t on CRAN. These come from a different, more specialised source.
 
 Today, we are narrowing our focus to more specific, bioinformatics applications. The packages we will use today (e.g., `Rsubread`, `DESeq2`...) are therefore much more suited to biological data science, such as RNAseq. These packages are collected on the website [Bioconductor.org](https://www.bioconductor.org/), which has major releases twice a year, and their installation is slightly different.
 
-**The chunk below installs all of the different Bioconductor packages we need for this session. You will get a popup asking "Do you want to install from sources the packages which need compilation?" Click "Yes". This code will take 10-15 minutes to complete and you will see lots of things happening in the console - don't worry about all this!**
+**The chunk below installs all of the different Bioconductor packages we need for this session. You will get a popup asking "Do you want to install from sources the packages which need compilation?" Click "Yes". This code will take about 2-3 minutes to complete and you will see lots of things happening in the console - don't worry about all this!**
 
-*After a while, you will get the message in the console "Update all/some/none? \[a/s/n\]:". Type "n" and hit Enter. You're done!*
+*After a while, you will get the message in the console "Update all/some/none? \[a/s/n\]:". Type "n" into the console and hit Enter. You're done!*
 
 ```{r install_bioconductor_packages}
 #| eval: false
