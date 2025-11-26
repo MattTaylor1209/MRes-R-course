@@ -218,7 +218,7 @@ In our working directory, we now have some new files, all of which contain the p
 list.files()
 ```
 
-You should see files ending in `.00.b.tab`, `.00.reads`, `.00.mapped`, etc. All of those files collectively make up our **reference index** which we will use next in the alignment step.
+You should see files ending in `.00.b.tab`, `.reads`, `.00.mapped`, etc. All of those files collectively make up our **reference index** which we will use next in the alignment step.
 
 ### 2.1.4 - the `align()` function
 
