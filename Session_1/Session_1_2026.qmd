@@ -693,7 +693,7 @@ summary(results)
 This table is the output of a **differential expression analysis**—the thing we'll run ourselves in Session 3. Each row is a gene, and the columns tell us how that gene behaved:
 
 | Column | What it means |
-|------------------------------------|------------------------------------|
+|----|----|
 | `GeneID` | The gene's name |
 | `chromosome` | Which chromosome it sits on |
 | `gene_length` | Total length of its exons, in base pairs |
