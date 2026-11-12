@@ -37,3 +37,15 @@ No programming experience is required or assumed. The sessions will run on the c
 | 1       | 12/11, 3pm  | Introduction to R and the tidyverse                    |
 | 2       | 19/11, 3pm  | The tidyverse continued: data wrangling                |
 | 3       | 26/11, 2pm  | Putting it all together: analysis of RNAseq data in R  |
+
+## 🧑🏫 Author
+**Dr Matthew Taylor**<br>
+Postdoctoral Research Fellow<br>
+Department of Cancer and Genomics<br>
+College of Medicine and Health<br>
+<br>
+University of Birmingham<br>
+<br>
+Email: m.taylor.1@bham.ac.uk<br>
+<br>
+github.com/MattTaylor1209
