@@ -387,7 +387,7 @@ Because the tidyverse expects tidy data, functions behave much more reliably whe
 Now look again at what we've just loaded (`counts`, `gene_info` and `sampleinfo`).
 
 | Table | One row is... | Rows | Tidy? |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | `counts` | one **gene**, with 8 measurements | 38,675 | **No** - a count matrix is untidy |
 | `gene_info` | one **gene** | 38,675 | **Yes** |
 | `sampleinfo` | one **sample** | 8 | **Yes** |
@@ -494,7 +494,7 @@ So how do we get it?
 
 Our long counts table knows *which sample* each measurement came from, but not *which group* that sample was in. That information resides in `sampleinfo`. To use it, we need a **join**.
 
-`left_join()` is the most common function for joining. It keeps every row of the table on the left of the function, and adds columns from the table on the right, wherever the key matches. But what should we use as a key?
+`left_join()` is the most common function for joining. It keeps every row of the table on the left of the function, and adds columns from the table on the right, wherever the **key** matches. But what should we use as a key?
 
 Notice that when we pivoted in the section above, we created a new column called `SampleName`. **Where else has this column name appeared?**
 
@@ -530,7 +530,7 @@ It is in our `sampleinfo` object:
 sampleinfo
 ```
 
-Because `counts_long` and `sampleinfo` share this column name in column, and because the **values** of `SampleName` are shared too, we can use this as our **key** when joining together these 2 objects. Note that it doesn't matter that `sampleinfo` is only 8 rows while `counts_long` is 309,400 rows long—it is the matching of the keys which matters.
+Because `counts_long` and `sampleinfo` share this column name in common, and because the **values** of `SampleName` are shared too, we can use this as our **key** when joining together these 2 objects. Note that it doesn't matter that `sampleinfo` is only 8 rows while `counts_long` is 309,400 rows long—it is the matching of the keys which matters.
 
 Let's do this matching now using the `left_join()` function, using **SampleName** as the key. We will save it to a new object called `counts_group`:
 
