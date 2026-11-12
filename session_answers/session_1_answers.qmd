@@ -1,0 +1,157 @@
+---
+title: "Session 1 answers"
+format: html
+editor: visual
+---
+
+```{r setup}
+#| include: false
+if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
+pacman::p_load(tidyverse)
+
+results <- read_csv("data/results_unfiltered.csv")
+```
+
+## 3.10 Answers
+
+### Question 1
+
+```{r}
+# Either
+odds <- c(1,3,5,7,9)
+
+# Or
+odds <- seq(1,9,2)
+
+# Then
+evens <- odds + 1
+```
+
+### Question 2
+
+```{r}
+exercise_counts <- c(100, 233, 41, 232, 656, 12, 92)
+
+mean(exercise_counts)
+```
+
+The first chunk does not give any errors, it correctly calculates the mean of the given vector of numbers.
+
+```{r}
+exercise_counts <- c(100, 233, 41, 232, "656", 12, 92)
+
+mean(exercise_counts)
+```
+
+The second chunk doesn't give an error, but a warning. It clearly hasn't returned the result we wanted. The reason for this is that our vector of numbers contains a variable of the **character** type, which is not numeric. This has changed the whole vector into a **character** vector. The `mean()` function requires either **numeric** or **logical** inputs, and as soon as a single input is not either of those, it returns `NA`. (As an aside, you might try replacing "656" with FALSE, and see what happens...and have a think why!)
+
+```{r}
+#| error: true
+#| 
+exercise_counts <- c(100, 233, 41, 232, 656, 12, 92)
+
+mean(exercise_count)
+```
+
+This third chunk does give an error. This is a classic example of *R* taking us literally—we have a typo in the `mean()` function where we have asked it to take the mean of an object that doesn't exist (missing an 's' from the name). *R* doesn't know that it was just a typo and won't fix it for us.
+
+### Question 3
+
+```{r}
+exercise_counts <- c(100, 233, 41, 232, 656, 12, 92)
+
+my_median <- median(exercise_counts)
+
+my_variance <- var(exercise_counts)
+
+my_SD <- sd(exercise_counts)
+
+# Look at the objects you've created
+my_median
+my_variance
+my_SD
+```
+
+### Question 4
+
+```{r}
+new_vector <- c(141, 61, 883, 548, 981, NA, 23)
+
+mean(new_vector)
+
+```
+
+This is similar to what happens if there is the wrong variable type for the `mean()` function to work. Any `NA`s in the input lead to the output just being `NA`, because *R* cannot determine the mean of a vector if there is a missing value.
+
+### Question 5
+
+```{r}
+
+mean(new_vector, na.rm = TRUE)
+```
+
+The `na.rm` argument allows the `NA` value to be ignored when calculating the mean. It isn't a "one-size-fits-all" fix though. It is still important to have a strategy for identifying and handling missing values in data.
+
+## 5.8 Answers
+
+### Question 1
+
+```{r}
+results |> 
+  ggplot(aes(x = log2FoldChange)) +
+  geom_histogram(bins = 100) +
+  labs(
+    x = "log2 fold change (TBI vs sham)",
+    y = "Number of genes"
+  ) +
+  theme_minimal()
+```
+
+A tall symmetrical peak centred on zero, with long thin tails. Most genes don't change at all—which is exactly what you should expect, and what the boxplot in Plot 3 was telling you. The interesting biology lives in those tails.
+
+### Question 2
+
+```{r}
+results <- results |> 
+  mutate(
+    significant = !is.na(padj) & padj < 0.05 & abs(log2FoldChange) > 1
+  )
+```
+
+Then the plot code should work without changing anything:
+
+```{r}
+#| echo: false
+newvolcano <- results |> 
+  ggplot(aes(x = log2FoldChange, y = -log10(padj), colour = significant)) +
+  geom_point(alpha = 0.4, size = 0.9) +
+  scale_colour_manual(values = c("grey75", "firebrick")) + 
+  labs(
+    title = "Gene expression changes after traumatic brain injury",
+    x = "log2 fold change (TBI vs sham)",
+    y = "-log10 adjusted p-value",
+    colour = "Significant and |LFC| > 1"
+  ) +
+  theme_minimal(base_size = 12)
+
+# look at the plot
+
+newvolcano
+```
+
+### Question 3
+
+```{r}
+# overwrite our volcano object with some more geoms
+newvolcano <- newvolcano +
+  geom_hline(yintercept = -log10(0.05), 
+                 linetype = "dashed", 
+                 colour = "black") + 
+  geom_vline(xintercept = c(-1, 1), 
+                 linetype = "dashed", 
+                 colour = "black") # notice here we create a vector of x intercepts using c() so that we can have more than one x intercept
+
+
+# look at the plot 
+newvolcano
+```
