@@ -1,6 +1,6 @@
 # 📘 Foundations of R for Bioinformatics
 
-Welcome to Week 1 of the 3-part **Foundations of R for Bioinformatics** course.
+Welcome to this 3-part **Foundations of R for Bioinformatics** course.
 
 This course is delivered as part of the MRes Research Skills and LM Core Academic and Research Skills modules at the University of Birmingham. All of the material can be accessed here on Github and on the modules pages on Canvas.
 
