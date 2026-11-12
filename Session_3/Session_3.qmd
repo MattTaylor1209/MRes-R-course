@@ -30,9 +30,9 @@ Our goal for today will be to walk through all of the different steps which are 
 
 We are finally moving away from the Hadley Wickham [*R for Data Science(2nd Edition)*](https://r4ds.hadley.nz/) as their tutorial does not cover RNAseq. In 2-3 hours, we will only really be able to scratch the surface of what is possible when analysing RNAseq data in R, and there many online tutorials covering the enormous amount of tools available. In this session, we will be mainly using the [**Rsubread**](https://bioconductor.org/packages/3.21/bioc/vignettes/Rsubread/inst/doc/Rsubread.pdf "User guide for Rsubread") and [**DESeq2**](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html "User guide for DESeq2") packages; you can find the user guides (which we will be referring to) by clicking on those links. We will also take inspiration from the following 2 online courses:
 
--   ***RNAseq Analysis in R: Alignment and counting*** — Stephane Ballereau, Mark Dunning, Oscar Rueda, Ashley Sawle*.* <https://bioinformatics-core-shared-training.github.io/RNAseq-R/align-and-count.nb.html>
+- ***RNAseq Analysis in R: Alignment and counting*** — Stephane Ballereau, Mark Dunning, Oscar Rueda, Ashley Sawle*.* <https://bioinformatics-core-shared-training.github.io/RNAseq-R/align-and-count.nb.html>
 
--   ***Analysis of RNAseq data in R*** — Sheffield Bioinformatics Core. <https://sbc.shef.ac.uk/rnaseq-r-online/>
+- ***Analysis of RNAseq data in R*** — Sheffield Bioinformatics Core. <https://sbc.shef.ac.uk/rnaseq-r-online/>
 
 As we are severely time limited, I will only be able to teach you the essentials which will help get you going through a standard bulk RNAseq workflow. For a highly-detailed, self-paced walkthrough of RNAseq analysis in R, I can also recommend the various courses from Harvard Bioinformatics Core—the one most relevant to our workshop today can be found [here](https://hbctraining.github.io/Intro-to-DGE/schedule/links-to-lessons.html), and it goes way beyond the scope of this course. You can also find links to other bioinformatics workflows there, such as for single-cell RNAseq.
 
@@ -40,15 +40,15 @@ As we are severely time limited, I will only be able to teach you the essentials
 
 By the end of this session, you will be able to:
 
--   Use **Rsubread** to **align** raw sequencing data to a reference genome, and **count** the number of reads per gene.
+- Use **Rsubread** to **align** raw sequencing data to a reference genome, and **count** the number of reads per gene.
 
--   Perform basic quality control, including **filtering** and **clustering**.
+- Perform basic quality control, including **filtering** and **clustering**.
 
--   Use **DESeq2** to perform **differential gene expression.**
+- Use **DESeq2** to perform **differential gene expression.**
 
--   Use the **tidyverse** to visualise the different outputs from our RNAseq data analysis, including **MA plots**, **volcano plots**, **heatmaps** etc.
+- Use the **tidyverse** to visualise the different outputs from our RNAseq data analysis, including **MA plots**, **volcano plots**, **heatmaps** etc.
 
--   *Perform basic pathway **over-representation analysis** using **clusterProfiler** (extension section)*
+- *Perform basic pathway **over-representation analysis** using **clusterProfiler** (extension section)*
 
 ## 1.4 - Packages required (Make sure you run the code in this section at the beginning)
 
@@ -141,11 +141,11 @@ The basic principle of alignment is to take our reads and compare each sequence 
 
 The ingredients we need for successful **alignment** are:
 
--   Our *fastq* files
+- Our *fastq* files
 
--   A reference index (i.e., a reference genome)
+- A reference index (i.e., a reference genome)
 
--   An aligner algorithm
+- An aligner algorithm
 
 ### 2.1.1 - The catch
 
@@ -303,9 +303,9 @@ fc <- featureCounts(files = bam.files, annot.ext = "GRCr8_genomic.gtf", isGTFAnn
 
 Note this is another area where things can go wrong if the wrong options are used:
 
--   We have to specify `isGTFAnnotationFile = TRUE` if we are using a `.gtf` file as our annotation
+- We have to specify `isGTFAnnotationFile = TRUE` if we are using a `.gtf` file as our annotation
 
--   If our data is paired-end, we also have to specify `isPairedEnd = TRUE` (default is FALSE)
+- If our data is paired-end, we also have to specify `isPairedEnd = TRUE` (default is FALSE)
 
 There are a whole list of other options to `featureCounts()`— more detail of which (and their default settings) can be found via `help(featureCounts)`.
 
@@ -468,7 +468,7 @@ Ideally, we would have a column called `sample` which would contain all of our s
 To do this, we use a **pivot** function called `pivot_longer()`. *If you are not sure what the code below does, don't worry*—we are only using it once just for this quick quality control step, and if you ever have your own data from `Rsubread` you can literally just paste this code in and it should work, providing you have made a `stat` tibble like we have done above:
 
 ```{r stat_tidy}
-stat_tidy <- stat %>%
+stat_tidy <- stat |>
     pivot_longer(
     cols = !Status,        # all columns except Status
     names_to = "Sample",   # name of the new “sample” column
@@ -484,8 +484,8 @@ Now every row contains just one observation and all of our samples are in one co
 ```{r assigned-reads-plot}
 library(ggthemes) # loading ggthemes so we can use its colourblind-safe colour palette
 
-stat_tidy %>% 
-  filter(Status == "Assigned") %>% # This function filters for Assigned reads
+stat_tidy |> 
+  filter(Status == "Assigned") |> # This function filters for Assigned reads
   ggplot(aes(x = Status, y = Count, fill = Sample)) + # ggplot code for plotting
   geom_col(position = "dodge",alpha = 0.8) +
   scale_fill_colorblind() # our colourblind friendly palette
@@ -506,8 +506,9 @@ stat_tidy %>%
 2.  Use your data transformation skills from last week to figure out which sample contained the highest number of `Unassigned_Unmapped` reads. *Hint: first filter for just Unassigned_Unmapped reads then arrange the count from highest to lowest*:
 
     ```{r}
-    stat_tidy %>%
-      filter(YOUR_CODE_HERE) %>%
+    #| error: TRUE
+    stat_tidy |>
+      filter(YOUR_CODE_HERE) |>
       arrange(YOUR_CODE_HERE)
     ```
 
@@ -672,45 +673,45 @@ We can use some of those tidyverse functions we learned about last week to explo
 #### `filter()`
 
 ```{r filter}
-dds %>% 
+dds |> 
   dplyr::filter(Group == "TBI")
 ```
 
 #### `select()`
 
 ```{r select}
-dds %>%
+dds |>
   dplyr::select(.sample)
 ```
 
 #### `count()`
 
 ```{r count}
-dds %>%
+dds |>
   dplyr::count(.sample)
 ```
 
 #### `distinct()`
 
 ```{r distinct}
-dds %>%
+dds |>
   dplyr::distinct(.sample, SampleName, Group)
 ```
 
 #### `group_by()` and `summarise()`
 
 ```{r group_by-summarise}
-dds %>%
-    dplyr::group_by(.sample) %>%
+dds |>
+    dplyr::group_by(.sample) |>
     dplyr::summarise(total_counts=sum(counts))
 ```
 
 #### `group_by()`, `mutate()` and `filter()`
 
 ```{r group_by-mutate-filter}
-dds %>%
-    dplyr::group_by(.feature) %>%
-    dplyr::mutate(mean_count=mean(counts)) %>%
+dds |>
+    dplyr::group_by(.feature) |>
+    dplyr::mutate(mean_count=mean(counts)) |>
     dplyr::filter(mean_count > 10)
 ```
 
@@ -720,7 +721,7 @@ Thanks to `tidySummarizedExperiment`, we can also treat our `dds` object as a no
 
 ```{r count-distribution}
 library(ggthemes)
-dds %>%
+dds |>
     ggplot(aes(counts + 1, group=.sample, color=Group)) +# +1 to counts to avoid zeros
     geom_density() + # using a density plot geom
     scale_x_log10() + 
@@ -766,7 +767,7 @@ Only run that chunk once. If you run it more than once, you will get an error (b
 The `Group` variable in our *`DESeqDataSet`* tells *`DESeq2`* which samples belong to which experimental group. Because R orders factor levels alphabetically by default, it’s good practice to explicitly set the reference level so that *`DESeq2`* compares other groups against it. In *Session 1,* we briefly encountered the need to change the levels of a factor when we wanted to switch the order that our different penguin species were plotted on the graph. We can do a similar thing here to set our reference level, the `relevel` (our "sham" group):
 
 ```{r fct_relevel}
-dds <- dds %>%
+dds <- dds |>
   dplyr::mutate(Group = fct_relevel(Group, "sham")) #fct_relevel means factor reference level
 ```
 
@@ -832,7 +833,7 @@ Now we are ready to plot using `ggplot2`. The following chunk contains a lot of 
 
 ```{r pca_plot-ggplot}
 library(ggrepel)
-pca_plot <- pca_data %>%
+pca_plot <- pca_data |>
   ggplot(aes(x = PC1, y = PC2, fill = Group, shape = Group)) + # plot PC1 and PC2
   geom_point(size = 5) +
   geom_text_repel(aes(label = SampleName), size = 4, # Add sample labels
@@ -881,25 +882,25 @@ Before diving into differential expression, heatmaps help you visually check dat
 
 1.  **Detecting sample clustering and group separation**
 
-    -   When you cluster both rows (genes) and columns (samples), samples from the same experimental group should cluster together.
+    - When you cluster both rows (genes) and columns (samples), samples from the same experimental group should cluster together.
 
-    -   If a sample clusters with the wrong group, that can suggest **sample mislabelling**, **batch effects**, or **outliers**.
+    - If a sample clusters with the wrong group, that can suggest **sample mislabelling**, **batch effects**, or **outliers**.
 
 2.  **Identifying outlier samples**
 
-    -   An outlier sample will show a **distinct colour pattern** (e.g., consistently higher or lower expression across most genes).
+    - An outlier sample will show a **distinct colour pattern** (e.g., consistently higher or lower expression across most genes).
 
-    -   This can flag **technical issues** such as low library complexity, contamination, or failed normalisation.
+    - This can flag **technical issues** such as low library complexity, contamination, or failed normalisation.
 
 3.  **Visualising high-variance or most variable genes**
 
-    -   Heatmaps of the top 500–1000 most variable genes give an overview of biological variability versus noise.
+    - Heatmaps of the top 500–1000 most variable genes give an overview of biological variability versus noise.
 
-    -   It’s a quick way to see whether biological signal dominates technical variation.
+    - It’s a quick way to see whether biological signal dominates technical variation.
 
 ### Worked example
 
-We will use the `pheatmap` library for plotting our heatmap. Unfortunately, it isn't completely tidyverse friendly, but we can still use our tidyverse functions and the `%>%` pipe to prepare our data for `pheatmap`. We will use the `rld` object which contains an rlog transformation of our `dds` *`DESeqDataSet`.*
+We will use the `pheatmap` library for plotting our heatmap. Unfortunately, it isn't completely tidyverse friendly, but we can still use our tidyverse functions and the `|>` pipe to prepare our data for `pheatmap`. We will use the `rld` object which contains an rlog transformation of our `dds` *`DESeqDataSet`.*
 
 Firstly, we will extract the rlog-normalised counts from `rld` using `assay()`:
 
@@ -913,8 +914,8 @@ We want to plot the 500 most variable genes in our dataset. To do this, we will 
 
 ```{r variance-per-gene}
 # Compute variance per gene
-row_variances <- rowVars(normalized_counts) %>% 
-  as_tibble(rownames = "GeneID") %>% 
+row_variances <- rowVars(normalized_counts) |> 
+  as_tibble(rownames = "GeneID") |> 
   dplyr::arrange(desc(value))
 
 row_variances
@@ -924,11 +925,11 @@ Next, we extract the GeneIDs for the top 500 most variable genes in our dataset.
 
 ```{r geneIDs}
 # Identify top 500 most variable genes
-topVarGenes <- row_variances %>%
-  dplyr::slice_head(n = 500) %>% # 500 because we want the top 500 most variable genes
+topVarGenes <- row_variances |>
+  dplyr::slice_head(n = 500) |> # 500 because we want the top 500 most variable genes
   pull(GeneID) # we "pull" because we only need the names of these genes, which is contained in the GeneID column
 
-head(topVarGenes) # look at the top most variable
+head(topVarGenes) # look at the top most variable
 ```
 
 Finally, we can use this to subset our `normalized_counts` matrix as input for `pheatmap()`. Note that `pheatmap()` requires a matrix as input so we cannot convert `normalized_counts` to a tidyverse friendly tibble. This means we will have to use a matrix subsetting technique, like we did earlier this session*.* We use the `%in%` function because we are looking for the row names of `normalized_counts` which match the names of our top variable `GeneIDs`.
@@ -998,9 +999,9 @@ summary(res)
 
 ```{r student-answer-5.3}
 #| error: true
-res %>%
-  as_tibble() %>%
-  dplyr::filter(YOUR_CODE_HERE) %>%
+res |>
+  as_tibble() |>
+  dplyr::filter(YOUR_CODE_HERE) |>
   dplyr::summarise(total = "total", n = n())
 ```
 
@@ -1037,9 +1038,9 @@ Scroll down for answer
 .
 
 ```{r model-answer-5.3}
-res %>%
-  as_tibble() %>%
-  dplyr::filter(padj < 0.1) %>%
+res |>
+  as_tibble() |>
+  dplyr::filter(padj < 0.1) |>
   dplyr::summarise(total = "total", n = n())
 ```
 
@@ -1121,13 +1122,13 @@ Notice how fewer points are now coloured in blue (as we were more stringent with
 
 The `results()` function also allows you to specify which direction you want to test for differences in gene expression—e.g., you might (for some reason) only care about genes which *increase* in expression above a certain log2 fold change. The `altHypothesis` option in `results()` allows you to specify the specific values of log2 fold change you are interested in finding. If the log2 fold change specified by *name* or by *contrast* is taken as ***β**,* then the possible values for `altHypothesis` represent the following alternate hypotheses:
 
--   "greaterAbs": **\|*β*\| \> lfcThreshold**. p-values are two-tailed. The default and most common.
+- "greaterAbs": **\|*β*\| \> lfcThreshold**. p-values are two-tailed. The default and most common.
 
--   "lessAbs": **\|*β*\| \< lfcThreshold**. p-values are maximum of the upper and lower tests (I don't personally know why you would ever use this one)
+- "lessAbs": **\|*β*\| \< lfcThreshold**. p-values are maximum of the upper and lower tests (I don't personally know why you would ever use this one)
 
--   "greater": ***β*** **\> lfcThreshold**
+- "greater": ***β*** **\> lfcThreshold**
 
--   "less": ***β*** **\< -lfcThreshold**
+- "less": ***β*** **\< -lfcThreshold**
 
 The four possible values of `altHypothesis` are demonstrated in the following code and visually by MA-plots in the following chunk:
 
@@ -1236,12 +1237,11 @@ Of particular use is the **metadata** subsection, which contains our **alpha** a
 
 ### 6.1.1 - Making `res` tidyverse-friendly
 
-To make our data exploration and export more convenient and tidyverse-friendly, we will make a **tibble** version of our `res` object. Recall from last week that a tibble is basically an improved version of the basic R data frame. This object unfortunately doen not contain all of the extra information and metadata which `res` contains, which is why we are not overwriting `res` directly. We shall call this new object `res_tbl`. We will also just replace any NA values in the `padj` column with 1.
+To make our data exploration and export more convenient and tidyverse-friendly, we will make a **tibble** version of our `res` object. Recall from last week that a tibble is basically an improved version of the basic R data frame. This object unfortunately does not contain all of the extra information and metadata which `res` contains, which is why we are not overwriting `res` directly. We shall call this new object `res_tbl`.
 
 ```{r res_tbl}
-res_tbl <- res %>% 
-  as_tibble(rownames = "GeneID") %>%
-  dplyr::mutate(padj = replace_na(padj, 1))
+res_tbl <- res |> 
+  as_tibble(rownames = "GeneID")
 ```
 
 We use the option `rownames = "GeneID"` because in `res`, our rownames corresponded to the GeneID and we don't want to lose this information, so instead we will store this information as a new column.
@@ -1255,7 +1255,7 @@ You can see from the preview that this object has the columns `GeneID`, `baseMea
 A more useful ordering might be by adjusted p-value, from smallest to largest (so that our most significant genes are at the top:
 
 ```{r arrange}
-res_tbl <- res_tbl %>% 
+res_tbl <- res_tbl |> 
   dplyr::arrange(padj)
 
 res_tbl
@@ -1278,7 +1278,7 @@ This is now saved in our current working directory, and can be opened in Excel o
 ```{r}
 #| error: true
 
-res_sig <- res_tbl %>%
+res_sig <- res_tbl |>
   dplyr::filter(YOUR_CODE_HERE)
 
 res_sig
@@ -1291,7 +1291,7 @@ res_sig
 ```{r}
 #| error: true
 
-resOrdered <- res_tbl %>%
+resOrdered <- res_tbl |>
   dplyr::arrange(YOUR_CODE_HERE)
 
 resOrdered
@@ -1308,7 +1308,7 @@ We can visualise our results as a volcano plot in a various ways, but the pretti
 Let's set up a basic plot. We will use our `res_tbl` object and use this to create a *`ggplot`* object we will call `volcano_plot`. Firstly, we will specify our axes. We want `log2FoldChange` on the x-axis, and `-log10(adjusted p-value)` on the y-axis. Make sure we use the correct column names from our `res_tbl` object.
 
 ```{r volcano_plot_data}
-volcano_plot <- res_tbl %>%
+volcano_plot <- res_tbl |>
   ggplot(aes(x = log2FoldChange, y = -log10(padj)))
 
 volcano_plot
@@ -1370,11 +1370,11 @@ You can already start to see a volcano shape taking place!
 
 One common visualisation techique which people like to add to volcano plots is to colour the points based on significance and directionality. For example, we might decide to:
 
--   Colour significantly upregulated genes red (LFC \> 0.5 and padj \< 0.05)
+- Colour significantly upregulated genes red (LFC \> 0.5 and padj \< 0.05)
 
--   Colour significantly downregulated genes blue (LFC \< -0.5 and padj \< 0.05)
+- Colour significantly downregulated genes blue (LFC \< -0.5 and padj \< 0.05)
 
--   Colour all other genes grey
+- Colour all other genes grey
 
 The easiest way to do this is to add a new column to our original data (which we can call anything but let's call it "significance" as this makes the most sense). We will say that the values of this column can take one of three values—either "`upregulated`", "`downregulated`" or "`not significant`". We will then colour the points based on the value within this table.
 
@@ -1383,7 +1383,7 @@ I'm going to use something called a "[conditional statement](https://intro2r.com
 Let's now use `case_when()` to add this new column to our `res_tbl` based on the criteria we set in our bullet points above:
 
 ```{r case-when}
-res_tbl <- res_tbl %>%
+res_tbl <- res_tbl |>
   mutate(significance = case_when(
     padj < 0.05 & log2FoldChange > 0.5 ~ "Upregulated",
     padj < 0.05 & log2FoldChange < -0.5 ~ "Downregulated",
@@ -1394,7 +1394,7 @@ res_tbl <- res_tbl %>%
 We can now use this column to add colour to our points:
 
 ```{r volcano-coloured}
-volcano_plot <- res_tbl %>%
+volcano_plot <- res_tbl |>
   ggplot(aes(x = log2FoldChange, y = -log10(padj))) +
   geom_point(aes(color = significance))
 
@@ -1403,9 +1403,9 @@ volcano_plot
 
 This is almost what we were after (we have colour) but not quite. R has just given us some default colours, which are not the ones we were after. To change the colours, we need to provide a **scale**. Scales are a really useful tool in *`ggplot`*: they control *how* data values are mapped to visual properties (aesthetics) of the plot. In other words:
 
--   You tell `ggplot` *which variable* controls colour, shape, size, etc.
+- You tell `ggplot` *which variable* controls colour, shape, size, etc.
 
--   The **scale** tells `ggplot` *how to translate the data values* into those visual properties.
+- The **scale** tells `ggplot` *how to translate the data values* into those visual properties.
 
 As an analogy, imagine you have temperature readings and a set of paint colours. The *aesthetic mapping* tells `ggplot` which variable is “temperature.” The *scale* tells `ggplot` exactly which colours correspond to which temperatures.
 
@@ -1462,7 +1462,7 @@ volcano_plot
 
 ```{r student-answer-final-challenge}
 #| error: true
-volcano_plot <- res_tbl %>%
+volcano_plot <- res_tbl |>
   ggplot(aes(YOUR_CODE_HERE)) +
   geom_point(aes(YOUR_CODE_HERE)) +
 scale_color_manual(YOUR_CODE_HERE) + 
@@ -1513,7 +1513,7 @@ volcano_plot
 
 ```{r model-answer-10}
 #| warning: false
-volcano_plot <- res_tbl %>%
+volcano_plot <- res_tbl |>
   ggplot(aes(x = log2FoldChange, y = -log10(padj))) +
   geom_point(aes(color = significance)) +
 scale_color_manual(values = c("blue", "grey", "red")) + 
@@ -1548,7 +1548,7 @@ plotly_volcano <- plot_ly(
   colors = c("blue","grey", "red"),
   mode = "markers",
   marker = list(size = 5)
-) %>%
+) |>
   layout(
     title = "Interactive Volcano Plot",
     xaxis = list(title = "Log2 Fold Change"),
