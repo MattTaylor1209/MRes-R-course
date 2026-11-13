@@ -706,7 +706,7 @@ The following sections will introduce you to the fundamental `dplyr` **functions
 So even though the first argument is the data frame, we usually *pipe* the data into the function instead of typing it:
 
 ```{r}
-results %>%
+results |>
   filter(GeneID == "Gfap")
 ```
 
