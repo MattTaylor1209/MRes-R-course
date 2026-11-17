@@ -1039,8 +1039,6 @@ results |>
   head(5) # selects the top 5 rows
 ```
 
-<!-- CHANGED (17 Nov pm): geom_col() → geom_boxplot(). geom_col() stacks every gene's lfcSE into one bar, so the bar height would be a sum of standard errors, which is meaningless. A boxplot shows the distribution per chromosome. "one box per chromosome" added to the question. -->
-
 3.  Make a boxplot of the log fold change standard error `lfcSE` of genes on chromosomes "X" and "Y", with one box per chromosome. Remember these chromosome names need to be in quotes.
 
 ```{r ex-3.4.3}
@@ -1391,7 +1389,7 @@ sampleinfo
 Here's how all three tables compare:
 
 | Table | One row is... | Rows | Tidy? |
-|----|----|----|----|
+|------------------|------------------|------------------|------------------|
 | `counts` | one **gene**, with 8 measurements | 38,675 | **No** - a count matrix is untidy |
 | `gene_info` | one **gene** | 38,675 | **Yes** |
 | `sampleinfo` | one **sample** | 8 | **Yes** |
