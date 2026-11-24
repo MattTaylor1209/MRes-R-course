@@ -9,6 +9,7 @@ format:
     toc: true
     toc-depth: 3
     self-contained: true
+    df-print: paged
 editor: visual
 ---
 
@@ -425,7 +426,7 @@ Compare this with the library size plot you made in Session 2—they should be i
 2.  Use your data transformation skills from Session 2 to figure out which sample contained the highest number of `Unassigned_Unmapped` reads. *Hint: first filter for just Unassigned_Unmapped reads then arrange the count from highest to lowest*:
 
     ```{r}
-    #| error: TRUE
+    #| eval: false
     stat_tidy |>
       dplyr::filter(YOUR_CODE_HERE) |>
       dplyr::arrange(YOUR_CODE_HERE)

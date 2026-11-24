@@ -9,6 +9,7 @@ format:
     toc: true
     toc-depth: 3
     self-contained: true
+    df-print: paged
 editor: visual
 ---
 
@@ -126,7 +127,7 @@ Fortunately, "where there is a will, there is a package." The *`tidySummarizedEx
 *`DESeq2`* requires un-normalised count data as input, as library size differences are corrected internally. **Which of the files in our `data` folder, that we looked at last week, contains this? Fix the code below.**
 
 ```{r student-answer-2.1}
-#| error: TRUE
+#| eval: false
 
 counts <- read_csv("data/YOUR_CODE_HERE")
 ```
@@ -524,15 +525,15 @@ We still have 8 columns (which are our 8 samples), but now we only have 17,138 r
 
 1.  How many genes did `filterByExpr()` remove, and what percentage of the original 38,675 is that? *Hint: you can do maths directly in R, e.g., `38675 - 17138`.*
 
-    ```{r}
+```{r}
 
-    ```
+```
 
 2.  How does filtering affect our density plot which we made in **2.1.6**? Try plotting it again for yourselves:
 
-    ```{r}
+```{r}
 
-    ```
+```
 
 3.  How does `filterByExpr()` compare with a simple manual rule? We still have the *unfiltered* count matrix, `countdata`, from earlier. `countdata >= 10` gives a matrix of `TRUE`/`FALSE` values, and `rowSums()` adds up the number of `TRUE`s in each row (i.e., for each gene). Fix the code below to count how many genes would be kept by each rule:
 
@@ -541,15 +542,15 @@ We still have 8 columns (which are our 8 samples), but now we only have 17,138 r
 
     Which is the strictest? Where does `filterByExpr()` (17,138 genes) sit?
 
-    ```{r}
-    #| error: true
+```{r}
+#| eval: false
 
-    # at least 10 reads in at least 4 samples
-    sum(rowSums(countdata >= 10) >= YOUR_CODE_HERE)
+# at least 10 reads in at least 4 samples
+sum(rowSums(countdata >= 10) >= YOUR_CODE_HERE)
 
-    # at least 10 reads in all 8 samples
-    sum(rowSums(countdata >= 10) == YOUR_CODE_HERE)
-    ```
+# at least 10 reads in all 8 samples
+sum(rowSums(countdata >= 10) == YOUR_CODE_HERE)
+```
 
 # 3 - Data quality assessment - demonstration
 
@@ -639,7 +640,7 @@ Which end each group ends up on doesn't actually mean anything—the direction o
 
 #### Try it yourself
 
-`plotPCA()` has two options which are worth playing with. **Run the chunk below and compare the plots with the one above. Does the separation between our groups hold up?**
+`plotPCA()` has two options which are worth playing with. **Run the chunk below and compare the plots with the one above. Does the separation between our groups hold up? What happens to the % variance explained?**
 
 - `pcsToUse = 2:3` plots PC2 against PC3 instead of PC1 against PC2
 - `ntop` changes how many of the most variable genes are used (the default is 500). Here we use *all* of them, with `nrow(rld)`
@@ -830,7 +831,7 @@ This gives us a lot of information. It tells us how many genes we were testing (
 2.  How many adjusted p-values were less than 0.1 (i.e., significant as defined by the default settings)? Fix the code below.
 
 ```{r student-answer-4.3}
-#| error: true
+#| eval: false
 res |>
   as_tibble(rownames = "GeneID") |>
   dplyr::filter(YOUR_CODE_HERE) |>
@@ -861,7 +862,7 @@ res05
 **How do you predict this will affect the number of significant differentially-expressed genes we discover? How can you tell if you are right? Write the code we need below:**
 
 ```{r student-answer-4.4}
-#| error: true
+#| eval: false
 # What function do we need to get some summary statistics of this results object?
 YOUR_CODE_HERE
 ```
@@ -988,7 +989,7 @@ ggplot(aes(x = mean, y = lfc, colour = isDE)) +
 Putting this together, **say you wanted to test for DEGs along the following parameters of \|log2FC\| \> 0.5 and FDR \< 0.05 comparing the TBI group vs the sham group:** **how would you fix the code below?**
 
 ```{r student-answer-4.6}
-#| error: true
+#| eval: false
 
 res <- results(dds, lfcThreshold = YOUR_CODE_HERE, alpha = YOUR_CODE_HERE, contrast = c("Group","TBI","sham"))
 
@@ -1059,7 +1060,7 @@ A very common approach (and exactly what you did in Session 1, Question 5.8.2, w
 The chunk below makes a standard results table (no log2 fold change threshold), turns it into a tibble, and filters it afterwards. **Fix the code to keep genes with padj \< 0.05 and an absolute log2 fold change \> 0.5, then compare the number with the up + down totals from `summary(res)`.**
 
 ```{r student-answer-4.6.1}
-#| error: true
+#| eval: false
 res_standard <- results(dds, alpha = 0.05, contrast = c("Group", "TBI", "sham"))
 
 res_standard |>
@@ -1263,7 +1264,7 @@ This is now saved in our current working directory, and can be opened in Excel o
 1.  You might just want to save only the genes which show significant differential gene expression, i.e., those with a FDR (adjusted p-value) of less than your accepted alpha value. Say we want to filter for genes with adjusted p-value of less than 0.05. **How could we do this using a tidyverse function we learned about last session? Fix the code below.**
 
 ```{r}
-#| error: true
+#| eval: false
 
 res_sig <- res_tbl |>
   dplyr::filter(YOUR_CODE_HERE)
@@ -1276,7 +1277,7 @@ res_sig
 3.  Fix the code below to create a new object, `resOrdered`, which is made by sorting `res_tbl` by `log2FoldChange` from highest to lowest. (Bonus points if you can do it by the absolute value of `log2FoldChange`).
 
 ```{r}
-#| error: true
+#| eval: false
 
 resOrdered <- res_tbl |>
   dplyr::arrange(YOUR_CODE_HERE)
@@ -1287,7 +1288,7 @@ resOrdered
 4.  In Section 3.2, we made a heatmap of the 500 most *variable* genes. A more common heatmap *after* differential expression is of the top *significant* genes, with their names shown. Because `res_tbl` is already sorted by `padj`, we can just take the first 30 rows. **Fix the code below. You can reuse the `normalized_counts` and `annotation_col` objects from Section 3.2.**
 
 ```{r}
-#| error: true
+#| eval: false
 #| fig-height: 7
 
 top_de_genes <- res_tbl |>
@@ -1322,7 +1323,7 @@ volcano_plot
 We now have our blank canvas. Next, we need our data points (i.e., our genes). We want to depict these as points. **What geom do we need for this?**
 
 ```{r student-answer-5.2.1}
-#| error: true
+#| eval: false
 
 volcano_plot + YOUR_CODE_HERE
 
@@ -1432,7 +1433,7 @@ volcano_plot
 Things are really starting to come together! Next, add dashed lines at our *p*-value and log2 fold change cutoffs. **Which two geoms do we need?** Have a look at [this ggplot2 cheat sheet](https://rstudio.github.io/cheatsheets/data-visualization.pdf) if you're not sure (it's in the section "Line Segments").
 
 ```{r student-answer-lines}
-#| error: true
+#| eval: false
 volcano_plot +
   YOUR_CODE_HERE(yintercept = -log10(0.05), linetype = "dashed", colour = "black") +
   YOUR_CODE_HERE(xintercept = c(-0.5, 0.5), linetype = "dashed", colour = "black")
@@ -1521,7 +1522,7 @@ volcano_plot
 **Putting it together, what is the full code we would use to create this volcano plot from scratch rather than step-by-step?**
 
 ```{r student-answer-final-challenge}
-#| error: true
+#| eval: false
 volcano_plot <- res_tbl |>
   ggplot(aes(YOUR_CODE_HERE)) +
   geom_point(aes(YOUR_CODE_HERE)) +
