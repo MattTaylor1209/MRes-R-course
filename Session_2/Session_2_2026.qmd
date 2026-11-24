@@ -1808,7 +1808,7 @@ counts |>
   )
 ```
 
-21,566 genes have no *p*-value, i.e., the *p-*value has been set to `NA`. **Why?**
+21,563 genes have no *p*-value, i.e., the *p-*value has been set to `NA`. **Why?**
 
 *Write down your thoughts here:*
 
