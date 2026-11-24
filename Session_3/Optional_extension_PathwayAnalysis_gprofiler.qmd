@@ -1,0 +1,252 @@
+---
+title: "Pathway Analysis using gprofiler2"
+author: "Matthew Taylor"
+execute:
+  dpi: 300
+  cache: false
+  working-directory: project
+format:
+  html:
+    toc: true
+    self-contained: true
+editor: visual
+---
+
+This document assumes that you have run all of the code in *Session_3_2026.qmd* and are working in the same R session.
+
+# Over-representation analysis (extension)
+
+Volcano plots are great for showing the general spread of differential gene expression and, if you label the top genes, providing at-a-glance information about the most highly differentially expressed genes. However, unless you happen to get a list of genes where you know immediately what functions and signalling pathways they are involved in, a simple list of genes may not be the most useful for *interpreting* the biological relevance of your RNAseq results. More useful would be to determine whether there is enrichment of known biological functions, interactions, or pathways; a process known as [**over-representation analysis.**](https://hbctraining.github.io/Intro-to-DGE/lessons/10_FA_over-representation_analysis.html)
+
+## Gene Ontology (GO)
+
+One of the most common categorisations for over-representation analysis is **Gene Ontology (GO)** **terms.** GO Terms are organised into 3 divisions:
+
+- **Biological process:** the broad *biological role* involving the gene or gene product e.g., “transcription”, “signal transduction”, and “apoptosis”.
+
+- **Molecular function:** the *biochemical activity* of the gene product e.g., “ligand”, “GTPase”, and “transporter”.
+
+- **Cellular component:** the *location* in the cell of the gene product e.g., “nucleus”, “lysosome”, and “plasma membrane”.
+
+Each GO term has a term name (e.g. **DNA repair**) and a unique term accession number (**GO:0006281**), and a single gene product may be associated with many GO terms (because it could be involved in many biological processes, be expressed in multiple compartments and have a multitude of functions).
+
+Over-representation analysis allows us to take our list of significant differentially expressed genes and ask the question: ***are particular biological processes, molecular functions, or cellular components represented more often than we would expect by chance?***
+
+## `gprofiler2`
+
+To answer this question, we will use the [`gprofiler2`](https://cran.r-project.org/package=gprofiler2) package, which is the *R* interface to the [g:Profiler](https://biit.cs.ut.ee/gprofiler/gost) web tool. As with testing for differential gene expression, there are a plethora of different packages and tools out there for over-representation analysis (you may come across `clusterProfiler`, `topGO` or `goseq` in other tutorials), but *`gprofiler2`* provides an accessible framework that handles the statistical testing and annotation steps behind the scenes. It’s widely used, actively maintained, and—handily for us—it returns its results as a plain data table, so we can explore and plot them with the same tidyverse functions we have been using all course.
+
+This tool requires a list of our significant genes and a list of all the genes tested for differential expression. It then performs statistical enrichment analysis using [hypergeometric testing](https://en.wikipedia.org/wiki/Hypergeometric_distribution). The basic arguments allow the user to select the appropriate organism and GO ontology (BP, CC, MF) to test.
+
+Unlike some other tools, we don't need to install a separate organism database: g:Profiler keeps its own up-to-date annotations for hundreds of organisms, and we just tell it which one we want. As our example uses rat data, our organism is `"rnorvegicus"`.
+
+### Warning:
+
+::: callout-note
+`gprofiler2` does not do the analysis on your own computer. Instead, it sends your list of genes to the g:Profiler server over the internet and gets the results back. This means that **you need an internet connection** for this to work. It also means your gene lists leave your computer—that's no problem for published data like ours, but worth bearing in mind if you are ever working with sensitive or unpublished data.
+:::
+
+```{r installation-gprofiler2}
+pacman::p_load(gprofiler2)
+```
+
+First, we need our lists of significant genes. Up- and downregulated genes are often doing very different things, so mixing them together in one list can water down the results. `gprofiler2` makes it easy to test them separately at the same time: we just give it a **named list** of gene sets. We can build this from the `significance` column we made for our volcano plot in Session 3:
+
+```{r gene-lists}
+gene_lists <- list(
+  Upregulated   = res_tbl |> dplyr::filter(significance == "Upregulated")   |> pull(GeneID),
+  Downregulated = res_tbl |> dplyr::filter(significance == "Downregulated") |> pull(GeneID)
+)
+
+lengths(gene_lists) # how many genes in each list?
+```
+
+Next, we will extract **all** of the genes we performed differential analysis on, including our significant genes. This should be **every gene with an adjusted p-value**.
+
+```{r all-genes}
+all_genes <- res_tbl |>
+  dplyr::filter(!is.na(padj)) |>
+  pull(GeneID)
+
+summary(all_genes)
+```
+
+We have 17112 genes in total. This is 26 fewer than the 17138 rows of our `dds` object we saw earlier, because the 26 outlier genes flagged by Cook's distance were never given a *p*-value (and so could never have been significant).
+
+Now we can run the `gost()` function which performs the GO enrichment analysis. Note we need to provide:
+
+- `query`: our list(s) of significant genes
+
+- `organism`: depends on the organism in question. Here we are using Rat so we use `"rnorvegicus"`. Human would be `"hsapiens"`.
+
+- `sources`: the ontology we care about, i.e., biological process (`"GO:BP"`), molecular function (`"GO:MF"`), cellular component (`"GO:CC"`), or leave it out to test all of them (plus other databases, such as `"KEGG"` and `"REAC"` for Reactome pathways)
+
+- `custom_bg`: all of the genes we tested for differential expression
+
+- `domain_scope`: set to `"custom"` so that `gost()` uses our `custom_bg` as the background, rather than every gene in the rat genome
+
+- `correction_method`: how to correct for multiple testing. `"fdr"` is the Benjamini–Hochberg method, the same as `DESeq2` uses for `padj`
+
+**Note that this chunk might be slow to run depending on the speed of your internet connection.**
+
+```{r gost}
+## Run GO enrichment analysis
+gost_results <- gost(query = gene_lists,
+                     organism = "rnorvegicus", # rat
+                     sources = "GO:BP", # biological process, or "GO:MF", "GO:CC"
+                     custom_bg = all_genes, # our background: every gene we tested
+                     domain_scope = "custom", # use our background, not the whole genome
+                     correction_method = "fdr") # Benjamini-Hochberg, as in DESeq2
+```
+
+You may get a message saying that some of our genes couldn't be found. These are mostly the genes with IDs starting with `LOC`, which are predicted genes that haven't been properly characterised yet, so g:Profiler doesn't have any information about them. This is completely normal.
+
+The results are stored in `gost_results$result`. Let's turn them into a tibble and have a look:
+
+```{r gost-table}
+go_tbl <- gost_results$result |>
+  as_tibble()
+
+go_tbl
+```
+
+Each row is one GO term that was significantly enriched in one of our gene lists. The `query` column tells us which list (`Upregulated` or `Downregulated`), `term_size` is how many of our background genes have that GO term, `intersection_size` is how many of our significant genes have it, and `p_value` is the adjusted *p*-value.
+
+We can save our results as a CSV like we did for our differential gene expression results:
+
+```{r save_gost}
+## Output results from GO analysis to a table
+go_tbl |>
+  dplyr::select(!parents) |> # parents is a list column, which can't be saved in a CSV
+  write_csv("gene_ontology_results_BP.csv")
+```
+
+### Visualisation of GO results
+
+There are 2 ways we can visualise the results from our `gost()` function.
+
+#### Dotplots
+
+The **dotplot** shows the number of genes associated with the first n terms (size) and the p-adjusted values for these terms (colour). The top n GO terms are displayed in order of *gene ratio* (# genes related to GO term / total number of sig genes), not adjusted p-value.
+
+`gprofiler2` doesn't have a built-in dotplot, but because our results are just a tibble, we can make one ourselves with `ggplot2`. We pick the 10 most significant terms for each list, calculate the gene ratio with `mutate()`, and use `facet_wrap()` to give each list its own panel:
+
+```{r dotplot}
+#| fig-height: 6
+#| fig-width: 10
+go_tbl |>
+  group_by(query) |>
+  slice_min(p_value, n = 10, with_ties = FALSE) |> # top 10 terms by p-value for each list. Works like arrange(p_value) |> head(10), but done separately for each group
+  ungroup() |>
+  mutate(gene_ratio = intersection_size / query_size, # genes related to GO term / annotated sig genes
+         term_name  = fct_reorder(term_name, gene_ratio)) |> # order the terms by gene ratio
+  ggplot(aes(x = gene_ratio, y = term_name, size = intersection_size, colour = p_value)) +
+  geom_point() +
+  scale_colour_gradient(low = "red", high = "blue") + # more significant = more red
+  facet_wrap(~ query, scales = "free_y") + # one panel per gene list
+  labs(x = "Gene ratio", y = NULL, size = "Count", colour = "Adjusted p-value") +
+  theme_minimal()
+```
+
+#### Manhattan plot
+
+`gprofiler2` has its own built-in plot, made with `gostplot()`, which is inspired by the **Manhattan plots** used in genetics. Every point is a GO term, arranged along the x-axis, and the higher up it is, the more significant it is. Point size shows how big the term is (`term_size`). Because we gave `gost()` two gene lists, we get one panel for each.
+
+By default, the plot is **interactive** (it is made with the `plotly` package we used for our interactive volcano plot): hover over any point to see which GO term it is.
+
+```{r gostplot}
+gostplot(gost_results, capped = TRUE, interactive = TRUE)
+```
+
+In summary, our results show two quite different stories in our up- and downregulated genes.
+
+Our **upregulated** genes show a strong enrichment for immune-related terms (immune response, defense response, response to other organism), reflecting the intense inflammatory response that follows traumatic brain injury. After such an injury, microglia and astrocytes become activated and peripheral immune cells infiltrate the brain, leading to large-scale transcriptional changes in immune effector pathways. These processes dominate the differential expression profile, explaining why immune regulation emerges as the most significantly enriched biological theme.
+
+Our **downregulated** genes tell a different story: they are enriched for terms like neurogenesis, generation of neurons and transmembrane transport. These rats are adults, so this probably isn't about the brain "developing" less. Many genes that neurons use every day (e.g., for their structure, their connections and moving ions and neurotransmitters across their membranes) are annotated to these developmental terms, so a more likely explanation is a loss or dysfunction of neurons in the injured tissue.
+
+There are two things worth noticing about GO terms when interpreting results like these:
+
+- **The top terms are often very broad.** GO terms are organised in a hierarchy, from very general (e.g., "response to stimulus") down to very specific. Broad terms contain thousands of genes, so they very easily come out as significant, but they don't tell you much. The more specific (and more interesting) terms are usually further down your results table.
+- **Don't take term names too literally.** "Kidney development" turning up in a rat brain experiment doesn't mean anything is happening to the kidneys! Many genes are used in the development of several different organs, and a GO term just reflects which genes have been annotated to it. Always look at *which* genes are driving a term before drawing conclusions.
+
+If we wanted to see these changes in cell type and how differences in gene expression are manifest across different cell types, we would need to perform a *single-cell* RNAseq experiment—perhaps a topic for another day!
+
+### Exercise: getting more specific
+
+Looking at our dotplot, a lot of the top terms are very broad (e.g., "response to stimulus" or "multicellular organismal process"). These terms contain thousands of genes, so they easily come out as significant, but they don't tell us very much.
+
+The `term_size` column in `go_tbl` tells us how many of our background genes belong to each GO term. **Fix the code below to remove any terms with 500 or more genes before picking the top 10, then compare the new plot with the one above.**
+
+```{r student-answer-term-size}
+#| error: true
+#| fig-height: 6
+#| fig-width: 10
+go_tbl |>
+  dplyr::filter(YOUR_CODE_HERE) |> # keep only terms with fewer than 500 genes
+  group_by(query) |>
+  slice_min(p_value, n = 10, with_ties = FALSE) |> # like arrange(p_value) |> head(10), but done separately for each group
+  ungroup() |>
+  mutate(gene_ratio = intersection_size / query_size,
+         term_name  = fct_reorder(term_name, gene_ratio)) |>
+  ggplot(aes(x = gene_ratio, y = term_name, size = intersection_size, colour = p_value)) +
+  geom_point() +
+  scale_colour_gradient(low = "red", high = "blue") +
+  facet_wrap(~ query, scales = "free_y") +
+  labs(x = "Gene ratio", y = NULL, size = "Count", colour = "Adjusted p-value") +
+  theme_minimal()
+```
+
+1.  What kinds of terms appear now that weren't there before? Are they easier to interpret?
+2.  Try changing 500 to a different number (e.g., 100 or 1000). What happens? Is there a "right" answer?
+
+*Write your answers here:*
+
+.
+
+.
+
+.
+
+*Then scroll down for answer*
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+.
+
+```{r model-answer-term-size}
+#| fig-height: 6
+#| fig-width: 10
+go_tbl |>
+  dplyr::filter(term_size < 500) |> # keep only terms with fewer than 500 genes
+  group_by(query) |>
+  slice_min(p_value, n = 10, with_ties = FALSE) |> # like arrange(p_value) |> head(10), but done separately for each group
+  ungroup() |>
+  mutate(gene_ratio = intersection_size / query_size,
+         term_name  = fct_reorder(term_name, gene_ratio)) |>
+  ggplot(aes(x = gene_ratio, y = term_name, size = intersection_size, colour = p_value)) +
+  geom_point() +
+  scale_colour_gradient(low = "red", high = "blue") +
+  facet_wrap(~ query, scales = "free_y") +
+  labs(x = "Gene ratio", y = NULL, size = "Count", colour = "Adjusted p-value") +
+  theme_minimal()
+```
+
+Removing the broad terms lets the more specific ones rise to the top, and these are usually much more informative about what is actually going on biologically.
+
+There's no "right" cutoff. Make it too high and the broad, uninformative terms creep back in; make it too low and you're left with tiny terms where just two or three genes can make something look significant. Whatever you choose, the important thing is to **report it** (e.g., in the methods section of a paper), because it changes what your results look like. This is a good example of an analysis decision which is a judgement call, not a statistical rule.
