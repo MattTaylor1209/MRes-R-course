@@ -20,12 +20,9 @@ editor: visual
 if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
 if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
 
-# edgeR is installed but NOT loaded: we only borrow one function from it, which we call using edgeR::
-if (!requireNamespace("edgeR", quietly = TRUE)) BiocManager::install("edgeR")
-
 # tidyverse goes LAST on purpose: packages loaded later "mask" identically-named
 # functions from packages loaded earlier, and we want the tidyverse versions to win
-pacman::p_load(DESeq2, tidySummarizedExperiment,
+pacman::p_load(edgeR, DESeq2, tidySummarizedExperiment,
                ggrepel, scales, pheatmap, plotly,
                tidyverse)
 ```
